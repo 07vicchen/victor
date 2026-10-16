@@ -3,12 +3,15 @@ import React from 'react';
 import Site from './Site.js';
 import { RENDER } from './sections.js';
 import CAT0 from './cat.json';
+import { BIZ, FAQ, SVC } from './faq.js';
 
 var h = React.createElement, useState = React.useState;
 var M = '/m/';
 var LINE_ID = '@898biiyu', IG = 'victor_149131';
 var CAT = JSON.parse(JSON.stringify(CAT0));
 var OFFICE_URL = 'https://claude.ai/artifact/8d7phX4k77PYLBjGvbaPyi';
+var PATHMODE = M.charAt(0) === '/';
+function go(href) { if (href.charAt(0) === '#') location.hash = href; else location.href = href; }
 function money(n) { return 'NT$' + Number(n || 0).toLocaleString('en-US'); }
 
 /* 真的影片 */
@@ -78,7 +81,7 @@ function Quote(p) {
         var on = open === gi, n = g.items.filter(function (x) { return sel[x.id]; }).length;
         return h('div', { key: gi, className: 'qcat' + (on ? ' on' : '') },
           h('button', { type: 'button', className: 'qhead', 'aria-expanded': on, onClick: function () { setOpen(on ? -1 : gi); } }, h('img', { className: 'qbg', src: g.img, alt: '', loading: 'lazy' }), h('span', { className: 'qno' }, '0' + (gi + 1)), h('span', { className: 'qtt' }, h('b', null, g.g), h('small', null, g.sub || '')), h('span', { className: 'qct' }, n ? '已選 ' + n : g.items.length + ' 項'), h('i', null)),
-          on ? h('div', { className: 'qitems' }, g.items.map(function (it) {
+          on ? h('div', { className: 'qitems' }, SVC[gi] ? h('a', { className: 'qmore', href: '/services/' + SVC[gi].slug }, '看「' + g.g + '」每一項的完整介紹 →') : null, g.items.map(function (it) {
             var s = !!sel[it.id], r = REQ[it.id], lk = r && !sel[r];
             return h('div', { key: it.id, className: 'qit' + (s ? ' on' : '') },
               h('div', { className: 'qn' }, it.n, it.tag ? h('em', null, it.tag) : null),
@@ -115,7 +118,7 @@ RENDER.doors = function (d) {
 /* 內頁標題 */
 RENDER.pagehead = function (d) {
   return h('section', { className: 'phead' }, h('div', { className: 'sec-inner' },
-    h('a', { className: 'pback', href: '#/' }, '← 回首頁'),
+    h('a', { className: 'pback', href: '/' }, '← 回首頁'),
     h('small', null, d.en), h('h1', null, d.title), d.desc ? h('p', null, d.desc) : null));
 };
 /* 內頁底下：去其他分類 */
@@ -124,7 +127,7 @@ RENDER.next = function (d) {
     h('span', { className: 'eyebrow' }, '接著看'),
     h('div', { className: 'pnl' }, d.items.map(function (x, i) { return h('a', { key: i, href: x.href }, h('small', null, x.en), h('b', null, x.title), h('i', null, '→')); }))));
 };
-RENDER.herox = function (d, v, ctx) { return RENDER.hero(d, v, Object.assign({}, ctx, { cta: function () { location.hash = '#/quote'; } })); };
+RENDER.herox = function (d, v, ctx) { return RENDER.hero(d, v, Object.assign({}, ctx, { cta: function () { go('/quote'); } })); };
 
 
 /* AI 辦公室：完整功能（只講拿到什麼，不講怎麼做） */
@@ -220,7 +223,7 @@ RENDER.demos = function (d) {
       else if (w === 'pair') body = h('div', { className: 'dpair' }, (c.images || []).map(function (u, k) { return h('img', { key: k, src: u, alt: '', loading: 'lazy' }); }));
       else if (w === 'pick') body = h('a', { className: 'dbig', href: PROPOSAL_URL, target: '_blank', rel: 'noopener' }, h('b', null, c.btn || '打開網站挑選器'), h('span', null, c.btnSub || ''));
       return h('article', { key: i, className: 'dcard' + (i === 0 ? ' tall' : '') }, h('span', { className: 'dtag' }, c.tag), h('h3', null, c.title), h('p', null, c.desc), body,
-        c.link ? h('a', { className: 'dlink', href: w === 'pair' ? '#/works' : '#/quote' }, c.link) : null);
+        c.link ? h('a', { className: 'dlink', href: w === 'pair' ? '/works' : '/quote' }, c.link) : null);
     }))));
 };
 
@@ -228,11 +231,11 @@ var S = function (type, variant, data) { return { id: '', type: type, variant: v
 var TAGS = { items: [{ text: 'AI 明星' }, { text: 'IP 孵化' }, { text: '老闆不用露臉' }, { text: 'AI 辦公室' }] };
 var IPS = { items: [{ text: '王拓恩' }, { text: '貓探長' }, { text: '村山爺爺' }] };
 var DOORS = [
-  { href: '#/works', en: 'WORKS', title: '作品', desc: '王拓恩〈第五年〉、貓探長、村山爺爺，三個 IP 的真實數字', image: M + 'tuoen.jpg' },
-  { href: '#/demo', en: 'DEMO', title: '服務示範', desc: 'LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
-  { href: '#/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
-  { href: '#/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
-  { href: '#/contact', en: 'CONTACT', title: '聯絡我們', desc: 'LINE @898biiyu・IG victor_149131', image: M + 'cat.jpg' }
+  { href: '/works', en: 'WORKS', title: '作品', desc: '王拓恩〈第五年〉、貓探長、村山爺爺，三個 IP 的真實數字', image: M + 'tuoen.jpg' },
+  { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
+  { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
+  { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
+  { href: '/contact', en: 'CONTACT', title: '聯絡我們', desc: 'LINE @898biiyu・IG victor_149131', image: M + 'cat.jpg' }
 ];
 function nextOf(skip, doors) { return { items: (doors || DOORS).filter(function (x) { return x.href !== skip; }) }; }
 /* 客人留言 → 官網後台 Supabase（web_contact_messages，只開放新增，讀取要管理員） */
@@ -263,14 +266,41 @@ RENDER.reach = function (d) {
     h('div', { className: 'rgrid' },
       h('a', { className: 'rcard line', href: lineUrl, target: '_blank', rel: 'noopener' }, h('small', null, 'LINE 官方帳號'), h('b', null, LINE_ID), h('span', null, '詢價、預約、下單都在這裡，最快回覆'), h('i', null, '加好友 →')),
       h('a', { className: 'rcard ig', href: igUrl, target: '_blank', rel: 'noopener' }, h('small', null, 'Instagram'), h('b', null, '@' + IG), h('span', null, '看我們最新的作品和幕後'), h('i', null, '追蹤 →')),
-      h('a', { className: 'rcard quote', href: '#/quote' }, h('small', null, '線上報價'), h('b', null, '自己挑、自己算'), h('span', null, '每一項都有價錢，勾好直接傳到 LINE'), h('i', null, '去報價 →')))));
+      h('a', { className: 'rcard phone', href: 'tel:' + BIZ.tel }, h('small', null, '打電話'), h('b', null, BIZ.phone), h('span', null, BIZ.hours), h('i', null, '撥打 →')),
+      h('a', { className: 'rcard quote', href: '/quote' }, h('small', null, '線上報價'), h('b', null, '自己挑、自己算'), h('span', null, '每一項都有價錢，勾好直接傳到 LINE'), h('i', null, '去報價 →')))));
+};
+function Faq(p) {
+  var st = useState(0), open = st[0], setOpen = st[1];
+  var items = p.items || [];
+  return h('section', { className: 'sec faq' }, h('div', { className: 'sec-inner' },
+    h('div', { className: 'sec-head' }, h('h2', null, p.title || '常見問題'), p.sub ? h('p', null, p.sub) : null),
+    h('div', { className: 'faql' }, items.map(function (q, i) {
+      var on = open === i;
+      return h('div', { key: i, className: 'faqi' + (on ? ' on' : '') },
+        h('button', { type: 'button', 'aria-expanded': on, onClick: function () { setOpen(on ? -1 : i); } }, h('b', null, q[0]), h('i', null)),
+        h('p', { hidden: !on }, q[1]));
+    }))));
+}
+RENDER.faq = function (d) { return h(Faq, d); };
+RENDER.svclist = function (d) {
+  var g = CAT[d.gi] || { g: '', items: [] };
+  return h('section', { className: 'sec svcl' }, h('div', { className: 'sec-inner' },
+    h('div', { className: 'sec-head' }, h('h2', null, g.g + '：每一項的內容和價錢'), h('p', null, '新台幣、未稅；寫「起」的依需求評估。想要哪幾項，到報價單勾一勾就會算好合計。')),
+    h('div', { className: 'svcg' }, g.items.map(function (it) {
+      return h('article', { key: it.id, className: 'svci' },
+        h('h3', null, it.n, it.tag ? h('em', null, it.tag) : null),
+        h('p', { className: 'svcp' }, it.ask ? '洽詢' : it.p === 0 ? '免費' : money(it.p) + (it.max ? ' 起' : ''), it.ask || it.p === 0 ? null : h('small', null, '／' + UNIT[it.unit])),
+        h('p', null, it.d));
+    })),
+    h('div', { className: 'ofbtn' }, h('a', { className: 'gobtn', href: '/quote' }, h('span', { className: 'gob' }, h('small', null, 'PRICE'), h('b', null, '去報價單勾選')), h('i', { className: 'goa' }, '→')))));
 };
 var CONTACT = S('contact', 'line', { title: '跟我們聊聊', sub: '加 LINE 直接問，或在報價單選好按「傳到維拓 LINE」。', line: LINE_ID, ig: 'victor_149131' });
 
 var site = {
+  biz: [{ t: BIZ.legal + '（' + BIZ.name + '）' }, { t: '統一編號 ' + BIZ.taxId }, { t: BIZ.addr }, { t: '電話 ' + BIZ.phone, href: 'tel:' + BIZ.tel }, { t: '服務時間 ' + BIZ.hours }, { t: 'LINE ' + BIZ.line }],
   name: '維拓傳媒', slogan: '為你的名字，鑄一個時代', logo: M + 'logo.png', nav: 'left', onepage: false, floatc: 'line', ordersLabel: '諮詢',
   pages: [
-    { id: 'home', name: '首頁', slug: '#/', sections: [
+    { id: 'home', name: '首頁', slug: '/', sections: [
       S('herox', 'cover', { eyebrow: 'Victor Media Division · 維拓傳媒', title: '為你的名字，鑄一個時代', desc: '維拓傳媒專注個人品牌與 IP 孵化。從人設定位、內容企劃、AI 動畫到社群經營，把你的專業變成看得見、留得住的資產。', primary: '看報價', note: '貓探長單支 9.8 萬觀看・村山爺爺 3 週起量', image: M + 'hero.jpg' }),
       S('marquee', 'big', TAGS),
       S('doors', '', { title: '你想先看哪一個', sub: '點進去看，每一頁上面的選單都能隨時切換。', items: DOORS }),
@@ -278,7 +308,7 @@ var site = {
       S('reach', '', {}),
       S('marquee', 'text', IPS)
     ] },
-    { id: 'works', name: '作品', slug: '#/works', sections: [
+    { id: 'works', name: '作品', slug: '/works', sections: [
       S('pagehead', '', { en: 'WORKS', title: '我們做起來的 IP', desc: '三個帳號，三種做法。數字都是帳號後台的真實數據。' }),
       S('bignum', 'outline', { title: '第五年', desc: '王拓恩 第二季第 1 集・角色、場景、配音、對嘴全部 AI 演出' }),
       S('video', 'full', { title: '王拓恩 第二季〈第五年〉', desc: '十八歲選秀沒被選上那天，他給自己五年。今年是第五年。', caption: '第二季第 1 集・2 分 47 秒', src: M + 'fifth.mp4', poster: M + 'f45.jpg' }),
@@ -286,9 +316,9 @@ var site = {
         { name: '王拓恩', tag: 'AI 明星・寫實短劇', plat: 'Instagram', handle: '@en05_24', url: 'https://www.instagram.com/en05_24/', image: M + 'f45.jpg', desc: '23 歲業餘棒球員，公開是 AI。每週一集寫實短劇，角色、台灣腔配音、對嘴全部 AI 做。', stats: [['第二季開播', '10 月'], ['〈第五年〉觀看', '2,189'], ['按讚', '101']] },
         { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '961']] },
         { name: '村山爺爺', tag: '真人 IP・日本觀光', plat: 'Threads', handle: 'Threads', desc: '85 歲的日本觀光大使。0 粉起號，3 週快速起量，單夜增粉破千，第二個月開始商業變現。', stats: [['起量', '3 週'], ['單夜增粉', '1,000+'], ['開始變現', '第 2 個月']] }] }),
-      S('next', '', nextOf('#/works'))
+      S('next', '', nextOf('/works'))
     ] },
-    { id: 'demo', name: '服務示範', slug: '#/demo', sections: [
+    { id: 'demo', name: '服務示範', slug: '/demo', sections: [
       S('pagehead', '', { en: 'DEMO', title: '先玩玩看', desc: '每一項都是真的做得出來的東西。點、按、聽，喜歡哪個再去報價。' }),
       S('demos', '', { cards: [
         { tag: 'AI 廣告短片', title: '愛德華救店・早餐店篇', desc: '寫實真人＋真貓、配音對嘴全部 AI 做，34 秒。', video: M + 'edward.mp4', poster: M + 'edward_p.jpg', link: 'AI 動畫短影音 NT$6,000 起 →' },
@@ -298,14 +328,15 @@ var site = {
         { tag: 'AI 角色・老闆分身', title: '老闆不用露臉，也能天天出片', desc: '王拓恩是 AI 演的人，貓探長是 AI 畫的角色。你的品牌也可以有一個。', images: [M + 'tuoen.jpg', M + 'cat.jpg'], link: '看作品 →' },
         { tag: '官網・預約・報價頁', title: '自己挑網站長什麼樣子', desc: '幾百款版型，挑一款、換顏色、填文字，就是你的網站初稿。', btn: '打開網站挑選器', btnSub: '餐飲・美業・課程・電商…12 種行業', link: '品牌形象官網 NT$50,000 起 →' }] }),
       S('reach', '', {}),
-      S('next', '', nextOf('#/demo'))
+      S('next', '', nextOf('/demo'))
     ] },
-    { id: 'quote', name: '服務與報價', slug: '#/quote', sections: [
+    { id: 'quote', name: '服務與報價', slug: '/quote', sections: [
       S('pagehead', '', { en: 'PRICE', title: '服務與報價', desc: '分類點開看，每一項都有價錢。勾你要的，右邊馬上算出合計，按一下就傳到維拓 LINE。' }),
       S('quote', '', { title: '服務與報價', desc: '每一項都標好價錢，勾你要的，下面馬上算出合計。新台幣、未稅，寫「起」的依需求評估。', note: 'LINE 會打開跟維拓的對話，內容已經填好，按傳送就好。簽 6 個月以上，業務會再跟你談加贈。' }),
-      S('next', '', nextOf('#/quote'))
+      S('faq', '', { title: '常見問題', items: FAQ }),
+      S('next', '', nextOf('/quote'))
     ] },
-    { id: 'office', name: 'AI 辦公室', slug: '#/office', sections: [
+    { id: 'office', name: 'AI 辦公室', slug: '/office', sections: [
       S('pagehead', '', { en: 'AI OFFICE', title: '幫你的公司蓋一間 AI 辦公室', desc: '我們自己就是這樣經營這些 IP。' }),
       S('office', '', { btn: '進組裝台，挑你的 AI 員工', price: '建置 NT$150,000 起・維運每月 NT$15,000 起', title: '員工每天照班表上班', desc: '一組 AI 員工找爆款、寫腳本、看數據、回留言，做完把報告交到一個網頁上，你只要看、按同意。', points: [['挑員工', '總管、企劃、剪片、數據、海巡署……照你的行業先幫你挑好'], ['挑辦公室樣子', '員工在畫面上走動、上班，誰在做什麼一眼看到'], ['送出給維拓', '我們幫你在 Claude 裡蓋好，試跑一週調好才交']], staff: [['總管秘書', '每天早上 10:47 早報'], ['企劃編劇', '週一寫這週腳本'], ['數據分析', '每天 07:49 抓數據'], ['海巡署', '每天巡熱門串擬留言'], ['校稿品管', '交件前檢查錯字'], ['留言管家', '每天擬回覆草稿']] }),
       S('ofeat', '', { title: '辦公室裡有什麼', sub: '這些都是我們自己每天在用的，交給你的就是同一套。', items: [
@@ -341,23 +372,32 @@ var site = {
       ] }),
       S('msgform', '', { title: '想要一間 AI 辦公室？先留言' }),
       S('reach', '', {}),
-      S('next', '', nextOf('#/office'))
+      S('next', '', nextOf('/office'))
     ] },
-    { id: 'contact', name: '聯絡我們', slug: '#/contact', sections: [
+    { id: 'contact', name: '聯絡我們', slug: '/contact', sections: [
       S('pagehead', '', { en: 'CONTACT', title: '跟我們聊聊', desc: '想做 IP、想問價錢、想蓋 AI 辦公室，LINE 傳一句就好。' }),
       S('reach', '', {}),
       S('msgform', '', {}),
+      S('faq', '', { title: '常見問題', items: FAQ }),
       CONTACT,
-      S('next', '', nextOf('#/contact'))
+      S('next', '', nextOf('/contact'))
     ] }
-  ]
+  ].concat(SVC.map(function (x, gi) {
+    return { id: 'svc' + gi, name: x.name, slug: '/services/' + x.slug, hidden: true, sections: [
+      S('pagehead', '', { en: 'SERVICE', title: x.name, desc: x.intro }),
+      S('svclist', '', { gi: gi }),
+      S('reach', '', {}),
+      S('faq', '', { title: '常見問題', items: FAQ }),
+      S('next', '', nextOf('/services/' + x.slug))
+    ] };
+  }))
 };
 
 site.pages.forEach(function (p) { p.sections.forEach(function (s, i) { s.id = p.id + '_' + i; }); });
 var DEF = {}; site.pages.forEach(function (p) { p.sections.forEach(function (s) { DEF[s.id] = JSON.parse(JSON.stringify(s.data)); }); });
 var CAT_DEF = JSON.parse(JSON.stringify(CAT));
 /* 後台改的內容（Supabase web_settings）：site_pages、site_catalog、line_id、instagram */
-function fixM(o) { return JSON.parse(JSON.stringify(o).replace(/"\/?m\//g, '"' + M)); }
+function fixM(o) { var t = JSON.stringify(o).replace(/"\/?m\//g, '"' + M); if (PATHMODE) t = t.replace(/"#\//g, '"/'); return JSON.parse(t); }
 function applyContent(rows) {
   var kv = {}; (rows || []).forEach(function (r) { kv[r.key] = r.value; });
   if (kv.line_id) LINE_ID = kv.line_id;
@@ -373,24 +413,26 @@ function loadContent() {
 }
 export var DEFAULTS = { pages: site.pages, def: DEF, catalog: CAT_DEF, sb: { url: SB_URL, key: SB_KEY }, M: M };
 
-function idxOf() { if (typeof location === 'undefined') return 0; var hs = location.hash || '#/'; var i = site.pages.findIndex(function (p) { return p.slug === hs; }); return i < 0 ? 0 : i; }
+function norm(x) { return String(x || '/').replace(/^#/, '').replace(/\/+$/, '') || '/'; }
+function idxByPath(pth) { var i = site.pages.findIndex(function (p) { return norm(p.slug) === norm(pth); }); return i < 0 ? 0 : i; }
+function idxOf() { if (typeof location === 'undefined') return 0; if (PATHMODE) { if (/^#\//.test(location.hash)) { location.replace(norm(location.hash)); } return idxByPath(location.pathname); } var hs = location.hash || '/'; var i = site.pages.findIndex(function (p) { return p.slug === hs; }); return i < 0 ? 0 : i; }
 function App(props) {
   var pre = props && props.rows;
-  var st = useState(function () { return pre ? 0 : idxOf(); }), pi = st[0], setPi = st[1];
+  var st = useState(function () { return props && props.path ? idxByPath(props.path) : pre ? 0 : idxOf(); }), pi = st[0], setPi = st[1];
   var rd = useState(function () { if (pre) { applyContent(pre); return 1; } return 0; }), ver = rd[0], setVer = rd[1];
   React.useEffect(function () {
-    if (pre) { var i = idxOf(); if (i) setPi(i); return; }
+    if (pre) { if (/^#\//.test(location.hash)) idxOf(); return; }
     var t = setTimeout(function () { setVer(function (v) { return v || 1; }); }, 2500);
     loadContent().then(function (rows) { applyContent(rows); clearTimeout(t); setVer(function (v) { return v + 1; }); });
   }, []);
   React.useEffect(function () {
     function on() { setPi(idxOf()); window.scrollTo(0, 0); }
     window.addEventListener('hashchange', on);
-    function cl(e) { var a = e.target.closest && e.target.closest('a[href="/"]'); if (a) { e.preventDefault(); location.hash = '#/'; } }
+    function cl(e) { if (PATHMODE) return; var a = e.target.closest && e.target.closest('a[href="/"]'); if (a) { e.preventDefault(); location.hash = '/'; } }
     document.addEventListener('click', cl);
     return function () { window.removeEventListener('hashchange', on); document.removeEventListener('click', cl); };
   }, []);
-  React.useEffect(function () { document.title = (pi ? site.pages[pi].name + '｜' : '') + '維拓傳媒'; }, [pi]);
+  React.useEffect(function () { if (!PATHMODE) document.title = (pi ? site.pages[pi].name + '｜' : '') + '維拓傳媒'; }, [pi]);
   if (!ver) return null;
   var view = Object.assign({}, site, { pages: site.pages.map(function (p) { return Object.assign({}, p, { sections: p.sections.filter(function (s) { return !s.hide; }) }); }) });
   return h(Site, { key: pi + '-' + ver, site: view, pageIndex: pi });

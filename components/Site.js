@@ -25,7 +25,7 @@ export default function Site({ site, pageIndex }) {
   var contact = null; site.pages.forEach(function (pg) { pg.sections.forEach(function (s) { if (!contact && s.type === 'contact') contact = s.data; }); });
   var hrefOf = function (i) { return onepage ? '#p' + i : site.pages[i].slug; };
   var ctx = { cta: function () { if (contactIdx >= 0 && typeof window !== 'undefined') window.location.href = hrefOf(contactIdx); }, ordersLabel: site.ordersLabel || '預約' };
-  var links = site.pages.map(function (pg, i) { return { label: pg.name, href: hrefOf(i), active: !onepage && i === pageIndex }; }).filter(function (l, i) { return i !== 0 && i !== contactIdx; });
+  var links = site.pages.map(function (pg, i) { return { label: pg.name, href: hrefOf(i), active: !onepage && i === pageIndex, hid: pg.hidden }; }).filter(function (l, i) { return i !== 0 && i !== contactIdx && !l.hid; });
   var brand = site.logo ? h('img', { src: site.logo, alt: site.name }) : site.name;
   return h('div', { className: 'site nav-' + (site.nav || 'left') },
     h(U.Navbar, { brand: brand, brandHref: '/', links: links, cta: contactIdx >= 0 ? { label: site.pages[contactIdx].name, href: hrefOf(contactIdx) } : undefined }),
@@ -33,6 +33,7 @@ export default function Site({ site, pageIndex }) {
     h(FloatContact, { mode: site.floatc, contact: contact || {} }),
     h('footer', { className: 'footer' },
       h('div', null, h('b', null, site.name), h('br'), h('span', null, site.slogan)),
-      h('nav', { className: 'flinks' }, site.pages.map(function (pg, i) { return h(onepage ? 'a' : Link, { key: pg.id, href: hrefOf(i) }, pg.name); })),
+      h('nav', { className: 'flinks' }, site.pages.map(function (pg, i) { return pg.hidden ? null : h(onepage ? 'a' : Link, { key: pg.id, href: hrefOf(i) }, pg.name); })),
+      site.biz ? h('address', { className: 'fbiz' }, site.biz.map(function (l, i) { return h('span', { key: i }, l.href ? h('a', { href: l.href }, l.t) : l.t); })) : null,
       h('span', null, '© ' + new Date().getFullYear() + ' ' + site.name + ' · 網站由維拓傳媒製作')));
 }
