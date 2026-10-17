@@ -26,6 +26,8 @@ export default function Site({ site, pageIndex }) {
   var hrefOf = function (i) { return onepage ? '#p' + i : site.pages[i].slug; };
   var ctx = { cta: function () { if (contactIdx >= 0 && typeof window !== 'undefined') window.location.href = hrefOf(contactIdx); }, ordersLabel: site.ordersLabel || '預約' };
   var links = site.pages.map(function (pg, i) { return { label: pg.name, href: hrefOf(i), active: !onepage && i === pageIndex, hid: pg.hidden }; }).filter(function (l, i) { return i !== 0 && i !== contactIdx && !l.hid; });
+  // AI 客服介紹頁（獨立頁面 /ai-kefu）排在「AI 辦公室」後面
+  if (!onepage) { var oi = links.findIndex(function (l) { return l.href === '/office'; }); links.splice(oi < 0 ? links.length : oi + 1, 0, { label: 'AI 客服', href: '/ai-kefu' }); }
   var brand = site.logo ? h('img', { src: site.logo, alt: site.name }) : site.name;
   return h('div', { className: 'site nav-' + (site.nav || 'left') },
     h(U.Navbar, { brand: brand, brandHref: '/', links: links, cta: contactIdx >= 0 ? { label: site.pages[contactIdx].name, href: hrefOf(contactIdx) } : undefined }),

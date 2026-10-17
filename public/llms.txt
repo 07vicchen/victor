@@ -15,6 +15,7 @@
 - [作品案例](https://www.victormedia.com.tw/works)：王拓恩、貓探長、村山爺爺
 - [服務示範](https://www.victormedia.com.tw/demo)
 - [AI 辦公室](https://www.victormedia.com.tw/office)
+- [AI 客服](https://www.victormedia.com.tw/ai-kefu)：LINE／官網 24 小時 AI 客服，照店家資料回答、照店家話術推銷，成交與客訴當下通知老闆；月費 NT$1,980 起
 - [聯絡我們](https://www.victormedia.com.tw/contact)
 
 ## AI 動畫｜老闆免露臉（https://www.victormedia.com.tw/services/ai-animation）
