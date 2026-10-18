@@ -17,6 +17,9 @@
 - [AI 辦公室](https://www.victormedia.com.tw/office)
 - [SEO、AEO、GEO 搜尋優化](https://www.victormedia.com.tw/seo-geo)：SEO 讓 Google 排前面、AEO 讓 Google 直接拿你的話當答案、GEO 讓 AI 說出你的店名；讓 Google 和 ChatGPT、Gemini、Google AI 摘要找到你；健檢 NT$4,800，月費 NT$8,800 起
 - [指南](https://www.victormedia.com.tw/guides)：GEO 是什麼、LINE AI 客服怎麼選
+- [網頁設計](https://www.victormedia.com.tw/web-design)：網頁設計、網站架設；一頁式活動頁 NT$15,000、線上預約系統 NT$30,000、品牌形象官網 NT$50,000 起，上線當天跟 Google 報到
+- [短影音代操](https://www.victormedia.com.tw/short-video)：真人拍攝每月 NT$45,000 起（4 支），不露臉的 AI 動畫代營運每月 NT$15,000 起，直播切片一場 NT$8,000
+- [自媒體 IP 代操](https://www.victormedia.com.tw/ip-management)：個人品牌經營；定位 NT$15,000 起、代營運每月 NT$20,000 起；案例村山爺爺、貓探長、王拓恩
 - [AI 客服](https://www.victormedia.com.tw/ai-kefu)：LINE／官網 24 小時 AI 客服，照店家資料回答、照店家話術推銷，成交與客訴當下通知老闆；月費 NT$1,980 起
 - [聯絡我們](https://www.victormedia.com.tw/contact)
 
@@ -57,7 +60,7 @@
 - Google 商家地圖優化：NT$6,000 起／一次。商家檔案建立、資訊優化、關鍵字設定
 - Google 地圖排名代操：NT$10,000 起／每月。每日追排名、商家貼文、評論回覆、九宮格排名月報
 
-## 品牌與數位建置（https://www.victormedia.com.tw/services/brand）
+## 品牌與數位建置（https://www.victormedia.com.tw/web-design）
 - 品牌 Logo 設計：NT$15,000 起／一次。Logo、標準字、基本配色、基本規範
 - 品牌視覺識別設計：NT$35,000 起／一次。Logo 延伸、VI、品牌色彩、視覺延伸
 - 品牌形象官網：NT$50,000 起／一次。RWD 網站、基本 SEO、後台管理

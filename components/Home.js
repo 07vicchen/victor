@@ -3,7 +3,7 @@ import React from 'react';
 import Site from './Site.js';
 import { RENDER } from './sections.js';
 import CAT0 from './cat.json';
-import { BIZ, FAQ, SVC, SGFAQ, AIFAQ } from './faq.js';
+import { BIZ, FAQ, SVC, SGFAQ, AIFAQ, WEBFAQ, SVFAQ, IPFAQ } from './faq.js';
 
 var h = React.createElement, useState = React.useState;
 var M = '/m/';
@@ -84,7 +84,7 @@ function Quote(p) {
         var on = open === gi, n = g.items.filter(function (x) { return sel[x.id]; }).length;
         return h('div', { key: gi, className: 'qcat' + (on ? ' on' : '') },
           h('button', { type: 'button', className: 'qhead', 'aria-expanded': on, onClick: function () { setOpen(on ? -1 : gi); } }, h('span', { className: 'qno' }, '0' + (gi + 1)), h('span', { className: 'qtt' }, h('b', null, g.g), h('small', null, g.sub || '')), h('span', { className: 'qct' }, n ? '已選 ' + n : g.items.length + ' 項'), h('i', null)),
-          on ? h('div', { className: 'qitems' }, SVC[gi] ? h('a', { className: 'qmore', href: SVC[gi].slug === 'seo-geo' ? '/seo-geo' : SVC[gi].slug === 'ai-animation' ? '/ai-animation' : '/services/' + SVC[gi].slug }, '看「' + g.g + '」每一項的完整介紹 →') : null, g.items.map(function (it) {
+          on ? h('div', { className: 'qitems' }, SVC[gi] ? h('a', { className: 'qmore', href: SVC[gi].slug === 'seo-geo' ? '/seo-geo' : SVC[gi].slug === 'ai-animation' ? '/ai-animation' : SVC[gi].slug === 'brand' ? '/web-design' : '/services/' + SVC[gi].slug }, '看「' + g.g + '」每一項的完整介紹 →') : null, g.items.map(function (it) {
             var s = !!sel[it.id], r = REQ[it.id], lk = r && !sel[r];
             return h('div', { key: it.id, className: 'qit' + (s ? ' on' : '') },
               h('div', { className: 'qn' }, it.n, it.tag ? h('em', null, it.tag) : null),
@@ -314,6 +314,9 @@ var DOORS = [
   { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
   { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
   { href: '/ai-animation', en: 'AI ANIMATION', title: 'AI 動畫', desc: '老闆不用露臉，AI 角色幫你講；先免費看你的角色', image: M + 'tuoen.jpg' },
+  { href: '/web-design', en: 'WEB DESIGN', title: '網頁設計', desc: '形象官網、一頁式、預約和報價頁，上線就跟 Google 報到', image: M + 'f70.jpg' },
+  { href: '/short-video', en: 'SHORT VIDEO', title: '短影音代操', desc: '企劃、拍攝、剪輯、發文；不露臉也能用 AI 出片', image: M + 'edward_p.jpg' },
+  { href: '/ip-management', en: 'IP', title: '自媒體 IP 代操', desc: '從定位到變現，貓探長、村山爺爺都是這樣做起來的', image: M + 'ip_murayama.jpg' },
   { href: '/seo-geo', en: 'SEO × GEO', title: 'SEO・AEO・GEO', desc: 'Google 搜尋、Google 地圖、ChatGPT 都找得到你，月費 8,800 元起', image: M + 'f70.jpg' },
   { href: '/contact', en: 'CONTACT', title: '聯絡我們', desc: 'LINE @898biiyu・IG victor_149131', image: M + 'cat.jpg' }
 ];
@@ -458,6 +461,111 @@ var site = {
       S('faq', '', { title: 'AI 動畫常見問題', items: AIFAQ }),
       S('reach', '', {}),
       S('next', '', nextOf('/ai-animation'))
+    ] },
+    { id: 'web', name: '網頁設計', slug: '/web-design', hidden: true, sections: [
+      S('pagehead', '', { en: 'WEB DESIGN', title: '網頁設計：做一個客人找得到、看了會想聯絡你的網站', desc: '維拓傳媒在新北汐止做網頁設計和網站架設，全台都能線上合作。一頁式活動頁 15,000 元、預約系統 30,000 元、品牌形象官網 50,000 元起。每個網站上線當天就幫你跟 Google 報到，不是做完就丟給你。' }),
+      S('sgpair', '', { title: '你需要的是哪一種網站？', sub: '不是每家店都要一個大官網。先看你想讓客人做什麼。', items: [
+        { en: '一頁式', t: '一頁式活動頁', p: '辦活動、推新品、收報名，一頁講完、一個按鈕收單。', list: ['手機打開就看完重點', '報名或私訊按鈕放最顯眼', '適合廣告導流、短期活動', 'NT$15,000'] },
+        { en: '官網', t: '品牌形象官網', p: '讓客人搜你的名字時，看到一個講清楚你是誰、做什麼、多少錢的網站。', list: ['服務、價格、作品、問答一次放好', '附後台，文字照片自己改', 'Google 和 AI 都讀得懂', 'NT$50,000 起'] },
+        { en: '系統', t: '預約・報價・管理系統', p: '客人自己選服務、選時段、算價錢，你手機收通知，不用一個一個回。', list: ['線上預約 NT$30,000', '線上方案／報價頁 NT$20,000', '進銷存、訂單、打卡 ERP NT$100,000 起', 'App 開發 NT$200,000 起'] }
+      ] }),
+      S('ofeat', '', { title: '每個網站都包含', sub: '你現在看的這個網站就是我們做的，下面這些它都有。', items: [
+        ['手機優先', '先把手機版做好，打開快、字夠大、按鈕好按'],
+        ['跟 Google 報到', '上線當天驗證 Search Console、交網站地圖、要求收錄'],
+        ['讓 AI 讀得懂', '結構化資料、開放 AI 爬蟲、給 AI 看的網站說明（llms.txt）'],
+        ['標題照關鍵字寫', '每頁標題寫清楚「店名＋服務＋地區」，客人搜得到'],
+        ['問答區', '把客人常問的問題寫好，第一句就回答，Google 可以直接拿去當答案'],
+        ['後台自己改', '價錢、文字、照片用手機就能改，不用每次找工程師'],
+        ['留言進後台', '客人留言、報價單直接進後台，LINE 一鍵聯絡'],
+        ['網域和主機', '幫你設定網域、HTTPS，放在 Vercel 這類穩定的主機上']
+      ] }),
+      S('sgsteps', '', { title: '做一個網站的流程', sub: '大部分時間花在把你的服務講清楚，不是在畫畫面。', steps: [
+        ['聊需求', '你想讓客人看完做什麼：私訊、預約、還是買單？LINE 聊 20 分鐘就好'],
+        ['報價和時程', '列出頁數、功能、價錢和交件日，你確認再開始'],
+        ['文案和設計', '我們先寫文案、做手機版畫面給你看，改到你滿意'],
+        ['上線報到', '上線當天跟 Google 報到、交網站地圖，教你用後台']
+      ], note: '老實說：網站上線不等於會有客人。要讓「汐止 網頁設計」這種詞也搜得到你，要再加每月的 SEO，或是把網站連到你的社群和 Google 商家。', btn: '去報價單勾選' }),
+      S('sgplans', '', { title: '網頁設計價格', sub: '價格公開，寫「起」的依頁數和功能評估。', rows: ['頁數', '手機版', '後台自己改', '跟 Google 報到', '結構化資料', '適合'], plans: [
+        { id: 'lp', n: '一頁式活動頁', who: '活動、新品、報名', v: ['1 頁', '有', '—', '有', '有', '廣告導流、短期活動'] },
+        { id: 'qp', n: '線上方案／報價頁', who: '讓客人自己算價錢', v: ['1～2 頁', '有', '有', '有', '有', '服務項目多的店'] },
+        { id: 'bk', n: '線上預約系統', tag: '店家最常選', hot: 1, who: '美業、餐飲、課程', v: ['依需求', '有', '有', '有', '有', '要約時段的服務'] },
+        { id: 'wb', n: '品牌形象官網', tag: '品牌首選', hot: 1, who: '要長期被搜到', v: ['5～10 頁起', '有', '有', '有', '有', '公司、品牌、工作室'] }
+      ], addTitle: '也可以一起做', adds: [
+        ['品牌 Logo 設計', 'lg', null, 'Logo、標準字、基本配色'],
+        ['品牌視覺識別設計', 'vi', null, 'Logo 延伸、品牌色彩、視覺規範'],
+        ['ERP 內部管理系統', 'is', null, '進銷存、訂單、報價單、員工打卡'],
+        ['App 開發', 'ap', null, 'iOS／Android、會員系統、API 串接'],
+        ['網站／App 維護巡查', 'mt', null, '每天看有沒有壞，每月健康報告'],
+        ['AI 能見度＋SEO 健檢', 'sg0', null, '網站上線後，看 Google 和 AI 找不找得到你']
+      ], note: '新台幣、未稅。網域和主機年費依實際費用另計，我們會先講清楚。' }),
+      S('faq', '', { title: '網頁設計常見問題', items: WEBFAQ }),
+      S('reach', '', {}),
+      S('next', '', nextOf('/web-design'))
+    ] },
+    { id: 'sv', name: '短影音代操', slug: '/short-video', hidden: true, sections: [
+      S('pagehead', '', { en: 'SHORT VIDEO', title: '短影音代操：企劃、拍攝、剪輯到發文，一次交給我們', desc: '維拓傳媒在新北汐止，做 IG Reels、TikTok、YouTube Shorts、Threads 的短影音代操。真人拍攝每月 45,000 元起（4 支），不想露臉的 AI 動畫代營運每月 15,000 元起。腳本照每週的爆款拆解來寫，不是憑感覺。' }),
+      S('sgpair', '', { title: '三種出片方式', sub: '要不要露臉、有沒有時間拍，都有對應的做法。', items: [
+        { en: '真人', t: '真人拍攝', p: '我們企劃、到場拍攝、剪輯，你只要照腳本講。', list: ['每月 4 支，含企劃腳本', '拍攝、剪輯、字幕、封面', '最少 3 個月', 'NT$45,000 起／每月'] },
+        { en: 'AI', t: 'AI 動畫・AI 分身', p: '不露臉、不用拍，用 AI 角色或老闆分身出片。', list: ['台灣腔配音、對嘴', 'Q 版或寫實都可以', '單支 NT$6,000 起', '代營運 NT$15,000 起／每月'] },
+        { en: '剪輯', t: '你拍、我們剪', p: '已經有直播、Podcast 或自己拍的素材，交給我們剪成短影音。', list: ['一場長片剪 5 支 NT$8,000', '只上字幕 NT$500／支', '標題和封面一起做', '適合已經有在拍的人'] }
+      ] }),
+      S('ofeat', '', { title: '代操每個月做的事', sub: '我們自己的帳號就是這樣經營的。', items: [
+        ['找爆款', '每週一整理同行和你自己帳號的爆款，拆出哪種開頭、哪種題目有效'],
+        ['寫腳本', '照爆款拆解寫腳本給你挑，你點頭才拍'],
+        ['拍攝或生成', '真人到場拍，或用 AI 角色、AI 分身生成'],
+        ['剪輯字幕', '剪輯、字幕、配樂、封面一次做好'],
+        ['發文', '排時間、寫文案和 hashtag，幫你發出去'],
+        ['看數據', '每支片看完率、分享、漲粉，下個月照數據調整'],
+        ['海巡串文', '加購海巡署，每天到熱門串留言，把人帶回你的帳號'],
+        ['月報', '每月一份，哪支有效、為什麼、下個月怎麼做']
+      ] }),
+      S('ipcases', '', { title: '我們自己做的帳號', sub: '數字都是帳號後台的真實數據。', items: [
+        { name: '貓探長', tag: '動畫短影音', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '983']] },
+        { name: '王拓恩', tag: 'AI 寫實短劇', plat: 'Instagram', handle: '@en05_24', url: 'https://www.instagram.com/en05_24/', image: M + 'f45.jpg', desc: '23 歲業餘棒球員，公開是 AI。每週一集寫實短劇，角色、配音、對嘴全部 AI 做。', stats: [['第二季開播', '10 月'], ['〈第五年〉觀看', '2,189'], ['按讚', '101']] }] }),
+      S('sgplans', '', { title: '短影音代操價格', sub: '可以單支試，也可以整個帳號交給我們。', rows: ['出片方式', '每月支數', '企劃腳本', '剪輯字幕封面', '幫你發文', '數據分析'], plans: [
+        { id: 'clip', n: '直播／Podcast 切片', who: '已經有長片素材', v: ['你的素材', '一場剪 5 支', '—', '有', '—', '—'] },
+        { id: 'vq', n: 'AI 動畫短影音', who: '不露臉，單支計價', v: ['AI 角色', '依需求', '有', '有', '—', '—'] },
+        { id: 'ao', n: 'AI 動畫代營運', tag: '不露臉首選', hot: 1, who: '整個帳號交給我們', v: ['AI 角色', '4 支起', '每月企劃', '有', '有', '有'] },
+        { id: 'sv', n: '短影音內容製作', tag: '真人拍攝', hot: 1, who: '想要真人出鏡', v: ['真人拍攝', '4 支', '每月企劃', '有', '—', '—'] }
+      ], addTitle: '可以加購', adds: [
+        ['自媒體社群代營運', 'so', null, '發文排程、互動經營、成效分析，每月 8 篇'],
+        ['留言與私訊代回覆', 'cm', null, '每天回留言和私訊，用品牌口吻'],
+        ['海巡署', 'pt', null, '每天到熱門串用你的帳號留言'],
+        ['Meta 廣告代操', 'ma', null, '好的片拿去投廣告，每週回報成效'],
+        ['爆款與對手觀察', 'vw', null, '每週拆同業爆款給你看'],
+        ['影片上字幕', 'sb', null, '自己拍好的片，只上字幕和標題']
+      ], note: '新台幣、未稅；代營運和內容製作最少 3 個月。寫「起」的依長度和內容評估。' }),
+      S('faq', '', { title: '短影音代操常見問題', items: SVFAQ }),
+      S('reach', '', {}),
+      S('next', '', nextOf('/short-video'))
+    ] },
+    { id: 'ipm', name: '自媒體 IP 代操', slug: '/ip-management', hidden: true, sections: [
+      S('pagehead', '', { en: 'IP MANAGEMENT', title: '自媒體 IP 代操：把你的專業，經營成別人記得住的名字', desc: '維拓傳媒做個人品牌和自媒體 IP 代操，從人設定位、內容企劃、短影音到變現一起規劃。定位 15,000 元起，代營運每月 20,000 元起。貓探長、村山爺爺、王拓恩都是我們從 0 做起來的。' }),
+      S('ipcases', '', { title: '我們從 0 做起來的 IP', sub: '真人、動畫、AI，三種都做過。數字都是帳號後台的真實數據。', items: [
+        { name: '村山爺爺', tag: '真人 IP・86 歲日本觀光大使', plat: 'Threads', handle: '@japan.grandpa', url: 'https://www.threads.com/@japan.grandpa', image: M + 'ip_murayama.jpg', desc: '86 歲，當過多年五星級飯店總經理，還在第一線帶日本高端小團。0 粉起號，3 週起量，單夜增粉破千，第 2 個月開始商業變現。', stats: [['Threads 粉絲', '8,225'], ['置頂串文按讚', '2,416'], ['開始變現', '第 2 個月']] },
+        { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '983']] },
+        { name: '王拓恩', tag: 'AI 明星・寫實短劇', plat: 'Instagram', handle: '@en05_24', url: 'https://www.instagram.com/en05_24/', image: M + 'f45.jpg', desc: '23 歲業餘棒球員，公開是 AI。每週一集寫實短劇，拿來接品牌代言。', stats: [['第二季開播', '10 月'], ['〈第五年〉觀看', '2,189'], ['按讚', '101']] }] }),
+      S('sgsteps', '', { title: '一個 IP 怎麼做起來', sub: '先想清楚「為什麼值得追」，再開始拍。', steps: [
+        ['定位', '你是誰、講給誰聽、跟別人差在哪、之後靠什麼賺錢，一次想清楚'],
+        ['起號', '人設、帳號名稱、頭像、簡介、前 9 篇內容一起規劃'],
+        ['每週經營', '每週一整理爆款，照著寫腳本、出片、發文、回留言'],
+        ['看數據變現', '每月看哪種內容有效，時機到就接業配、導課程或導到店']
+      ], note: '老實說：粉絲數沒有人能保證。我們能做的是每週照數據調整，把方向調對。', btn: '去報價單勾選' }),
+      S('sgplans', '', { title: '自媒體 IP 代操價格', sub: '先做定位，再決定要我們做到哪裡。', rows: ['人設定位', '內容企劃', '每月內容', '短影音製作', '發文互動', '數據報告'], plans: [
+        { id: 'sp', n: '定位起號', who: '先把方向想清楚', v: ['有', '前 9 篇規劃', '—', '—', '—', '—'] },
+        { id: 'so', n: '自媒體代營運', tag: '最多人選', hot: 1, who: '個人品牌、講師、顧問', v: ['延續', '每月', '8 篇', '—', '有', '有'] },
+        { id: 'sv', n: '短影音內容製作', who: '要短影音衝曝光', v: ['延續', '每月', '4 支', '有', '—', '—'] },
+        { id: 'im', n: '整合行銷代營運', who: '品牌想全包', v: ['有', '每月', '依需求', '有', '有', '有'] }
+      ], addTitle: '可以加購', adds: [
+        ['AI 動畫角色打造（Q 版）', 'cq', null, '不想露臉，做一個角色替你講'],
+        ['老闆 AI 分身（建置）', 'twb', null, '用你的臉和聲音，之後口播不用再拍'],
+        ['海巡署＋脆文代寫', 'pc', null, 'Threads 每天留言加每週 4 篇貼文'],
+        ['社群數據月報', 'dr', null, '每支片看了多少、每千觀看漲幾粉'],
+        ['爆款與對手觀察', 'vw', null, '每週拆同類帳號的爆款']
+      ], note: '新台幣、未稅；代營運最少 3 個月。寫「起」的依內容量評估。' }),
+      S('faq', '', { title: 'IP 代操常見問題', items: IPFAQ }),
+      S('reach', '', {}),
+      S('next', '', nextOf('/ip-management'))
     ] },
     { id: 'office', name: 'AI 辦公室', slug: '/office', sections: [
       S('pagehead', '', { en: 'AI OFFICE', title: '幫你的公司蓋一間 AI 辦公室', desc: '我們自己就是這樣經營這些 IP。' }),
