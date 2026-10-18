@@ -852,3 +852,6 @@ button.gobtn{border:0;font:inherit;text-align:left}
 .doors .door .dc{position:static;padding-right:76px}
 .doors .door .dc>span{color:var(--ink-muted)}
 .doors .door i{color:var(--brand);font-style:normal;font-weight:700;font-size:14px;margin-top:6px}
+.dpts{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.dpts li{position:relative;padding-left:22px;font-size:14.5px;line-height:1.6}
+.dpts li::before{content:"";position:absolute;left:2px;top:.55em;width:9px;height:9px;background:var(--brand)}

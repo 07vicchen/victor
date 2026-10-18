@@ -231,7 +231,7 @@ RENDER.sgsteps = function (d) {
 };
 
 /* ===== 服務示範 ===== */
-var PROPOSAL_URL = 'https://claude.ai/artifact/AgVwhYWVcdeZqny6HqPS9H';
+var PROPOSAL_URL = '';
 function LogoAnim() {
   var st = useState(0), k = st[0], setK = st[1];
   return h('div', { className: 'lgwrap' },
@@ -298,7 +298,7 @@ RENDER.demos = function (d) {
       else if (w === 'chat') body = h(ChatDemo, { shop: c.shop, hello: c.hello, qa: c.qa });
       else if (w === 'call') body = h(CallDemo, { shop: c.shop, lines: c.lines });
       else if (w === 'pair') body = h('div', { className: 'dpair' }, (c.images || []).map(function (u, k) { return h('img', { key: k, src: u, alt: '', loading: 'lazy' }); }));
-      else if (w === 'pick') body = h('a', { className: 'dbig', href: PROPOSAL_URL, target: '_blank', rel: 'noopener' }, h('b', null, c.btn || '打開網站挑選器'), h('span', null, c.btnSub || ''));
+      else if (w === 'pick') body = h('ul', { className: 'dpts' }, (c.points || []).map(function (t, k) { return h('li', { key: k }, t); }));
       return h('article', { key: i, className: 'dcard' + (i === 0 ? ' tall' : '') }, h('span', { className: 'dtag' }, c.tag), h('h3', null, c.title), h('p', null, c.desc), body,
         c.link ? h('a', { className: 'dlink', href: w === 'pair' ? '/works' : '/quote' }, c.link) : null);
     }))));
@@ -402,7 +402,7 @@ var site = {
         { tag: 'AI 文字客服', title: '半夜也有人回', desc: '點下面的問題試試看。可以接官網、LINE、IG 私訊。', shop: '早安小舖', hello: '嗨～我是早安小舖的 AI 小幫手，24 小時都在。想問什麼直接點下面 👇', qa: CHAT_Q, link: '守夜 建置 NT$12,800・月費 NT$1,980 起 →' },
         { tag: 'AI 語音電話客服', title: '電話響了，AI 先接', desc: '按撥打，聽一通預約電話怎麼接完。', shop: '好好牙醫診所', lines: CALL0, link: '建置 NT$100,000 起 →' },
         { tag: 'AI 角色・老闆分身', title: '老闆不用露臉，也能天天出片', desc: '王拓恩是 AI 演的人，貓探長是 AI 畫的角色。你的品牌也可以有一個。', images: [M + 'tuoen.jpg', M + 'cat.jpg'], link: '看作品 →' },
-        { tag: '官網・預約・報價頁', title: '自己挑網站長什麼樣子', desc: '幾百款版型，挑一款、換顏色、填文字，就是你的網站初稿。', btn: '打開網站挑選器', btnSub: '餐飲・美業・課程・電商…12 種行業', link: '品牌形象官網 NT$50,000 起 →' }] }),
+        { tag: '官網・預約・報價頁', title: '你現在看的這個網站，就是我們做的', desc: '設計、文案、上線到 Google 找得到，一條龍做完。官網、一頁式活動頁、線上報價、預約系統都能做。', points: ['手機打開快，不讓客人等', 'Google 和 AI 搜尋都讀得懂，找得到你', '附後台，價錢、文字、照片自己就能改', '客人留言、報價單直接進後台'], link: '品牌形象官網 NT$50,000 起 →' }] }),
       S('reach', '', {}),
       S('next', '', nextOf('/demo'))
     ] },
