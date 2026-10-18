@@ -22,7 +22,7 @@ export const metadata = {
   title: { default: '維拓傳媒｜AI 動畫、短影音代營運、AI 辦公室｜新北汐止', template: '%s' },
   description: '維拓傳媒專注個人品牌與 IP 孵化：AI 明星、AI 動畫、社群代營運、AI 辦公室。每一項都有價錢，線上報價直接傳 LINE。',
   icons: { icon: '/m/logo.png' },
-  openGraph: { title: '維拓傳媒｜為你的名字，拓一個時代', description: 'AI 明星、AI 動畫、社群代營運、AI 辦公室。', images: ['/m/hero.jpg'], type: 'website' }
+  openGraph: { title: '維拓傳媒｜為你的品牌，拓出一片天', description: 'AI 明星、AI 動畫、社群代營運、AI 辦公室。', images: ['/m/hero.jpg'], type: 'website' }
 };
 
 export default function RootLayout({ children }) {

@@ -1,7 +1,7 @@
 export const CARDS = {
   vic: {
     big: '拓', pos: 'right', company: '維拓傳媒', en: 'VICTOR MEDIA', name: '陳卓恩', enName: 'VIC CHEN', title: '創辦人',
-    slogan: ['為你的名字，拓一個時代'],
+    slogan: ['為你的品牌，拓出一片天'],
     tel: '0903-454-333', telRaw: '+886903454333', line: '@898biiyu', web: 'https://www.victormedia.com.tw', webLabel: 'victormedia.com.tw',
     legal: '維拓顧問有限公司', taxId: '62180576', services: 'AI 動畫・短影音代營運・官網・AI 客服・AI 辦公室'
   },
@@ -13,7 +13,7 @@ export const CARDS = {
   },
   arissa: {
     big: '拓', pos: 'right', company: '維拓傳媒', en: 'VICTOR MEDIA', name: '王凱慧', family: '王', given: '凱慧', enName: 'ARISSA WANG', title: '社群媒體總監', enTitle: 'Social Media Director',
-    slogan: ['為你的名字，拓一個時代'],
+    slogan: ['為你的品牌，拓出一片天'],
     tel: '0900-195-343', telRaw: '+886900195343', email: 'daisy800330@gmail.com', line: '@898biiyu', web: 'https://www.victormedia.com.tw', webLabel: 'victormedia.com.tw',
     legal: '維拓顧問有限公司', taxId: '62180576', services: 'AI 動畫・短影音代營運・官網・AI 客服・AI 辦公室'
   }

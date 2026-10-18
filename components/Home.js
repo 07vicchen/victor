@@ -237,7 +237,7 @@ function LogoAnim() {
   return h('div', { className: 'lgwrap' },
     h('div', { key: k, className: 'lga' },
       h('div', { className: 'lgring' }), h('img', { className: 'lgimg', src: M + 'logo.png', alt: '維拓傳媒 logo' }),
-      h('div', { className: 'lgtxt' }, h('b', null, 'VICTOR MEDIA'), h('span', null, '維拓傳媒・為你的名字，拓一個時代'))),
+      h('div', { className: 'lgtxt' }, h('b', null, 'VICTOR MEDIA'), h('span', null, '維拓傳媒・為你的品牌，拓出一片天'))),
     h('button', { type: 'button', className: 'dbtn', onClick: function () { setK(k + 1); } }, '↻ 再播一次'));
 }
 var CHAT_Q = [
@@ -378,10 +378,10 @@ var CONTACT = S('contact', 'line', { title: '跟我們聊聊', sub: '加 LINE �
 
 var site = {
   biz: [{ t: BIZ.legal + '（' + BIZ.name + '）' }, { t: '統一編號 ' + BIZ.taxId }, { t: BIZ.addr }, { t: '電話 ' + BIZ.phone, href: 'tel:' + BIZ.tel }, { t: '服務時間 ' + BIZ.hours }, { t: 'LINE ' + BIZ.line }],
-  name: '維拓傳媒', slogan: '為你的名字，拓一個時代', logo: M + 'logo.png', nav: 'left', onepage: false, floatc: 'line', ordersLabel: '諮詢',
+  name: '維拓傳媒', slogan: '為你的品牌，拓出一片天', logo: M + 'logo.png', nav: 'left', onepage: false, floatc: 'line', ordersLabel: '諮詢',
   pages: [
     { id: 'home', name: '首頁', slug: '/', sections: [
-      S('herox', 'cover', { eyebrow: 'Victor Media Division · 維拓傳媒', title: '為你的名字，拓一個時代', desc: '維拓傳媒專注個人品牌與 IP 孵化。從人設定位、內容企劃、AI 動畫到社群經營，把你的專業變成看得見、留得住的資產。', primary: '看報價', note: '貓探長單支 9.8 萬觀看・村山爺爺 3 週起量', video: M + 'hero_edward.mp4', image: M + 'hero_edward.jpg', alt: '愛德華在早餐店櫃台用貓掌點手機' }),
+      S('herox', 'cover', { eyebrow: 'Victor Media Division · 維拓傳媒', title: '為你的品牌，拓出一片天', desc: '維拓傳媒專注個人品牌與 IP 孵化。從人設定位、內容企劃、AI 動畫到社群經營，把你的專業變成看得見、留得住的資產。', primary: '看報價', note: '貓探長單支 9.8 萬觀看・村山爺爺 3 週起量', video: M + 'hero_edward.mp4', image: M + 'hero_edward.jpg', alt: '愛德華在早餐店櫃台用貓掌點手機' }),
       S('marquee', 'big', TAGS),
       S('doors', '', { title: '你想先看哪一個', sub: '點進去看，每一頁上面的選單都能隨時切換。', items: DOORS }),
       S('bignum', 'counters', { title: '做出來的數字', items: [{ value: '9.8 萬', label: '貓探長單支觀看' }, { value: '34.7 萬', label: '貓探長兩個月 Reels 觀看' }, { value: '3 週', label: '村山爺爺從 0 到起量' }, { value: '1,000+', label: '村山爺爺單夜增粉' }] }),
