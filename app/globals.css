@@ -875,3 +875,8 @@ button.gobtn{border:0;font:inherit;text-align:left}
 .fdr-copy h2{margin:6px 0 14px;font-family:var(--font-display);font-size:clamp(28px,5vw,40px);color:var(--ink)}
 .fdr-copy p{margin:0 0 12px;line-height:1.8;color:var(--ink-2,var(--ink))}
 @media(max-width:820px){.fdr{grid-template-columns:1fr;gap:20px}.fdr-img{max-width:320px;width:100%;margin:0 auto}}
+/* 中文換行整齊：段落左右對齊、最後一行不留孤字；標題平均斷行 */
+.site p,.site li,.site dd{text-align:justify;text-wrap:pretty;line-break:strict}
+.site h1,.site h2,.site h3{text-wrap:balance}
+.shead p,.bignum p,.hero-min p,.dl.center p,.linebox p,.stats p,.pnl a,.btn,.chip,.site p.hx-t,.site .hx-eb{text-align:inherit}
+.site p.hx-t{text-wrap:balance}
