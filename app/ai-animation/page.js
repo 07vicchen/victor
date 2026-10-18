@@ -12,6 +12,6 @@ const service = {
   description: '幫店家做專屬 AI 角色或老闆 AI 分身，腳本、台灣腔配音、對嘴、字幕全包，老闆不用露臉也能天天出片。',
   hasOfferCatalog: { '@type': 'OfferCatalog', name: 'AI 動畫方案', itemListElement: g.items.filter((it) => !it.ask).map((it) => ({ '@type': 'Offer', price: it.p, priceCurrency: 'TWD', itemOffered: { '@type': 'Service', name: it.n, description: it.d } })) }
 };
-const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: AIFAQ.map((x) => ({ '@type': 'Question', name: x[0], acceptedAnswer: { '@type': 'Answer', text: x[1] } })) };
+const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', dateModified: '2026-10-18', mainEntity: AIFAQ.map((x) => ({ '@type': 'Question', name: x[0], acceptedAnswer: { '@type': 'Answer', text: x[1] } })) };
 const video = { '@context': 'https://schema.org', '@type': 'VideoObject', name: '愛德華救店・早餐店篇', description: '寫實真人加真貓，配音、對嘴全部 AI 做的 34 秒短片。', thumbnailUrl: BIZ.url + '/m/edward_p.jpg', contentUrl: BIZ.url + '/m/edward.mp4', uploadDate: '2026-10-01', duration: 'PT34S' };
 export default async function Page() { return <><Ld data={service} /><Ld data={faq} /><Ld data={video} /><Home rows={await getRows()} path="/ai-animation" /></>; }

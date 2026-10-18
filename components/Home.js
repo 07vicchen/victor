@@ -135,8 +135,8 @@ RENDER.herox = function (d, v, ctx) {
     h('div', { className: 'hx-bg', style: { backgroundImage: 'url(' + (d.image || '') + ')' }, 'aria-hidden': true }),
     h('div', { className: 'hx-in' },
       h('div', { className: 'hx-copy' },
-        d.eyebrow ? h('span', { className: 'hx-eb' }, d.eyebrow) : null,
-        h('h1', null, d.title),
+        d.eyebrow ? h('h1', { className: 'hx-eb' }, d.eyebrow) : null,
+        h(d.eyebrow ? 'p' : 'h1', { className: 'hx-t' }, d.title),
         d.desc ? h('p', null, d.desc) : null,
         h('div', { className: 'hx-act' }, h('a', { className: 'gobtn', href: '/quote' }, h('span', { className: 'gob' }, h('small', null, 'PRICE'), h('b', null, d.primary || '看報價')), h('i', { className: 'goa' }, '→'))),
         d.note ? h('small', { className: 'hx-note' }, d.note) : null),
@@ -384,7 +384,7 @@ var site = {
   name: '維拓傳媒', slogan: '為你的品牌，拓出一片天', logo: M + 'logo.png', nav: 'left', onepage: false, floatc: 'line', ordersLabel: '諮詢',
   pages: [
     { id: 'home', name: '首頁', slug: '/', sections: [
-      S('herox', 'cover', { eyebrow: 'Victor Media Division · 維拓傳媒', title: '為你的品牌，拓出一片天', desc: '維拓傳媒專注個人品牌與 IP 孵化。從人設定位、內容企劃、AI 動畫到社群經營，把你的專業變成看得見、留得住的資產。', primary: '看報價', note: '貓探長單支 9.8 萬觀看・村山爺爺 3 週起量', video: M + 'hero_edward.mp4', image: M + 'hero_edward.jpg', alt: '愛德華在早餐店櫃台用貓掌點手機' }),
+      S('herox', 'cover', { eyebrow: '維拓傳媒｜AI 動畫代言・短影音代操・網頁設計・SEO', title: '為你的品牌，拓出一片天', desc: '維拓傳媒幫店家和個人品牌做 AI 動畫代言（短影音每支 6,000 元起）、短影音代操（AI 動畫每月 15,000 元起、真人拍攝每月 45,000 元起）、網頁設計（一頁式 15,000 元起）、SEO 和 AI 搜尋優化（每月 8,800 元起）、LINE AI 客服（每月 1,980 元起）。老闆不用露臉，每一項都有公開價格，全台線上合作。', primary: '看報價', note: '貓探長單支 9.8 萬觀看・村山爺爺 3 週起量', video: M + 'hero_edward.mp4', image: M + 'hero_edward.jpg', alt: '愛德華在早餐店櫃台用貓掌點手機' }),
       S('marquee', 'big', TAGS),
       S('doors', '', { title: '你想先看哪一個', sub: '點進去看，每一頁上面的選單都能隨時切換。', items: DOORS }),
       S('bignum', 'counters', { title: '做出來的數字', items: [{ value: '9.8 萬', label: '貓探長單支觀看' }, { value: '34.7 萬', label: '貓探長兩個月 Reels 觀看' }, { value: '3 週', label: '村山爺爺從 0 到起量' }, { value: '1,000+', label: '村山爺爺單夜增粉' }] }),
@@ -395,7 +395,8 @@ var site = {
       S('pagehead', '', { en: 'WORKS', title: '我們做起來的 IP', desc: '從 0 粉起號到商業變現，數字都是帳號後台的真實數據。' }),
       S('ipcases', '', { title: '經營的 IP', sub: '動畫、真人，每個 IP 都量身做企劃。', items: [
         { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', video: M + 'ip_cat.mp4', image: M + 'ip_cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '983']] },
-        { name: '村山爺爺', tag: '真人 IP・86 歲日本觀光大使', plat: 'Threads', handle: '@japan.grandpa', url: 'https://www.threads.com/@japan.grandpa', video: M + 'ip_murayama.mp4', image: M + 'ip_murayama.jpg', desc: '村山正弘，86 歲，當過多年五星級飯店總經理，現在還在第一線帶日本高端小團。維拓從企劃、拍法到經營一手做起來：0 粉起號，3 週起量，單夜增粉破千，第 2 個月開始商業變現。', stats: [['Threads 粉絲', '8,225'], ['置頂串文按讚', '2,416'], ['開始變現', '第 2 個月']] }] }),
+        { name: '村山爺爺', tag: '真人 IP・86 歲日本觀光大使', plat: 'Threads', handle: '@japan.grandpa', url: 'https://www.threads.com/@japan.grandpa', video: M + 'ip_murayama.mp4', image: M + 'ip_murayama.jpg', desc: '村山正弘，86 歲，當過多年五星級飯店總經理，現在還在第一線帶日本高端小團。維拓從企劃、拍法到經營一手做起來：0 粉起號，3 週起量，單夜增粉破千，第 2 個月開始商業變現。', stats: [['Threads 粉絲', '8,225'], ['置頂串文按讚', '2,416'], ['開始變現', '第 2 個月']] },
+        { name: '王拓恩', tag: 'AI 明星・寫實短劇', plat: 'Instagram', handle: '@en05_24', url: 'https://www.instagram.com/en05_24/', image: M + 'f45.jpg', desc: '23 歲業餘棒球員，公開是 AI。每週一集寫實短劇，角色、台灣腔配音、對嘴全部 AI 做，拿來接品牌代言。', stats: [['第二季開播', '10 月'], ['〈第五年〉觀看', '2,189'], ['按讚', '101']] }] }),
       S('next', '', nextOf('/works'))
     ] },
     { id: 'demo', name: '服務示範', slug: '/demo', sections: [
@@ -417,7 +418,7 @@ var site = {
       S('next', '', nextOf('/quote'))
     ] },
     { id: 'aianim', name: 'AI 動畫', slug: '/ai-animation', sections: [
-      S('pagehead', '', { en: 'AI ANIMATION', title: 'AI 動畫代言：老闆不用露臉，也能天天出片', desc: '幫你的店做一個專屬角色，或是用你本人做一個 AI 分身。腳本、台灣腔配音、對嘴、字幕都由我們來，你只要點頭。先看一支我們做的。' }),
+      S('pagehead', '', { en: 'AI ANIMATION', title: 'AI 動畫代言：老闆不用露臉，也能天天出片', desc: '維拓傳媒做 AI 動畫廣告和 AI 代言角色：幫你的店做一個專屬角色，或是用你本人做一個 AI 分身，腳本、台灣腔配音、對嘴、字幕都由我們來。免費角色試看，體驗動畫 1,990 元，AI 動畫短影音每支 6,000 元起，全台線上合作。先看一支我們做的。' }),
       S('video', 'full', { title: '愛德華救店・早餐店篇', desc: '寫實真人加上真貓，配音、對嘴全部 AI 做。', caption: '34 秒・AI 動畫短影音（寫實）', src: M + 'edward.mp4', poster: M + 'edward_p.jpg' }),
       S('sgpair', '', { title: '三種做法，挑適合你的', sub: '不想露臉、不想背稿、沒時間拍，都有對應的做法。', items: [
         { en: 'Q 版', t: 'Q 版角色動畫', p: '幫你的店設計一個可愛的代言角色，像貓探長那樣，每支片都由它出場。', list: ['專屬角色設計和造型', '台灣腔聲音', '角色設定書，之後每支長得都一樣', '適合美業、餐飲、親子、知識分享'] },
@@ -457,8 +458,8 @@ var site = {
         ['LOGO／片頭動畫', 'lo', null, '5～10 秒，片頭、轉場、IG 動態封面'],
         ['AI 商品情境圖', 'pi', null, '一組 5 張，IG、蝦皮、菜單都能用'],
         ['AI 動畫影集', 'se', null, '品牌專屬連續劇，一季 8～12 集']
-      ], note: '新台幣、未稅；代營運最少 3 個月。寫「起」的依長度和內容評估，寫實版的短影音 NT$6,000～88,000。' }),
-      S('faq', '', { title: 'AI 動畫常見問題', items: AIFAQ }),
+      ], note: '新台幣、未稅；代營運最少 3 個月。寫「起」的依長度和內容評估，寫實版的短影音 NT$6,000～88,000。價格最後更新：2026 年 10 月 18 日。' }),
+      S('faq', '', { title: 'AI 動畫常見問題', sub: '最後更新：2026 年 10 月 18 日', items: AIFAQ }),
       S('reach', '', {}),
       S('next', '', nextOf('/ai-animation'))
     ] },
@@ -497,8 +498,8 @@ var site = {
         ['App 開發', 'ap', null, 'iOS／Android、會員系統、API 串接'],
         ['網站／App 維護巡查', 'mt', null, '每天看有沒有壞，每月健康報告'],
         ['AI 能見度＋SEO 健檢', 'sg0', null, '網站上線後，看 Google 和 AI 找不找得到你']
-      ], note: '新台幣、未稅。網域和主機年費依實際費用另計，我們會先講清楚。' }),
-      S('faq', '', { title: '網頁設計常見問題', items: WEBFAQ }),
+      ], note: '新台幣、未稅。網域和主機年費依實際費用另計，我們會先講清楚。價格最後更新：2026 年 10 月 18 日。' }),
+      S('faq', '', { title: '網頁設計常見問題', sub: '最後更新：2026 年 10 月 18 日', items: WEBFAQ }),
       S('reach', '', {}),
       S('next', '', nextOf('/web-design'))
     ] },
@@ -534,8 +535,8 @@ var site = {
         ['Meta 廣告代操', 'ma', null, '好的片拿去投廣告，每週回報成效'],
         ['爆款與對手觀察', 'vw', null, '每週拆同業爆款給你看'],
         ['影片上字幕', 'sb', null, '自己拍好的片，只上字幕和標題']
-      ], note: '新台幣、未稅；代營運和內容製作最少 3 個月。寫「起」的依長度和內容評估。' }),
-      S('faq', '', { title: '短影音代操常見問題', items: SVFAQ }),
+      ], note: '新台幣、未稅；代營運和內容製作最少 3 個月。寫「起」的依長度和內容評估。價格最後更新：2026 年 10 月 18 日。' }),
+      S('faq', '', { title: '短影音代操常見問題', sub: '最後更新：2026 年 10 月 18 日', items: SVFAQ }),
       S('reach', '', {}),
       S('next', '', nextOf('/short-video'))
     ] },
@@ -562,8 +563,8 @@ var site = {
         ['海巡署＋脆文代寫', 'pc', null, 'Threads 每天留言加每週 4 篇貼文'],
         ['社群數據月報', 'dr', null, '每支片看了多少、每千觀看漲幾粉'],
         ['爆款與對手觀察', 'vw', null, '每週拆同類帳號的爆款']
-      ], note: '新台幣、未稅；代營運最少 3 個月。寫「起」的依內容量評估。' }),
-      S('faq', '', { title: 'IP 代操常見問題', items: IPFAQ }),
+      ], note: '新台幣、未稅；代營運最少 3 個月。寫「起」的依內容量評估。價格最後更新：2026 年 10 月 18 日。' }),
+      S('faq', '', { title: 'IP 代操常見問題', sub: '最後更新：2026 年 10 月 18 日', items: IPFAQ }),
       S('reach', '', {}),
       S('next', '', nextOf('/ip-management'))
     ] },

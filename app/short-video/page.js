@@ -13,5 +13,5 @@ const service = {
   description: '維拓傳媒短影音代操：真人拍攝每月 45,000 元起（企劃、拍攝、剪輯、字幕、封面，4 支），不露臉的 AI 動畫代營運每月 15,000 元起，直播切片一場 8,000 元。全台線上合作，台北、新北可到場拍攝。',
   hasOfferCatalog: { '@type': 'OfferCatalog', name: '短影音代操價格', itemListElement: items.map((it) => ({ '@type': 'Offer', price: it.p, priceCurrency: 'TWD', itemOffered: { '@type': 'Service', name: it.n, description: it.d } })) }
 };
-const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: SVFAQ.map((x) => ({ '@type': 'Question', name: x[0], acceptedAnswer: { '@type': 'Answer', text: x[1] } })) };
+const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', dateModified: '2026-10-18', mainEntity: SVFAQ.map((x) => ({ '@type': 'Question', name: x[0], acceptedAnswer: { '@type': 'Answer', text: x[1] } })) };
 export default async function Page() { return <><Ld data={service} /><Ld data={faq} /><Home rows={await getRows()} path="/short-video" /></>; }
