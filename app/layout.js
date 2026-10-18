@@ -10,7 +10,7 @@ const ORG = {
   founder: { '@type': 'Person', name: '陳卓恩', alternateName: 'Vic' },
   knowsAbout: ['AI 動畫', '短影音代營運', '社群經營', 'Google 商家與地圖排名', 'SEO', '生成式引擎優化（GEO）', 'LINE AI 客服', 'AI 辦公室'], taxID: BIZ.taxId, url: BIZ.url, logo: BIZ.url + '/m/logo.png', image: BIZ.url + '/m/hero.jpg',
   telephone: BIZ.tel, priceRange: 'NT$500–NT$150,000',
-  address: { '@type': 'PostalAddress', streetAddress: BIZ.street, addressLocality: BIZ.locality, addressRegion: BIZ.region, addressCountry: 'TW' },
+  address: { '@type': 'PostalAddress', addressLocality: BIZ.locality, addressRegion: BIZ.region, addressCountry: 'TW' },
   areaServed: ['新北市', '台北市', '台灣'],
   openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '10:00', closes: '21:00' }],
   sameAs: ['https://www.instagram.com/' + BIZ.ig + '/', 'https://line.me/R/ti/p/' + encodeURIComponent(BIZ.line), 'https://share.google/pmbiFNuTPhAbAroQx'], hasMap: 'https://share.google/pmbiFNuTPhAbAroQx',
