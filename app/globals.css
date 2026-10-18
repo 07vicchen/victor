@@ -855,3 +855,4 @@ button.gobtn{border:0;font:inherit;text-align:left}
 .dpts{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
 .dpts li{position:relative;padding-left:22px;font-size:14.5px;line-height:1.6}
 .dpts li::before{content:"";position:absolute;left:2px;top:.55em;width:9px;height:9px;background:var(--brand)}
+.ipm video{width:100%;height:100%;object-fit:cover;display:block}

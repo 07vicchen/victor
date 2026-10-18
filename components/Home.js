@@ -27,7 +27,7 @@ RENDER.ipcases = function (d) {
     h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
     h('div', { className: 'ipgrid' }, d.items.map(function (x, i) {
       return h('article', { key: i, className: 'ipc' },
-        h('div', { className: 'ipm' + (x.image ? '' : ' noimg') }, x.image ? h('img', { src: x.image, alt: x.name, loading: 'lazy' }) : h('span', null, x.name), h('em', null, x.plat)),
+        h('div', { className: 'ipm' + (x.image || x.video ? '' : ' noimg') }, x.video ? h('video', { src: x.video, poster: x.image, autoPlay: true, muted: true, loop: true, playsInline: true, preload: 'metadata', 'aria-label': x.name }) : x.image ? h('img', { src: x.image, alt: x.name, loading: 'lazy' }) : h('span', null, x.name), h('em', null, x.plat)),
         h('div', { className: 'ipb' },
           h('span', { className: 'eyebrow' }, x.tag), h('h3', null, x.name), h('p', null, x.desc),
           h('dl', null, x.stats.map(function (s, j) { return h('div', { key: j }, h('dt', null, s[0]), h('dd', null, s[1])); })),
@@ -390,8 +390,8 @@ var site = {
     { id: 'works', name: '作品', slug: '/works', sections: [
       S('pagehead', '', { en: 'WORKS', title: '我們做起來的 IP', desc: '兩個 IP，兩種做法。數字都是帳號後台的真實數據。' }),
       S('ipcases', '', { title: '兩個 IP', sub: '動畫和真人，兩種做法。', items: [
-        { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '983']] },
-        { name: '村山爺爺', tag: '真人 IP・日本觀光', plat: 'Threads', handle: 'Threads', desc: '85 歲的日本觀光大使。0 粉起號，3 週快速起量，單夜增粉破千，第二個月開始商業變現。', stats: [['起量', '3 週'], ['單夜增粉', '1,000+'], ['開始變現', '第 2 個月']] }] }),
+        { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', video: M + 'ip_cat.mp4', image: M + 'ip_cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '983']] },
+        { name: '村山爺爺', tag: '真人 IP・日本觀光', plat: 'Threads', handle: 'Threads', video: M + 'ip_murayama.mp4', image: M + 'ip_murayama.jpg', desc: '85 歲的日本觀光大使。0 粉起號，3 週快速起量，單夜增粉破千，第二個月開始商業變現。', stats: [['起量', '3 週'], ['單夜增粉', '1,000+'], ['開始變現', '第 2 個月']] }] }),
       S('next', '', nextOf('/works'))
     ] },
     { id: 'demo', name: '服務示範', slug: '/demo', sections: [
