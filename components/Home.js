@@ -3,7 +3,7 @@ import React from 'react';
 import Site from './Site.js';
 import { RENDER } from './sections.js';
 import CAT0 from './cat.json';
-import { BIZ, FAQ, SVC, SGFAQ, AIFAQ, WEBFAQ, SVFAQ, IPFAQ } from './faq.js';
+import { BIZ, FAQ, SVC, SGFAQ, AIFAQ, WEBFAQ, SVFAQ, IPFAQ, ABOUTFAQ } from './faq.js';
 
 var h = React.createElement, useState = React.useState;
 var M = '/m/';
@@ -318,6 +318,7 @@ var DOORS = [
   { href: '/short-video', en: 'SHORT VIDEO', title: '短影音代操', desc: '企劃、拍攝、剪輯、發文；不露臉也能用 AI 出片', image: M + 'edward_p.jpg' },
   { href: '/ip-management', en: 'IP', title: '自媒體 IP 代操', desc: '從定位到變現，貓探長、村山爺爺都是這樣做起來的', image: M + 'ip_murayama.jpg' },
   { href: '/seo-geo', en: 'SEO × GEO', title: 'SEO・AEO・GEO', desc: 'Google 搜尋、Google 地圖、ChatGPT 都找得到你，月費 8,800 元起', image: M + 'f70.jpg' },
+  { href: '/about', en: 'ABOUT', title: '關於我們', desc: '誰在做、在哪裡、做過什麼，一頁講清楚', image: M + 'logo.png' },
   { href: '/contact', en: 'CONTACT', title: '聯絡我們', desc: 'LINE @898biiyu・IG victor_149131', image: M + 'cat.jpg' }
 ];
 function nextOf(skip, doors) { return { items: (doors || DOORS).filter(function (x) { return x.href !== skip; }) }; }
@@ -510,6 +511,12 @@ var site = {
         { en: 'AI', t: 'AI 動畫・AI 分身', p: '不露臉、不用拍，用 AI 角色或老闆分身出片。', list: ['台灣腔配音、對嘴', 'Q 版或寫實都可以', '單支 NT$6,000 起', '代營運 NT$15,000 起／每月'] },
         { en: '剪輯', t: '你拍、我們剪', p: '已經有直播、Podcast 或自己拍的素材，交給我們剪成短影音。', list: ['一場長片剪 5 支 NT$8,000', '只上字幕 NT$500／支', '標題和封面一起做', '適合已經有在拍的人'] }
       ] }),
+      S('ofeat', '', { title: '台北、新北可以到場拍攝', sub: '台北短影音代操：真人拍攝方案可以到你的店或公司拍；不想露臉的 AI 動畫代營運，全台都能線上做，不用見面。', items: [
+        ['台北市', '到你的店、診所或公司拍，一次拍完當月 4 支'],
+        ['新北市', '汐止、南港、板橋、新店都在拍攝範圍，先約時間'],
+        ['其他縣市', '真人拍攝先用 LINE 問排程；AI 動畫和剪輯全台線上做'],
+        ['不想露臉', '用 AI 角色或老闆 AI 分身出片，人不用到場']
+      ] }),
       S('ofeat', '', { title: '代操每個月做的事', sub: '我們自己的帳號就是這樣經營的。', items: [
         ['找爆款', '每週一整理同行和你自己帳號的爆款，拆出哪種開頭、哪種題目有效'],
         ['寫腳本', '照爆款拆解寫腳本給你挑，你點頭才拍'],
@@ -661,6 +668,29 @@ var site = {
       S('faq', '', { title: 'SEO・AEO・GEO 常見問題', items: SGFAQ }),
       S('reach', '', {}),
       S('next', '', nextOf('/seo-geo'))
+    ] },
+    { id: 'about', name: '關於我們', slug: '/about', hidden: true, sections: [
+      S('pagehead', '', { en: 'ABOUT', title: '關於維拓傳媒：我們自己經營 IP，再把同一套做法交給你', desc: '維拓傳媒是維拓顧問有限公司（統一編號 62180576）的品牌，由陳卓恩（Vic）創辦，公司在新北市汐止區，全台線上合作。我們自己從 0 經營貓探長、村山爺爺、王拓恩三個帳號，也幫店家和個人品牌做 AI 動畫代言、短影音代操、自媒體 IP 代操、網頁設計、SEO・AEO・GEO 和 LINE AI 客服，每一項都有公開價格。' }),
+      S('ofeat', '', { title: '我們是誰', sub: '查得到的資料都寫在這裡。', items: [
+        ['公司', '維拓顧問有限公司，統一編號 62180576'],
+        ['創辦人', '陳卓恩（Vic）'],
+        ['地點', '新北市汐止區新台五路二段238巷112號10樓；全台線上合作，台北、新北可以到場'],
+        ['自己的帳號', '貓探長、村山爺爺、王拓恩，都是我們從 0 開始經營'],
+        ['做事的方法', '一組 AI 員工每週找爆款、寫腳本、追數據、檢查網站，人看過才交出去'],
+        ['價格', '每一項服務都公開標價，在「服務與報價」勾選就算得出合計'],
+        ['聯絡', '電話 0903-454-333、LINE @898biiyu、IG victor_149131'],
+        ['服務時間', '週一至週五 10:00–21:00']
+      ] }),
+      S('bignum', 'counters', { title: '我們自己做出來的數字', items: [{ value: '9.8 萬', label: '貓探長單支觀看' }, { value: '34.7 萬', label: '貓探長兩個月 Reels 觀看' }, { value: '3 週', label: '村山爺爺從 0 到起量' }, { value: '第 2 個月', label: '村山爺爺開始變現' }] }),
+      S('sgsteps', '', { title: '跟我們合作的流程', sub: '先看清楚再決定，不用一次花大錢。', steps: [
+        ['LINE 聊一下', '說你的店或品牌、想解決什麼，我們先回你適合哪一種做法'],
+        ['看報價', '每一項都有公開價格，在報價頁勾好就知道大概多少'],
+        ['先試做', 'AI 動畫有免費角色試看和 1,990 元體驗片，網站和搜尋可以先做健檢'],
+        ['正式開始', '簽約後照月計畫做，每月給你數據報告']
+      ], btn: '去報價單勾選' }),
+      S('faq', '', { title: '關於維拓傳媒的常見問題', sub: '最後更新：2026 年 10 月 19 日', items: ABOUTFAQ }),
+      S('reach', '', {}),
+      S('next', '', nextOf('/about'))
     ] },
     { id: 'contact', name: '聯絡我們', slug: '/contact', sections: [
       S('pagehead', '', { en: 'CONTACT', title: '跟我們聊聊', desc: '想做 IP、想問價錢、想蓋 AI 辦公室，LINE 傳一句就好。' }),

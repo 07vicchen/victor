@@ -4,7 +4,7 @@ import { meta, Ld } from '../seo';
 import { BIZ, SVFAQ } from '../../components/faq';
 import CAT from '../../components/cat.json';
 export const revalidate = 300;
-export const metadata = meta('/short-video', '短影音代操價格・老闆不露臉短影音｜全台線上合作｜維拓傳媒', '維拓傳媒短影音代操：真人拍攝每月 45,000 元起（企劃、拍攝、剪輯、字幕、封面，4 支），不露臉的 AI 動畫代營運每月 15,000 元起，直播切片一場 8,000 元。全台線上合作，台北、新北可到場拍攝。');
+export const metadata = meta('/short-video', '短影音代操價格・老闆不露臉短影音｜台北新北到場拍・全台線上｜維拓傳媒', '維拓傳媒短影音代操：真人拍攝每月 45,000 元起（企劃、拍攝、剪輯、字幕、封面，4 支），不露臉的 AI 動畫代營運每月 15,000 元起，直播切片一場 8,000 元。全台線上合作，台北、新北可到場拍攝。');
 const IDS = ['clip','vq','ao','sv','so','cm','pt','ma','vw','sb'];
 const items = [].concat(...CAT.map((g) => g.items)).filter((it) => IDS.includes(it.id) && !it.ask);
 const service = {
