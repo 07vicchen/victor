@@ -6,7 +6,7 @@ import CAT from '../components/cat.json';
 const ORG = {
   '@context': 'https://schema.org', '@type': 'ProfessionalService', '@id': BIZ.url + '/#org',
   name: BIZ.name, legalName: BIZ.legal, alternateName: ['Victor Media', '維拓顧問有限公司', '維拓顧問', '維拓媒體', 'Victor Media Division'],
-  description: '新北汐止的品牌與 AI 內容公司：AI 動畫角色、短影音代營運、社群經營、Google 地圖曝光、SEO 與 AI 搜尋優化（GEO）、品牌官網、LINE AI 客服與 AI 辦公室。每一項服務都有公開價格。',
+  description: '全台線上合作的品牌與 AI 內容公司（公司在新北汐止）：AI 動畫角色、短影音代操、自媒體 IP 代操、網頁設計、社群經營、Google 地圖曝光、SEO 與 AI 搜尋優化（GEO）、品牌官網、LINE AI 客服與 AI 辦公室。每一項服務都有公開價格。',
   founder: { '@type': 'Person', name: '陳卓恩', alternateName: 'Vic' },
   knowsAbout: ['AI 動畫', '短影音代營運', '社群經營', 'Google 商家與地圖排名', 'SEO', '生成式引擎優化（GEO）', 'LINE AI 客服', 'AI 辦公室'], taxID: BIZ.taxId, url: BIZ.url, logo: BIZ.url + '/m/logo.png', image: BIZ.url + '/m/hero.jpg',
   telephone: BIZ.tel, priceRange: 'NT$500–NT$150,000',
@@ -19,7 +19,7 @@ const ORG = {
 
 export const metadata = {
   metadataBase: new URL('https://www.victormedia.com.tw'),
-  title: { default: '維拓傳媒｜AI 動畫、短影音代營運、AI 辦公室｜新北汐止', template: '%s' },
+  title: { default: '維拓傳媒｜AI 動畫代言、短影音代操、網頁設計、SEO｜全台線上合作', template: '%s' },
   description: '維拓傳媒專注個人品牌與 IP 孵化：AI 明星、AI 動畫、社群代營運、AI 辦公室。每一項都有價錢，線上報價直接傳 LINE。',
   icons: { icon: '/m/logo.png' },
   openGraph: { title: '維拓傳媒｜為你的品牌，拓出一片天', description: 'AI 明星、AI 動畫、社群代營運、AI 辦公室。', images: ['/m/hero.jpg'], type: 'website' }
