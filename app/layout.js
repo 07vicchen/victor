@@ -5,7 +5,7 @@ import CAT from '../components/cat.json';
 
 const ORG = {
   '@context': 'https://schema.org', '@type': 'ProfessionalService', '@id': BIZ.url + '/#org',
-  name: BIZ.name, legalName: BIZ.legal, alternateName: 'Victor Media',
+  name: BIZ.name, legalName: BIZ.legal, alternateName: ['Victor Media', '維拓顧問有限公司', '維拓顧問', '維拓媒體', 'Victor Media Division'],
   description: '新北汐止的品牌與 AI 內容公司：AI 動畫角色、短影音代營運、社群經營、Google 地圖曝光、SEO 與 AI 搜尋優化（GEO）、品牌官網、LINE AI 客服與 AI 辦公室。每一項服務都有公開價格。',
   founder: { '@type': 'Person', name: '陳卓恩', alternateName: 'Vic' },
   knowsAbout: ['AI 動畫', '短影音代營運', '社群經營', 'Google 商家與地圖排名', 'SEO', '生成式引擎優化（GEO）', 'LINE AI 客服', 'AI 辦公室'], taxID: BIZ.taxId, url: BIZ.url, logo: BIZ.url + '/m/logo.png', image: BIZ.url + '/m/hero.jpg',
