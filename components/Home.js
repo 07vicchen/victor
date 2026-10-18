@@ -308,7 +308,7 @@ var S = function (type, variant, data) { return { id: '', type: type, variant: v
 var TAGS = { items: [{ text: 'AI 明星' }, { text: 'IP 孵化' }, { text: '老闆不用露臉' }, { text: 'AI 辦公室' }] };
 var IPS = { items: [{ text: '王拓恩' }, { text: '貓探長' }, { text: '村山爺爺' }] };
 var DOORS = [
-  { href: '/works', en: 'WORKS', title: '作品', desc: '愛德華、王拓恩、貓探長、村山爺爺，四個 IP 的真實數字', image: M + 'tuoen.jpg' },
+  { href: '/works', en: 'WORKS', title: '作品', desc: '貓探長、村山爺爺，兩個 IP 的真實數字', image: M + 'tuoen.jpg' },
   { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
   { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
   { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
@@ -388,12 +388,9 @@ var site = {
       S('marquee', 'text', IPS)
     ] },
     { id: 'works', name: '作品', slug: '/works', sections: [
-      S('pagehead', '', { en: 'WORKS', title: '我們做起來的 IP', desc: '四個 IP，四種做法。數字都是帳號後台的真實數據。' }),
-      S('video', 'full', { title: '愛德華救店・早餐店篇', desc: '早上開門，椅子空空的。愛德華決定幫老闆想辦法。', caption: 'AI 廣告短片・34 秒・寫實真人＋真貓', src: M + 'edward.mp4', poster: M + 'edward_p.jpg' }),
-      S('ipcases', '', { title: '四個 IP', sub: 'AI 廣告、AI 明星、動畫、真人，各有各的做法。', items: [
-        { name: '愛德華', tag: 'AI 廣告・寵物溫暖短劇', plat: 'Instagram', handle: '@victor_149131', url: 'https://www.instagram.com/victor_149131/', image: M + 'edward_p.jpg', desc: '維拓傳媒的招牌貓。救店系列幫店家拍廣告，生活版跟主人小翊過日子，寫實真人＋真貓、配音對嘴全部 AI 做。', stats: [['帳號粉絲', '1,036'], ['「遲到十四分鐘」平均看', '19.5 秒'], ['廣告片長', '34 秒']] },
-        { name: '王拓恩', tag: 'AI 明星・寫實短劇', plat: 'Instagram', handle: '@en05_24', url: 'https://www.instagram.com/en05_24/', image: M + 'f45.jpg', desc: '23 歲業餘棒球員，公開是 AI。每週一集寫實短劇，角色、台灣腔配音、對嘴全部 AI 做。', stats: [['第二季開播', '10 月'], ['〈第五年〉觀看', '2,189'], ['按讚', '101']] },
-        { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '961']] },
+      S('pagehead', '', { en: 'WORKS', title: '我們做起來的 IP', desc: '兩個 IP，兩種做法。數字都是帳號後台的真實數據。' }),
+      S('ipcases', '', { title: '兩個 IP', sub: '動畫和真人，兩種做法。', items: [
+        { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '983']] },
         { name: '村山爺爺', tag: '真人 IP・日本觀光', plat: 'Threads', handle: 'Threads', desc: '85 歲的日本觀光大使。0 粉起號，3 週快速起量，單夜增粉破千，第二個月開始商業變現。', stats: [['起量', '3 週'], ['單夜增粉', '1,000+'], ['開始變現', '第 2 個月']] }] }),
       S('next', '', nextOf('/works'))
     ] },
@@ -435,7 +432,7 @@ var site = {
       ] }),
       S('ipcases', '', { title: '我們自己做的帳號', sub: '數字都是帳號後台的真實數據。', items: [
         { name: '王拓恩', tag: 'AI 明星・寫實短劇', plat: 'Instagram', handle: '@en05_24', url: 'https://www.instagram.com/en05_24/', image: M + 'f45.jpg', desc: '23 歲業餘棒球員，公開是 AI。每週一集寫實短劇，角色、台灣腔配音、對嘴全部 AI 做。', stats: [['第二季開播', '10 月'], ['〈第五年〉觀看', '2,189'], ['按讚', '101']] },
-        { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '961']] }] }),
+        { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '983']] }] }),
       S('sgsteps', '', { title: '怎麼開始', sub: '先免費看看你的店變成角色長什麼樣子，喜歡再往下走。', steps: [
         ['免費角色試看', 'Q 版角色圖加一句台灣腔配音，3 天內交，每月限 10 位'],
         ['1990 體驗動畫', '用你的角色做一支 15 秒會動、會講話的短片'],
