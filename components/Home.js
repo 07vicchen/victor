@@ -165,6 +165,24 @@ RENDER.sgpair = function (d) {
         h('ul', null, x.list.map(function (l, j) { return h('li', { key: j }, l); })));
     }))));
 };
+RENDER.sgplans = function (d) {
+  function pr(id) { var it = IX[id]; return it ? money(it.p) + (it.max ? ' 起' : '') : ''; }
+  return h('section', { className: 'sec sgplans', id: 'plans' }, h('div', { className: 'sec-inner' },
+    h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
+    h('div', { className: 'sgpl' }, d.plans.map(function (p, i) {
+      return h('article', { key: i, className: p.hot ? 'hot' : '' },
+        p.tag ? h('em', null, p.tag) : null,
+        h('h3', null, p.n), h('p', { className: 'who' }, p.who),
+        h('p', { className: 'amt' }, pr(p.id), h('small', null, '／每月')),
+        h('ul', null, d.rows.map(function (r, j) { var v = p.v[j]; return h('li', { key: j, className: v === '—' ? 'no' : '' }, h('span', null, r), h('b', null, v)); })));
+    })),
+    h('h3', { className: 'sgadd-t' }, d.addTitle),
+    h('div', { className: 'sgadd' }, d.adds.map(function (a, i) {
+      return h('div', { key: i }, h('b', null, a[0]), h('span', { className: 'amt' }, pr(a[1]), h('small', null, a[2])), h('p', null, a[3]));
+    })),
+    h('p', { className: 'sgnote' }, d.note),
+    h('div', { className: 'ofbtn' }, h('a', { className: 'gobtn', href: '/quote' }, h('span', { className: 'gob' }, h('small', null, 'PRICE'), h('b', null, '去報價單勾選，馬上算合計')), h('i', { className: 'goa' }, '→')))));
+};
 RENDER.sgdemo = function (d) {
   function mark(t) { var i = t.indexOf(d.shop); return i < 0 ? t : [t.slice(0, i), h('mark', { key: 'm' }, d.shop), t.slice(i + d.shop.length)]; }
   return h('section', { className: 'sec sec-alt sgdemo' }, h('div', { className: 'sec-inner' },
@@ -268,7 +286,7 @@ var DOORS = [
   { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
   { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
   { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
-  { href: '/seo-geo', en: 'SEO × GEO', title: 'SEO 與 GEO', desc: '讓 Google 和 ChatGPT 都說出你的店名，先做 4,800 元健檢', image: M + 'f70.jpg' },
+  { href: '/seo-geo', en: 'SEO × GEO', title: 'SEO・AEO・GEO', desc: 'Google 搜尋、Google 地圖、ChatGPT 都找得到你，月費 8,800 元起', image: M + 'f70.jpg' },
   { href: '/contact', en: 'CONTACT', title: '聯絡我們', desc: 'LINE @898biiyu・IG victor_149131', image: M + 'cat.jpg' }
 ];
 function nextOf(skip, doors) { return { items: (doors || DOORS).filter(function (x) { return x.href !== skip; }) }; }
@@ -408,7 +426,7 @@ var site = {
       S('reach', '', {}),
       S('next', '', nextOf('/office'))
     ] },
-    { id: 'seogeo', name: 'SEO 與 GEO', slug: '/seo-geo', sections: [
+    { id: 'seogeo', name: 'SEO・AEO・GEO', slug: '/seo-geo', sections: [
       S('pagehead', '', { en: 'SEO × AEO × GEO', title: '客人問 Google、問 AI，都聽得到你的店名', desc: '以前客人在 Google 搜「汐止 做臉」，自己從十個連結裡挑；現在越來越多人直接問 ChatGPT「汐止哪家做臉好」，AI 只會講兩三家。沒被講到，客人根本不知道你。這條路，我們幫你一次顧好。' }),
       S('sgdemo', '', { title: '同一個客人，三種找店的方式', sub: '你的店要在每一種都被看到。', q: '汐止 做臉 推薦', shop: '你的店', items: [
         { en: 'SEO', t: 'Google 搜尋', kind: 'list', rows: ['你的店｜汐止做臉・首次體驗 1,980 元', 'A 美容工作室', 'B 皮膚管理', 'C 美學中心'] },
@@ -436,8 +454,18 @@ var site = {
         ['填建置問卷', '我們傳一條你專屬的連結，手機就能填，資料不用重講'],
         ['開始代操', '最少 6 個月，通常 3～6 個月看得出變化，每月一份月報']
       ], note: '老實說：AI 要推薦誰，沒有人能保證。我們能做的，是把被推薦的機會拉到最高，每個月用同一組問題實測給你看。', btn: '去報價單勾選方案' }),
-      S('svclist', '', { gi: SGI }),
-      S('faq', '', { title: 'SEO 與 GEO 常見問題', items: SGFAQ }),
+      S('sgplans', '', { title: '方案和價錢', sub: 'SEO、AEO、GEO 每個方案都包含；有實體店面、想要 Google 地圖排前面，選在地全包最划算。', rows: ['SEO 關鍵字', '每月文章', 'AEO 問答頁', 'GEO：AI 有沒有提到你', 'Google 地圖排名代操', '外部曝光', '競爭對手監測', '月報'], plans: [
+        { id: 'sg2', n: '入門', who: '剛起步、先把基礎打好', v: ['5 組', '2 篇', '建 10 題', '每月追 10 題', '—', '—', '—', '每月'] },
+        { id: 'sg3', n: '標準', tag: '最多人選', hot: 1, who: '想穩定被搜到、被 AI 推薦', v: ['10 組', '4 篇', '每月整理', '每月追 20 題', '—', '每月 1 則', '—', '每月'] },
+        { id: 'sg5', n: '在地全包', tag: '有店面推薦', hot: 1, who: '美業、餐飲、診所等實體店', v: ['10 組', '4 篇', '每月整理', '每月追 20 題', '每日追排名・貼文・回評論', '每月 1 則', '—', '每月'] },
+        { id: 'sg4', n: '進階', who: '競爭激烈、要拚第一', v: ['15～20 組', '6～8 篇', '每月整理', '每週追蹤', '另計', '每月 2～3 則', '有', '每月'] }
+      ], addTitle: '也可以單買', adds: [
+        ['AI 能見度＋SEO 健檢', 'sg0', '／一次', '先看清楚現在在哪；簽月約可全額抵第一個月'],
+        ['Google 商家地圖優化', 'gm', '／一次', '商家檔案建立、資訊補齊、關鍵字設定'],
+        ['Google 地圖排名代操', 'gr', '／每月', '每日追排名、商家貼文、評論回覆、九宮格排名月報'],
+        ['GEO＋AEO 加購', 'sg1', '／每月', '已經有地圖代操的店家，再加 AI 推薦'],
+      ], note: '新台幣、未稅；月費方案最少 6 個月。寫「起」的依店家狀況評估。' }),
+      S('faq', '', { title: 'SEO・AEO・GEO 常見問題', items: SGFAQ }),
       S('reach', '', {}),
       S('next', '', nextOf('/seo-geo'))
     ] },

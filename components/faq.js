@@ -23,7 +23,7 @@ export var SVC = [
   { slug: 'local', name: '在地曝光服務', intro: 'Google 商家檔案優化和地圖排名代操，讓附近要找你的客人在 Google 地圖上先看到你。新北汐止、台北和全台店家都能做。' },
   { slug: 'brand', name: '品牌與網站服務', intro: 'Logo、品牌識別、形象官網、一頁式活動頁、線上報價頁、線上預約系統、內部管理系統和 App 開發。手機優先、開得快、Google 找得到。' },
   { slug: 'ai', name: '企業 AI 導入服務', intro: 'AI 客服守夜方案、AI 語音電話客服、AI 辦公室代建、網路自動化和員工 AI 教育訓練，把每天重複的工作交給 AI，你只看結果。' },
-  { slug: 'seo-geo', name: 'SEO 與 AI 搜尋優化（GEO）', intro: '讓客人在 Google 搜尋、Google 地圖，以及問 ChatGPT、Gemini、Google AI 摘要「哪家好」的時候找到你。先做 4,800 元健檢，看 AI 現在有沒有提到你，再決定要不要月費代操，月費 8,800 元起。' }
+  { slug: 'seo-geo', name: 'SEO・AEO・GEO 搜尋優化', intro: '讓客人在 Google 搜尋、Google 地圖、Google 直接給的答案，以及問 ChatGPT、Gemini、Google AI 摘要「哪家好」的時候找到你。先做 4,800 元健檢，看 AI 現在有沒有提到你，再決定要不要月費代操，月費 8,800 元起。' }
 ];
 
 /* SEO 與 GEO 介紹頁的問答（頁面和結構化資料共用） */
