@@ -7,7 +7,7 @@ export const metadata = meta('/about', '關於維拓傳媒｜創辦人陳卓恩�
 const page = {
   '@context': 'https://schema.org', '@type': 'AboutPage', url: BIZ.url + '/about', name: '關於維拓傳媒', dateModified: '2026-10-19',
   about: { '@id': BIZ.url + '/#org' },
-  mainEntity: { '@type': 'Person', '@id': BIZ.url + '/#founder', name: '陳卓恩', alternateName: 'Vic', jobTitle: '創辦人', worksFor: { '@id': BIZ.url + '/#org' } }
+  mainEntity: { '@type': 'Person', '@id': BIZ.url + '/#founder', name: '陳卓恩', alternateName: 'Vic', jobTitle: '創辦人', description: '維拓傳媒創辦人，在傳播、傳媒產業將近 10 年，曾經做過娛樂直播。', worksFor: { '@id': BIZ.url + '/#org' } }
 };
 const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', dateModified: '2026-10-19', mainEntity: ABOUTFAQ.map((x) => ({ '@type': 'Question', name: x[0], acceptedAnswer: { '@type': 'Answer', text: x[1] } })) };
 export default async function Page() { return <><Ld data={page} /><Ld data={faq} /><Home rows={await getRows()} path="/about" /></>; }
