@@ -299,8 +299,9 @@ RENDER.demos = function (d) {
       else if (w === 'call') body = h(CallDemo, { shop: c.shop, lines: c.lines });
       else if (w === 'pair') body = h('div', { className: 'dpair' }, (c.images || []).map(function (u, k) { return h('img', { key: k, src: u, alt: '', loading: 'lazy' }); }));
       else if (w === 'pick') body = h('ul', { className: 'dpts' }, (c.points || []).map(function (t, k) { return h('li', { key: k }, t); }));
-      return h('article', { key: i, className: 'dcard' + (i === 0 ? ' tall' : '') }, h('span', { className: 'dtag' }, c.tag), h('h3', null, c.title), h('p', null, c.desc), body,
-        c.link ? h('a', { className: 'dlink', href: w === 'pair' ? '/works' : '/quote' }, c.link) : null);
+      var lk = c.link ? h('a', { className: 'dlink', href: w === 'pair' ? '/works' : '/quote' }, c.link) : null;
+      if (w === 'pick') return h('article', { key: i, className: 'dcard wide' }, h('div', { className: 'dwl' }, h('span', { className: 'dtag' }, c.tag), h('h3', null, c.title), h('p', null, c.desc), lk), body);
+      return h('article', { key: i, className: 'dcard' + (i === 0 ? ' tall' : '') }, h('span', { className: 'dtag' }, c.tag), h('h3', null, c.title), h('p', null, c.desc), body, lk);
     }))));
 };
 
