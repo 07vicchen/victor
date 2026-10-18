@@ -13,7 +13,7 @@ const ORG = {
   address: { '@type': 'PostalAddress', streetAddress: BIZ.street, addressLocality: BIZ.locality, addressRegion: BIZ.region, addressCountry: 'TW' },
   areaServed: ['新北市', '台北市', '台灣'],
   openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], opens: '10:00', closes: '21:00' }],
-  sameAs: ['https://www.instagram.com/' + BIZ.ig + '/', 'https://line.me/R/ti/p/' + encodeURIComponent(BIZ.line)],
+  sameAs: ['https://www.instagram.com/' + BIZ.ig + '/', 'https://line.me/R/ti/p/' + encodeURIComponent(BIZ.line), 'https://share.google/pmbiFNuTPhAbAroQx'], hasMap: 'https://share.google/pmbiFNuTPhAbAroQx',
   hasOfferCatalog: { '@type': 'OfferCatalog', name: '維拓傳媒服務與價格', itemListElement: CAT.map((g, i) => ({ '@type': 'OfferCatalog', name: g.g, url: BIZ.url + '/services/' + (SVC[i] ? SVC[i].slug : ''), itemListElement: g.items.filter((it) => !it.ask).map((it) => ({ '@type': 'Offer', price: it.p, priceCurrency: 'TWD', itemOffered: { '@type': 'Service', name: it.n } })) })) }
 };
 
