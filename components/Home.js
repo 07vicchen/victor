@@ -83,7 +83,7 @@ function Quote(p) {
       h('div', { className: 'qcats' }, CAT.map(function (g, gi) {
         var on = open === gi, n = g.items.filter(function (x) { return sel[x.id]; }).length;
         return h('div', { key: gi, className: 'qcat' + (on ? ' on' : '') },
-          h('button', { type: 'button', className: 'qhead', 'aria-expanded': on, onClick: function () { setOpen(on ? -1 : gi); } }, h('img', { className: 'qbg', src: g.img, alt: '', loading: 'lazy' }), h('span', { className: 'qno' }, '0' + (gi + 1)), h('span', { className: 'qtt' }, h('b', null, g.g), h('small', null, g.sub || '')), h('span', { className: 'qct' }, n ? '已選 ' + n : g.items.length + ' 項'), h('i', null)),
+          h('button', { type: 'button', className: 'qhead', 'aria-expanded': on, onClick: function () { setOpen(on ? -1 : gi); } }, h('span', { className: 'qno' }, '0' + (gi + 1)), h('span', { className: 'qtt' }, h('b', null, g.g), h('small', null, g.sub || '')), h('span', { className: 'qct' }, n ? '已選 ' + n : g.items.length + ' 項'), h('i', null)),
           on ? h('div', { className: 'qitems' }, SVC[gi] ? h('a', { className: 'qmore', href: SVC[gi].slug === 'seo-geo' ? '/seo-geo' : SVC[gi].slug === 'ai-animation' ? '/ai-animation' : '/services/' + SVC[gi].slug }, '看「' + g.g + '」每一項的完整介紹 →') : null, g.items.map(function (it) {
             var s = !!sel[it.id], r = REQ[it.id], lk = r && !sel[r];
             return h('div', { key: it.id, className: 'qit' + (s ? ' on' : '') },
