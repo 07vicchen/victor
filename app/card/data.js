@@ -16,6 +16,12 @@ export const CARDS = {
     slogan: ['為你的品牌，拓出一片天'],
     tel: '0900-195-343', telRaw: '+886900195343', email: 'daisy800330@gmail.com', line: '@898biiyu', web: 'https://www.victormedia.com.tw', webLabel: 'victormedia.com.tw',
     legal: '維拓顧問有限公司', taxId: '62180576', services: 'AI 動畫・短影音代營運・官網・AI 客服・AI 辦公室'
+  },
+  zhe: {
+    big: '拓', pos: 'right', company: '維拓傳媒', en: 'VICTOR MEDIA', name: '陳名哲', family: '陳', given: '名哲', enName: 'ZHE CHEN', title: '短影音剪輯師', enTitle: 'Short Video Editor',
+    slogan: ['為你的品牌，拓出一片天'],
+    tel: '0966-859-735', telRaw: '+886966859735', email: 'thycken714@gmail.com', line: '@898biiyu', web: 'https://www.victormedia.com.tw', webLabel: 'victormedia.com.tw',
+    legal: '維拓顧問有限公司', taxId: '62180576', services: 'AI 動畫・短影音代營運・官網・AI 客服・AI 辦公室'
   }
 };
 export const ADDR = '新北市汐止區新台五路二段 238 巷 112 號 10 樓';
