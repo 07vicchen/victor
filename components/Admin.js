@@ -10,7 +10,7 @@ var sb = createClient(DEFAULTS.sb.url, DEFAULTS.sb.key);
 var clone = function (o) { return JSON.parse(JSON.stringify(o)); };
 
 var PAGE_NAME = { home: '首頁', works: '作品', demo: '服務示範', quote: '服務與報價', office: 'AI 辦公室', contact: '聯絡我們' };
-var SEC_NAME = { herox: '最上面大圖', marquee: '跑馬燈', doors: '入口卡片', bignum: '大數字', reach: '聯絡卡片（LINE、IG）', pagehead: '頁面標題', video: '影片', ipcases: 'IP 作品卡', office: 'AI 辦公室介紹', ofeat: '辦公室功能', ostaff: '員工名單', owhy: '為什麼找我們', msgform: '留言表單', demos: '示範卡片', quote: '報價單文字', contact: '聯絡區', next: '接著看', sgpair: 'SEO 和 GEO 比較', sgsteps: '怎麼開始', sgdemo: '三種找店方式示意', sgplans: '方案比較' };
+var SEC_NAME = { herox: '最上面大圖', marquee: '跑馬燈', doors: '入口卡片', bignum: '大數字', reach: '聯絡卡片（LINE、IG）', pagehead: '頁面標題', video: '影片', ipcases: 'IP 作品卡', office: 'AI 辦公室介紹', ofeat: '辦公室功能', ostaff: '員工名單', owhy: '為什麼找我們', msgform: '留言表單', demos: '示範卡片', quote: '報價單文字', contact: '聯絡區', next: '接著看', sgpair: 'SEO 和 GEO 比較', sgsteps: '怎麼開始', sgdemo: '三種找店方式示意', sgplans: '方案比較', sgreport: '月報示意' };
 var LABEL = { title: '標題', sub: '副標', desc: '說明', eyebrow: '最上面小字', primary: '按鈕字', note: '小註記', image: '圖片', images: '圖片', en: '英文小字', value: '數字', label: '數字說明', caption: '影片下面小字', src: '影片檔', video: '影片檔', poster: '影片封面圖', name: '名稱', tag: '標籤', plat: '平台', handle: '帳號', url: '連結', stats: '數字', items: '項目', points: '重點', staff: '員工', deps: '部門', text: '文字', btn: '按鈕字', btnSub: '按鈕小字', price: '價錢那行字', link: '最下面連結字', shop: '店名', hello: '第一句招呼', qa: '問答（問／答）', lines: '對話（ai 或 c／內容）', cards: '卡片', line: 'LINE', ig: 'IG' };
 var HIDE_KEY = { href: 1, id: 1, alt: 1, list: 1, plus: 1, floor: 1 };
 var IMG_KEY = { image: 1, poster: 1, img: 1, images: 1 };

@@ -3,7 +3,7 @@ import React from 'react';
 import Site from './Site.js';
 import { RENDER } from './sections.js';
 import CAT0 from './cat.json';
-import { BIZ, FAQ, SVC, SGFAQ } from './faq.js';
+import { BIZ, FAQ, SVC, SGFAQ, AIFAQ } from './faq.js';
 
 var h = React.createElement, useState = React.useState;
 var M = '/m/';
@@ -84,7 +84,7 @@ function Quote(p) {
         var on = open === gi, n = g.items.filter(function (x) { return sel[x.id]; }).length;
         return h('div', { key: gi, className: 'qcat' + (on ? ' on' : '') },
           h('button', { type: 'button', className: 'qhead', 'aria-expanded': on, onClick: function () { setOpen(on ? -1 : gi); } }, h('img', { className: 'qbg', src: g.img, alt: '', loading: 'lazy' }), h('span', { className: 'qno' }, '0' + (gi + 1)), h('span', { className: 'qtt' }, h('b', null, g.g), h('small', null, g.sub || '')), h('span', { className: 'qct' }, n ? '已選 ' + n : g.items.length + ' 項'), h('i', null)),
-          on ? h('div', { className: 'qitems' }, SVC[gi] ? h('a', { className: 'qmore', href: SVC[gi].slug === 'seo-geo' ? '/seo-geo' : '/services/' + SVC[gi].slug }, '看「' + g.g + '」每一項的完整介紹 →') : null, g.items.map(function (it) {
+          on ? h('div', { className: 'qitems' }, SVC[gi] ? h('a', { className: 'qmore', href: SVC[gi].slug === 'seo-geo' ? '/seo-geo' : SVC[gi].slug === 'ai-animation' ? '/ai-animation' : '/services/' + SVC[gi].slug }, '看「' + g.g + '」每一項的完整介紹 →') : null, g.items.map(function (it) {
             var s = !!sel[it.id], r = REQ[it.id], lk = r && !sel[r];
             return h('div', { key: it.id, className: 'qit' + (s ? ' on' : '') },
               h('div', { className: 'qn' }, it.n, it.tag ? h('em', null, it.tag) : null),
@@ -166,22 +166,37 @@ RENDER.sgpair = function (d) {
     }))));
 };
 RENDER.sgplans = function (d) {
-  function pr(id) { var it = IX[id]; return it ? money(it.p) + (it.max ? ' 起' : '') : ''; }
+  function pr(id) { var it = IX[id]; if (!it) return ''; if (it.ask) return '洽詢'; if (it.p === 0) return '免費'; return money(it.p) + (it.max ? ' 起' : ''); }
+  function un(id, alt) { var it = IX[id]; return alt != null ? alt : it && !it.ask && it.p ? '／' + (UNIT[it.unit] || '') : ''; }
   return h('section', { className: 'sec sgplans', id: 'plans' }, h('div', { className: 'sec-inner' },
     h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
     h('div', { className: 'sgpl' }, d.plans.map(function (p, i) {
       return h('article', { key: i, className: p.hot ? 'hot' : '' },
         p.tag ? h('em', null, p.tag) : null,
         h('h3', null, p.n), h('p', { className: 'who' }, p.who),
-        h('p', { className: 'amt' }, pr(p.id), h('small', null, '／每月')),
+        h('p', { className: 'amt' }, pr(p.id), h('small', null, un(p.id, p.unit))),
         h('ul', null, d.rows.map(function (r, j) { var v = p.v[j]; return h('li', { key: j, className: v === '—' ? 'no' : '' }, h('span', null, r), h('b', null, v)); })));
     })),
     h('h3', { className: 'sgadd-t' }, d.addTitle),
     h('div', { className: 'sgadd' }, d.adds.map(function (a, i) {
-      return h('div', { key: i }, h('b', null, a[0]), h('span', { className: 'amt' }, pr(a[1]), h('small', null, a[2])), h('p', null, a[3]));
+      return h('div', { key: i }, h('b', null, a[0]), h('span', { className: 'amt' }, pr(a[1]), h('small', null, a[2] != null ? a[2] : un(a[1]))), h('p', null, a[3]));
     })),
     h('p', { className: 'sgnote' }, d.note),
     h('div', { className: 'ofbtn' }, h('a', { className: 'gobtn', href: '/quote' }, h('span', { className: 'gob' }, h('small', null, 'PRICE'), h('b', null, '去報價單勾選，馬上算合計')), h('i', { className: 'goa' }, '→')))));
+};
+RENDER.sgreport = function (d) {
+  var W = 320, Hh = 70, vs = d.chart, mx = Math.max.apply(null, vs), pts = vs.map(function (v, i) { return (i * W / (vs.length - 1)).toFixed(1) + ',' + (Hh - 6 - v / mx * (Hh - 14)).toFixed(1); }).join(' ');
+  return h('section', { className: 'sec sec-alt sgreport' }, h('div', { className: 'sec-inner' },
+    h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
+    h('div', { className: 'rpt' },
+      h('div', { className: 'rpth' }, h('b', null, d.head), h('span', null, d.period)),
+      h('div', { className: 'rptk' }, d.kpis.map(function (k, i) { return h('div', { key: i }, h('small', null, k[0]), h('b', null, k[1]), h('em', { className: /^−|^-/.test(k[2]) ? 'dn' : '' }, k[2]), h('p', null, k[3])); })),
+      h('div', { className: 'rptc' }, h('small', null, d.chartTitle), h('svg', { viewBox: '0 0 ' + W + ' ' + Hh, preserveAspectRatio: 'none', role: 'img', 'aria-label': d.chartTitle }, h('polyline', { points: pts, fill: 'none', stroke: 'currentColor', strokeWidth: 2.5, vectorEffect: 'non-scaling-stroke' }))),
+      h('div', { className: 'rptq' }, h('small', null, d.qTitle), h('table', null,
+        h('thead', null, h('tr', null, h('th', null, '客人問 AI 的問題'), d.engines.map(function (e) { return h('th', { key: e }, e); }))),
+        h('tbody', null, d.qs.map(function (q, i) { return h('tr', { key: i }, h('td', null, q[0]), q[1].map(function (v, j) { return h('td', { key: j, className: v ? 'y' : 'n' }, v ? '有提到' : '沒提到'); })); })))),
+      h('div', { className: 'rptn' }, h('div', null, h('small', null, '這個月做了'), h('ul', null, d.done.map(function (x, i) { return h('li', { key: i }, x); }))), h('div', null, h('small', null, '下個月要做'), h('ul', null, d.next.map(function (x, i) { return h('li', { key: i }, x); })))),
+      h('p', { className: 'rptf' }, d.note))));
 };
 RENDER.sgdemo = function (d) {
   function mark(t) { var i = t.indexOf(d.shop); return i < 0 ? t : [t.slice(0, i), h('mark', { key: 'm' }, d.shop), t.slice(i + d.shop.length)]; }
@@ -286,6 +301,7 @@ var DOORS = [
   { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
   { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
   { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
+  { href: '/ai-animation', en: 'AI ANIMATION', title: 'AI 動畫', desc: '老闆不用露臉，AI 角色幫你講；先免費看你的角色', image: M + 'tuoen.jpg' },
   { href: '/seo-geo', en: 'SEO × GEO', title: 'SEO・AEO・GEO', desc: 'Google 搜尋、Google 地圖、ChatGPT 都找得到你，月費 8,800 元起', image: M + 'f70.jpg' },
   { href: '/contact', en: 'CONTACT', title: '聯絡我們', desc: 'LINE @898biiyu・IG victor_149131', image: M + 'cat.jpg' }
 ];
@@ -388,6 +404,52 @@ var site = {
       S('faq', '', { title: '常見問題', items: FAQ }),
       S('next', '', nextOf('/quote'))
     ] },
+    { id: 'aianim', name: 'AI 動畫', slug: '/ai-animation', sections: [
+      S('pagehead', '', { en: 'AI ANIMATION', title: '老闆不用露臉，也能天天出片', desc: '幫你的店做一個專屬角色，或是用你本人做一個 AI 分身。腳本、台灣腔配音、對嘴、字幕都由我們來，你只要點頭。先看一支我們做的。' }),
+      S('video', 'full', { title: '愛德華救店・早餐店篇', desc: '寫實真人加上真貓，配音、對嘴全部 AI 做。', caption: '34 秒・AI 動畫短影音（寫實）', src: M + 'edward.mp4', poster: M + 'edward_p.jpg' }),
+      S('sgpair', '', { title: '三種做法，挑適合你的', sub: '不想露臉、不想背稿、沒時間拍，都有對應的做法。', items: [
+        { en: 'Q 版', t: 'Q 版角色動畫', p: '幫你的店設計一個可愛的代言角色，像貓探長那樣，每支片都由它出場。', list: ['專屬角色設計和造型', '台灣腔聲音', '角色設定書，之後每支長得都一樣', '適合美業、餐飲、親子、知識分享'] },
+        { en: '寫實', t: '寫實 AI 人物', p: '看起來像真人演出的短片，像王拓恩和愛德華那樣，可以演小劇場。', list: ['寫實人物、場景、運鏡', '對嘴配音、字幕、封面', '可以拍連續劇、廣告片', '適合想要質感、說故事的品牌'] },
+        { en: '分身', t: '老闆 AI 分身', p: '用你本人的臉和聲音做一個分身，之後給稿就能出口播，不用再拍。', list: ['一次建置，之後每支照稿生成', '你的聲音、你的樣子', '字幕和配樂都上好', '適合專業服務、顧問、講師'] }
+      ] }),
+      S('ofeat', '', { title: '一支片我們幫你做哪些事', sub: '你只要給想講的事，其他交給我們。', items: [
+        ['角色', '設計專屬角色，寫好角色設定，之後每支都長一樣'],
+        ['腳本', '照你的服務寫成 30～60 秒的小故事，不是硬推銷'],
+        ['聲音', '台灣腔配音，可以做成你家專屬的聲音'],
+        ['動畫', '角色動起來、場景、運鏡'],
+        ['對嘴', '嘴型跟著台詞動，看起來自然'],
+        ['字幕封面', '字幕、標題、IG 封面一起做好'],
+        ['發文', '代營運方案幫你排時間、寫文案、發出去'],
+        ['成效', '每月看觀看、分享、留言，下個月照數據調整']
+      ] }),
+      S('ipcases', '', { title: '我們自己做的帳號', sub: '數字都是帳號後台的真實數據。', items: [
+        { name: '王拓恩', tag: 'AI 明星・寫實短劇', plat: 'Instagram', handle: '@en05_24', url: 'https://www.instagram.com/en05_24/', image: M + 'f45.jpg', desc: '23 歲業餘棒球員，公開是 AI。每週一集寫實短劇，角色、台灣腔配音、對嘴全部 AI 做。', stats: [['第二季開播', '10 月'], ['〈第五年〉觀看', '2,189'], ['按讚', '101']] },
+        { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '961']] }] }),
+      S('sgsteps', '', { title: '怎麼開始', sub: '先免費看看你的店變成角色長什麼樣子，喜歡再往下走。', steps: [
+        ['免費角色試看', 'Q 版角色圖加一句台灣腔配音，3 天內交，每月限 10 位'],
+        ['1990 體驗動畫', '用你的角色做一支 15 秒會動、會講話的短片'],
+        ['正式打造角色', '定裝造型、專屬聲音、角色設定書，之後每支都一致'],
+        ['每月出片', '單支計價，或交給我們代營運，每月 4 支起']
+      ], note: '老實說：AI 動畫不是按一個鈕就好，角色要一致、嘴型要對、故事要好看，我們每支都會人工檢查過才交。', btn: '去報價單勾選' }),
+      S('sgplans', '', { title: '方案和價錢', sub: '從免費試看開始，不用一次花大錢。', rows: ['角色', '影片長度', '配音和對嘴', '腳本', '每月支數', '發文和成效分析'], plans: [
+        { id: 'fr', n: '免費試看', who: '先看看你的店變成角色', unit: '', v: ['Q 版角色圖', '—', '一句台灣腔', '—', '—', '—'] },
+        { id: 't1', n: '體驗動畫', who: '先做一支看看效果', v: ['用試看的角色', '15 秒', '有', '我們寫', '1 支', '—'] },
+        { id: 'vq', n: '動畫短影音', tag: '最多人選', hot: 1, who: '單支計價，想做幾支做幾支', v: ['要先打造角色', '30～60 秒', '有', '有', '依需求', '—'] },
+        { id: 'ao', n: '動畫代營運', tag: '最省心', hot: 1, who: '整個帳號交給我們', v: ['長期經營', '30～60 秒', '有', '每月企劃', '4 支起', '有'] }
+      ], addTitle: '其他項目', adds: [
+        ['角色打造（Q 版）', 'cq', null, '專屬角色、定裝造型、台灣腔聲音、角色設定書'],
+        ['角色打造（寫實）', 'cr', null, '寫實 AI 人物版本'],
+        ['老闆 AI 分身（建置）', 'twb', null, '用你的臉和聲音，之後口播不用再拍'],
+        ['分身口播影片', 'twv', null, '60 秒內，給稿就生，字幕配樂都上好'],
+        ['AI 品牌專屬聲音', 'bv', null, '你家專屬的台灣腔，廣告、客服都用同一個'],
+        ['LOGO／片頭動畫', 'lo', null, '5～10 秒，片頭、轉場、IG 動態封面'],
+        ['AI 商品情境圖', 'pi', null, '一組 5 張，IG、蝦皮、菜單都能用'],
+        ['AI 動畫影集', 'se', null, '品牌專屬連續劇，一季 8～12 集']
+      ], note: '新台幣、未稅；代營運最少 3 個月。寫「起」的依長度和內容評估，寫實版的短影音 NT$6,000～88,000。' }),
+      S('faq', '', { title: 'AI 動畫常見問題', items: AIFAQ }),
+      S('reach', '', {}),
+      S('next', '', nextOf('/ai-animation'))
+    ] },
     { id: 'office', name: 'AI 辦公室', slug: '/office', sections: [
       S('pagehead', '', { en: 'AI OFFICE', title: '幫你的公司蓋一間 AI 辦公室', desc: '我們自己就是這樣經營這些 IP。' }),
       S('office', '', { btn: '進組裝台，挑你的 AI 員工', price: '建置 NT$150,000 起・維運每月 NT$15,000 起', title: '員工每天照班表上班', desc: '一組 AI 員工找爆款、寫腳本、看數據、回留言，做完把報告交到一個網頁上，你只要看、按同意。', points: [['挑員工', '總管、企劃、剪片、數據、海巡署……照你的行業先幫你挑好'], ['挑辦公室樣子', '員工在畫面上走動、上班，誰在做什麼一眼看到'], ['送出給維拓', '我們幫你在 Claude 裡蓋好，試跑一週調好才交']], staff: [['總管秘書', '每天早上 10:47 早報'], ['企劃編劇', '週一寫這週腳本'], ['數據分析', '每天 07:49 抓數據'], ['海巡署', '每天巡熱門串擬留言'], ['校稿品管', '交件前檢查錯字'], ['留言管家', '每天擬回覆草稿']] }),
@@ -448,6 +510,19 @@ var site = {
         ['問 AI 一輪', '每月用同一組 10～20 個問題，看 AI 有沒有提到你、推薦了誰'],
         ['月報', '排名、地圖、AI 提到幾次；這個月做了什麼、下個月做什麼']
       ] }),
+      S('sgreport', '', { title: '每個月你會收到這樣一份報告', sub: '不用看懂後台，打開手機就知道：Google 和 AI 這個月有沒有更常推薦你、我們做了什麼、下個月做什麼。', head: '○○美學 10 月 SEO・AEO・GEO 報告', period: '10/1–10/31', kpis: [
+        ['AI 提到你', '6／20 題', '+3 題', 'ChatGPT、Gemini、Google AI 摘要實測'],
+        ['AI 推薦名次', '第 2 名', '+1', '有提到時，平均排第幾家'],
+        ['Google 曝光', '3,840 次', '+42%', '你的網站出現在搜尋結果的次數'],
+        ['Google 點擊', '212 次', '+35%', '點進你網站的人'],
+        ['地圖前三名', '4／10 組', '+2 組', '「汐止 做臉」這類關鍵字'],
+        ['新增評論', '18 則', '+18', '平均 4.9 分']],
+      chartTitle: '每天 Google 曝光', chart: [60, 72, 70, 88, 95, 90, 104, 118, 112, 126, 131, 140, 138, 152, 160, 158, 170, 176, 181, 190],
+      qTitle: 'AI 實測（每月同一組問題，這裡列 5 題）', engines: ['ChatGPT', 'Gemini', 'AI 摘要'], qs: [
+        ['汐止有推薦的做臉嗎？', [1, 1, 1]], ['汐止做臉多少錢？', [1, 0, 1]], ['敏感肌可以去哪裡做保養？', [0, 0, 1]], ['汐止哪家美容院評價好？', [1, 0, 0]], ['做臉會不會一直被推銷？', [0, 0, 0]]],
+      done: ['新增 4 篇文章：敏感肌保養、首次體驗流程等', '問答頁補 6 題，每題第一句就給答案', 'Google 商家發 4 則貼文、回覆 18 則評論'],
+      next: ['「做臉會不會被推銷」寫一篇真實說明，搶下 AI 還沒提到的題目', '請 5 位老客人寫具體的評論', '服務頁補上價格和時間'],
+      note: '畫面是示意，店名和數字都是範例，不是真實客戶資料。' }),
       S('sgsteps', '', { title: '怎麼開始', sub: '不用一開始就簽月約，先看清楚自己現在在哪。', steps: [
         ['先做健檢 NT$4,800', 'Google 排名和 AI 能見度一起看，報告會告訴你最該先做哪幾件事'],
         ['看報告再決定', '想自己做就照清單做；要我們代操，健檢費可以全額抵第一個月'],
