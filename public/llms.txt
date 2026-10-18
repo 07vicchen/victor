@@ -15,7 +15,7 @@
 - [作品案例](https://www.victormedia.com.tw/works)：王拓恩、貓探長、村山爺爺
 - [服務示範](https://www.victormedia.com.tw/demo)
 - [AI 辦公室](https://www.victormedia.com.tw/office)
-- [SEO 與 AI 搜尋優化（GEO）](https://www.victormedia.com.tw/services/seo-geo)：讓 Google 和 ChatGPT、Gemini、Google AI 摘要找到你；健檢 NT$4,800，月費 NT$8,800 起
+- [SEO、AEO、GEO 搜尋優化](https://www.victormedia.com.tw/seo-geo)：SEO 讓 Google 排前面、AEO 讓 Google 直接拿你的話當答案、GEO 讓 AI 說出你的店名；讓 Google 和 ChatGPT、Gemini、Google AI 摘要找到你；健檢 NT$4,800，月費 NT$8,800 起
 - [指南](https://www.victormedia.com.tw/guides)：GEO 是什麼、LINE AI 客服怎麼選
 - [AI 客服](https://www.victormedia.com.tw/ai-kefu)：LINE／官網 24 小時 AI 客服，照店家資料回答、照店家話術推銷，成交與客訴當下通知老闆；月費 NT$1,980 起
 - [聯絡我們](https://www.victormedia.com.tw/contact)
@@ -83,7 +83,7 @@
 - AI 員工教育訓練：NT$15,000／每支。一場 3 小時，教員工用 AI 寫文案、做圖、整理資料，含講義
 - AI 導入顧問：NT$30,000／每月。每月盤點哪些工作能交給 AI、陪跑導入、每月一次會議
 
-## SEO 與 AI 搜尋優化（GEO）（https://www.victormedia.com.tw/services/seo-geo）
+## SEO 與 AI 搜尋優化（GEO）（https://www.victormedia.com.tw/seo-geo）
 - AI 能見度＋SEO 健檢：NT$4,800／一次。網站技術檢查、10 個問題實測 ChatGPT／Gemini／Google AI 摘要有沒有提到你、跟 3 家同業比較、改善清單；簽月約可全額抵第一個月
 - GEO 加購：NT$4,800／每月。給 Google 地圖排名代操客戶，評論和商家資訊改成 AI 好讀的寫法、問答結構化資料、每月 10 個問題追蹤
 - SEO＋GEO 入門：NT$8,800／每月。5 組在地關鍵字、每月 2 篇文章、結構化資料和 llms.txt、每月 10 個 AI 問題追蹤（最少 6 個月）

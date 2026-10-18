@@ -3,7 +3,7 @@ import React from 'react';
 import Site from './Site.js';
 import { RENDER } from './sections.js';
 import CAT0 from './cat.json';
-import { BIZ, FAQ, SVC } from './faq.js';
+import { BIZ, FAQ, SVC, SGFAQ } from './faq.js';
 
 var h = React.createElement, useState = React.useState;
 var M = '/m/';
@@ -44,6 +44,9 @@ RENDER.office = function (d) {
     h('div', { className: 'ofgrid', 'aria-hidden': true }, d.staff.map(function (s, i) { return h('div', { key: i }, h('b', null, s[0]), h('span', null, s[1])); }))));
 };
 
+var SGI = SVC.findIndex(function (x) { return x.slug === 'seo-geo'; });
+
+
 /* 報價單：每一項都有價錢，可以勾選，送到 LINE */
 var QIMG0 = [M + 'cat.jpg', M + 'f45.jpg', M + 'edward.jpg', M + 'tuoen.jpg', M + 'f70.jpg'];
 var QSUB0 = ['角色、動畫、配音，老闆不用露臉', '代營運、腳本、剪片、脆文', '在地店家曝光、地圖排名', 'Logo、官網、品牌識別', '把 AI 員工裝進你的公司'];
@@ -81,7 +84,7 @@ function Quote(p) {
         var on = open === gi, n = g.items.filter(function (x) { return sel[x.id]; }).length;
         return h('div', { key: gi, className: 'qcat' + (on ? ' on' : '') },
           h('button', { type: 'button', className: 'qhead', 'aria-expanded': on, onClick: function () { setOpen(on ? -1 : gi); } }, h('img', { className: 'qbg', src: g.img, alt: '', loading: 'lazy' }), h('span', { className: 'qno' }, '0' + (gi + 1)), h('span', { className: 'qtt' }, h('b', null, g.g), h('small', null, g.sub || '')), h('span', { className: 'qct' }, n ? '已選 ' + n : g.items.length + ' 項'), h('i', null)),
-          on ? h('div', { className: 'qitems' }, SVC[gi] ? h('a', { className: 'qmore', href: '/services/' + SVC[gi].slug }, '看「' + g.g + '」每一項的完整介紹 →') : null, g.items.map(function (it) {
+          on ? h('div', { className: 'qitems' }, SVC[gi] ? h('a', { className: 'qmore', href: SVC[gi].slug === 'seo-geo' ? '/seo-geo' : '/services/' + SVC[gi].slug }, '看「' + g.g + '」每一項的完整介紹 →') : null, g.items.map(function (it) {
             var s = !!sel[it.id], r = REQ[it.id], lk = r && !sel[r];
             return h('div', { key: it.id, className: 'qit' + (s ? ' on' : '') },
               h('div', { className: 'qn' }, it.n, it.tag ? h('em', null, it.tag) : null),
@@ -151,6 +154,36 @@ RENDER.owhy = function (d) {
     h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
     h('div', { className: 'owg' }, d.items.map(function (x, i) { return h('div', { key: i }, h('b', null, x[0]), h('p', null, x[1])); })),
     h('div', { className: 'ofbtn' }, h('a', { className: 'gobtn', href: OFFICE_URL, target: '_blank', rel: 'noopener' }, h('span', { className: 'gob' }, h('small', null, 'AI OFFICE BUILDER'), h('b', null, d.btn || '進組裝台，挑你的 AI 員工')), h('i', { className: 'goa' }, '→')), h('span', null, d.price))));
+};
+
+/* ===== SEO 與 GEO 介紹頁 ===== */
+RENDER.sgpair = function (d) {
+  return h('section', { className: 'sec sgpair' }, h('div', { className: 'sec-inner' },
+    h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
+    h('div', { className: 'sgp' }, d.items.map(function (x, i) {
+      return h('article', { key: i }, h('small', null, x.en), h('h3', null, x.t), h('p', null, x.p),
+        h('ul', null, x.list.map(function (l, j) { return h('li', { key: j }, l); })));
+    }))));
+};
+RENDER.sgdemo = function (d) {
+  function mark(t) { var i = t.indexOf(d.shop); return i < 0 ? t : [t.slice(0, i), h('mark', { key: 'm' }, d.shop), t.slice(i + d.shop.length)]; }
+  return h('section', { className: 'sec sec-alt sgdemo' }, h('div', { className: 'sec-inner' },
+    h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
+    h('div', { className: 'sgd' }, d.items.map(function (x, i) {
+      var body = x.kind === 'list' ? h('ol', null, x.rows.map(function (r, j) { return h('li', { key: j, className: j ? '' : 'me' }, mark(r)); }))
+        : x.kind === 'answer' ? h('div', { className: 'ans' }, h('small', null, '答案'), h('p', null, mark(x.text)))
+        : h('div', { className: 'chat' }, h('p', { className: 'ask' }, x.ask), h('p', { className: 'bot' }, mark(x.text)));
+      return h('article', { key: i }, h('header', null, h('small', null, x.en), h('b', null, x.t)),
+        h('div', { className: 'sbar' }, x.kind === 'chat' ? '傳訊息給 ChatGPT' : d.q), body);
+    })),
+    d.note ? h('p', { className: 'sgnote2' }, d.note) : null));
+};
+RENDER.sgsteps = function (d) {
+  return h('section', { className: 'sec sec-alt sgsteps' }, h('div', { className: 'sec-inner' },
+    h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
+    h('ol', { className: 'sgs' }, d.steps.map(function (x, i) { return h('li', { key: i }, h('span', null, '0' + (i + 1)), h('b', null, x[0]), h('p', null, x[1])); })),
+    d.note ? h('p', { className: 'sgnote' }, d.note) : null,
+    h('div', { className: 'ofbtn' }, h('a', { className: 'gobtn', href: '/quote' }, h('span', { className: 'gob' }, h('small', null, 'PRICE'), h('b', null, d.btn || '去報價單勾選')), h('i', { className: 'goa' }, '→')))));
 };
 
 /* ===== 服務示範 ===== */
@@ -235,6 +268,7 @@ var DOORS = [
   { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
   { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
   { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
+  { href: '/seo-geo', en: 'SEO × GEO', title: 'SEO 與 GEO', desc: '讓 Google 和 ChatGPT 都說出你的店名，先做 4,800 元健檢', image: M + 'f70.jpg' },
   { href: '/contact', en: 'CONTACT', title: '聯絡我們', desc: 'LINE @898biiyu・IG victor_149131', image: M + 'cat.jpg' }
 ];
 function nextOf(skip, doors) { return { items: (doors || DOORS).filter(function (x) { return x.href !== skip; }) }; }
@@ -373,6 +407,39 @@ var site = {
       S('msgform', '', { title: '想要一間 AI 辦公室？先留言' }),
       S('reach', '', {}),
       S('next', '', nextOf('/office'))
+    ] },
+    { id: 'seogeo', name: 'SEO 與 GEO', slug: '/seo-geo', sections: [
+      S('pagehead', '', { en: 'SEO × AEO × GEO', title: '客人問 Google、問 AI，都聽得到你的店名', desc: '以前客人在 Google 搜「汐止 做臉」，自己從十個連結裡挑；現在越來越多人直接問 ChatGPT「汐止哪家做臉好」，AI 只會講兩三家。沒被講到，客人根本不知道你。這條路，我們幫你一次顧好。' }),
+      S('sgdemo', '', { title: '同一個客人，三種找店的方式', sub: '你的店要在每一種都被看到。', q: '汐止 做臉 推薦', shop: '你的店', items: [
+        { en: 'SEO', t: 'Google 搜尋', kind: 'list', rows: ['你的店｜汐止做臉・首次體驗 1,980 元', 'A 美容工作室', 'B 皮膚管理', 'C 美學中心'] },
+        { en: 'AEO', t: 'Google 直接給答案', kind: 'answer', text: '汐止做臉首次體驗大約 1,500～2,500 元。像「你的店」首次體驗 1,980 元、約 60 分鐘，含肌膚檢測。' },
+        { en: 'GEO', t: '問 ChatGPT', kind: 'chat', ask: '汐止有推薦的做臉嗎？', text: '汐止評價不錯的有幾家：1.「你的店」，Google 評論 4.9 分，客人常提到做完不紅、不推銷…' }
+      ], note: '畫面是示意，不是真實搜尋結果。' }),
+      S('sgpair', '', { title: 'SEO、AEO、GEO 差在哪？', sub: '一句話：SEO 讓 Google 把你排前面，AEO 讓 Google 直接拿你的話當答案，GEO 讓 AI 說出你的名字。三個是同一條路，功夫大部分重疊，一起做最省。', items: [
+        { en: 'SEO', t: 'Google 搜尋・Google 地圖', p: '客人搜「地區＋服務」的時候，你出現在前面、地圖前三家。', list: ['挑出客人真的會搜的關鍵字', '官網標題、內容、速度調好', '每月寫文章回答客人常問的事', 'Google 商家資料和評論顧好', '每週追排名，月報給你看'] },
+        { en: 'AEO', t: '精選摘要・Google AI 摘要・語音助理', p: '客人問一個問題，Google 不給連結、直接秀出答案，答案就是你網站上的那一段。', list: ['把客人常問的問題一題一題寫成問答', '每題第一句就回答，再補細節', '價格、時間、步驟寫成清楚的數字和條列', '加上問答結構化資料，讓 Google 認得'] },
+        { en: 'GEO', t: 'ChatGPT・Gemini・Perplexity', p: '客人問 AI「哪家好」的時候，AI 會講到你、引用你的網站。', list: ['每月用同一組問題實測 AI 有沒有提到你', '官網改成 AI 好引用的寫法：第一句就給答案、價格寫清楚', '常見問答頁和結構化資料', '開放 AI 爬蟲、放給 AI 看的網站說明', '店名地址電話在各平台一字不差'] }
+      ] }),
+      S('ofeat', '', { title: '每個月幫你做的事', sub: '我們自己的官網就是這樣做的，交給你的是同一套。', items: [
+        ['先健檢', '實測 Google 排名和 AI 回答，跟 3 家同業比，給你一份照順序做的清單'],
+        ['填一份問卷', '服務、價格、客人常問的問題、跟別家差在哪，用手機寫一次就好'],
+        ['挑關鍵字', '依方案 5～20 組，挑客人真的會搜、你做得到的'],
+        ['寫文章', '每月 2～8 篇，回答客人真的會問的問題'],
+        ['改官網', '每頁開頭先給答案，數字和價格寫清楚，問答頁每月整理'],
+        ['讓 AI 讀得到', '結構化資料、AI 爬蟲設定、給 AI 看的網站說明都建好'],
+        ['問 AI 一輪', '每月用同一組 10～20 個問題，看 AI 有沒有提到你、推薦了誰'],
+        ['月報', '排名、地圖、AI 提到幾次；這個月做了什麼、下個月做什麼']
+      ] }),
+      S('sgsteps', '', { title: '怎麼開始', sub: '不用一開始就簽月約，先看清楚自己現在在哪。', steps: [
+        ['先做健檢 NT$4,800', 'Google 排名和 AI 能見度一起看，報告會告訴你最該先做哪幾件事'],
+        ['看報告再決定', '想自己做就照清單做；要我們代操，健檢費可以全額抵第一個月'],
+        ['填建置問卷', '我們傳一條你專屬的連結，手機就能填，資料不用重講'],
+        ['開始代操', '最少 6 個月，通常 3～6 個月看得出變化，每月一份月報']
+      ], note: '老實說：AI 要推薦誰，沒有人能保證。我們能做的，是把被推薦的機會拉到最高，每個月用同一組問題實測給你看。', btn: '去報價單勾選方案' }),
+      S('svclist', '', { gi: SGI }),
+      S('faq', '', { title: 'SEO 與 GEO 常見問題', items: SGFAQ }),
+      S('reach', '', {}),
+      S('next', '', nextOf('/seo-geo'))
     ] },
     { id: 'contact', name: '聯絡我們', slug: '/contact', sections: [
       S('pagehead', '', { en: 'CONTACT', title: '跟我們聊聊', desc: '想做 IP、想問價錢、想蓋 AI 辦公室，LINE 傳一句就好。' }),

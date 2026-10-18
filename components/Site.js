@@ -35,7 +35,7 @@ export default function Site({ site, pageIndex }) {
     h(FloatContact, { mode: site.floatc, contact: contact || {} }),
     h('footer', { className: 'footer' },
       h('div', null, h('b', null, site.name), h('br'), h('span', null, site.slogan)),
-      h('nav', { className: 'flinks' }, site.pages.map(function (pg, i) { return pg.hidden ? null : h(onepage ? 'a' : Link, { key: pg.id, href: hrefOf(i) }, pg.name); }).concat(onepage ? [] : [h('a', { key: 'aik', href: '/ai-kefu' }, 'AI 客服'), h('a', { key: 'gd', href: '/guides' }, '指南'), h(Link, { key: 'sg', href: '/services/seo-geo' }, 'SEO 與 GEO')])),
+      h('nav', { className: 'flinks' }, site.pages.map(function (pg, i) { return pg.hidden ? null : h(onepage ? 'a' : Link, { key: pg.id, href: hrefOf(i) }, pg.name); }).concat(onepage ? [] : [h('a', { key: 'aik', href: '/ai-kefu' }, 'AI 客服'), h('a', { key: 'gd', href: '/guides' }, '指南')])),
       site.biz ? h('address', { className: 'fbiz' }, site.biz.map(function (l, i) { return h('span', { key: i }, l.href ? h('a', { href: l.href }, l.t) : l.t); })) : null,
       h('span', null, '© ' + new Date().getFullYear() + ' ' + site.name + ' · 網站由維拓傳媒製作')));
 }

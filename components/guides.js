@@ -39,7 +39,7 @@ export var GUIDES = [
       ] }
     ],
     sources: [{ t: 'Google 搜尋中心：AI 功能與你的網站', u: 'https://developers.google.com/search/docs/appearance/ai-features' }],
-    cta: { t: '看 SEO 與 GEO 方案', u: '/services/seo-geo' }
+    cta: { t: '看 SEO 與 GEO 方案', u: '/seo-geo' }
   },
   {
     slug: 'line-ai-kefu',
