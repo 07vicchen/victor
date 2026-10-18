@@ -669,7 +669,7 @@ var site = {
       S('reach', '', {}),
       S('next', '', nextOf('/seo-geo'))
     ] },
-    { id: 'about', name: '關於我們', slug: '/about', hidden: true, sections: [
+    { id: 'about', name: '關於我們', slug: '/about', sections: [
       S('pagehead', '', { en: 'ABOUT', title: '關於維拓傳媒：我們自己經營 IP，再把同一套做法交給你', desc: '維拓傳媒是維拓顧問有限公司（統一編號 62180576）的品牌，由陳卓恩（Vic）創辦，公司在新北市汐止區，全台線上合作。我們自己從 0 經營貓探長、村山爺爺、王拓恩三個帳號，也幫店家和個人品牌做 AI 動畫代言、短影音代操、自媒體 IP 代操、網頁設計、SEO・AEO・GEO 和 LINE AI 客服，每一項都有公開價格。' }),
       S('ofeat', '', { title: '我們是誰', sub: '查得到的資料都寫在這裡。', items: [
         ['公司', '維拓顧問有限公司，統一編號 62180576'],
