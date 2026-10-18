@@ -29,6 +29,7 @@ const CSS = `
 .ec-name{margin-top:30px;padding-top:26px;border-top:1px solid rgba(214,180,106,.22);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .ec-name h1{margin:0;font-family:"Noto Serif TC",serif;font-weight:700;font-size:38px;letter-spacing:.14em;background:linear-gradient(118deg,#8a6a2c 0%,#f6e6b4 30%,#c9a24f 55%,#fff1c8 75%,#b38a3e 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .ec-name span{font-size:12px;letter-spacing:.3em;color:#d6b46a}
+.ec-et{margin:6px 0 0;font-size:12px;letter-spacing:.2em;color:#8f8778}
 .ec-slo{margin:14px 0 0;color:#c9b88f;font-family:"Noto Serif TC",serif;font-size:14px;letter-spacing:.2em;line-height:1.9}
 .ec-slo small{display:block;font-family:"Noto Sans TC",sans-serif;font-size:12px;color:#8f8778;letter-spacing:.2em}
 .ec-btns{margin-top:28px;display:grid;gap:10px}
@@ -51,10 +52,12 @@ export default function Card({ params }) {
         <div className="ec-hero"><div className={'ec-big ' + c.pos} aria-hidden="true">{c.big}</div></div>
         <div className={'ec-co ' + c.pos}><b>{c.company}</b><hr /><i>{c.en}</i></div>
         <div className="ec-name"><h1>{c.name}</h1><span>{c.enName}　{c.title}</span></div>
+        {c.enTitle ? <p className="ec-et">{c.enTitle}</p> : null}
         <p className="ec-slo">{c.slogan[0]}{c.slogan[1] ? <small>{c.slogan[1]}</small> : null}</p>
         <div className="ec-btns">
           <a className="ec-btn ec-main" href={vcf}>存到通訊錄<em>SAVE</em></a>
           <a className="ec-btn" href={'tel:' + c.telRaw}>{c.tel}<em>CALL</em></a>
+          {c.email ? <a className="ec-btn" href={'mailto:' + c.email}>{c.email}<em>MAIL</em></a> : null}
           {c.line ? <a className="ec-btn" href={'https://line.me/R/ti/p/' + encodeURIComponent(c.line)}>LINE {c.line}<em>LINE</em></a> : null}
           {c.web ? <a className="ec-btn" href={c.web}>{c.webLabel}<em>WEB</em></a> : null}
           <a className="ec-btn" href={MAP}>{ADDR}<em>MAP</em></a>
