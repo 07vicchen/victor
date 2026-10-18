@@ -123,6 +123,12 @@ RENDER.pagehead = function (d) {
     h('a', { className: 'pback', href: '/' }, '← 回首頁'),
     h('small', null, d.en), h('h1', null, d.title), d.desc ? h('p', null, d.desc) : null));
 };
+/* 關於我們：創辦人照片＋介紹 */
+RENDER.founder = function (d) {
+  return h('section', { className: 'sec' }, h('div', { className: 'sec-inner fdr' },
+    h('div', { className: 'fdr-img' }, h('img', { src: d.image, alt: d.alt || d.name, loading: 'lazy', width: 900, height: 1350 })),
+    h('div', { className: 'fdr-copy' }, h('span', { className: 'eyebrow' }, d.tag), h('h2', null, d.name), (d.paras || []).map(function (p, i) { return h('p', { key: i }, p); }))));
+};
 /* 內頁底下：去其他分類 */
 RENDER.next = function (d) {
   return h('section', { className: 'sec pnext' }, h('div', { className: 'sec-inner' },
@@ -671,6 +677,7 @@ var site = {
     ] },
     { id: 'about', name: '關於我們', slug: '/about', sections: [
       S('pagehead', '', { en: 'ABOUT', title: '關於維拓傳媒：我們自己經營 IP，再把同一套做法交給你', desc: '維拓傳媒是維拓顧問有限公司（統一編號 62180576）的品牌，由陳卓恩（Vic）創辦。Vic 在傳播、傳媒這一行做了快 10 年，以前也做過娛樂直播。公司在新北市汐止區，全台線上合作。我們自己從 0 經營貓探長、村山爺爺、王拓恩三個帳號，也幫店家和個人品牌做 AI 動畫代言、短影音代操、自媒體 IP 代操、網頁設計、SEO・AEO・GEO 和 LINE AI 客服，每一項都有公開價格。' }),
+      S('founder', '', { tag: '創辦人', name: '陳卓恩 Vic', image: M + 'vic.jpg', alt: '維拓傳媒創辦人陳卓恩（Vic）', paras: ['在傳播、傳媒這一行做了快 10 年，以前也做過娛樂直播，知道一支片、一場直播怎麼讓人停下來看。', '現在帶著一組 AI 員工，自己經營貓探長、村山爺爺、王拓恩三個帳號，做出成績的方法再拿去幫客人做：AI 動畫代言、短影音代操、自媒體 IP、網頁設計和 SEO・AEO・GEO。'] }),
       S('ofeat', '', { title: '我們是誰', sub: '查得到的資料都寫在這裡。', items: [
         ['公司', '維拓顧問有限公司，統一編號 62180576'],
         ['創辦人', '陳卓恩（Vic），在傳播、傳媒這一行做了快 10 年，以前也做過娛樂直播'],
