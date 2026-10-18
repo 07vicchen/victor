@@ -113,7 +113,6 @@ RENDER.doors = function (d) {
     h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
     h('div', { className: 'doors' }, d.items.map(function (x, i) {
       return h('a', { key: i, className: 'door d' + i, href: x.href },
-        x.image ? h('img', { src: x.image, alt: '', loading: 'lazy' }) : null,
         h('span', { className: 'dn' }, '0' + (i + 1)),
         h('span', { className: 'dc' }, h('small', null, x.en), h('b', null, x.title), h('span', null, x.desc), h('i', null, '進去看 →')));
     }))));
@@ -130,7 +129,19 @@ RENDER.next = function (d) {
     h('span', { className: 'eyebrow' }, '接著看'),
     h('div', { className: 'pnl' }, d.items.map(function (x, i) { return h('a', { key: i, href: x.href }, h('small', null, x.en), h('b', null, x.title), h('i', null, '→')); }))));
 };
-RENDER.herox = function (d, v, ctx) { return RENDER.hero(d, v, Object.assign({}, ctx, { cta: function () { go('/quote'); } })); };
+RENDER.herox = function (d, v, ctx) {
+  if (!d.video) return RENDER.hero(d, v, Object.assign({}, ctx, { cta: function () { go('/quote'); } }));
+  return h('section', { className: 'hx' },
+    h('div', { className: 'hx-bg', style: { backgroundImage: 'url(' + (d.image || '') + ')' }, 'aria-hidden': true }),
+    h('div', { className: 'hx-in' },
+      h('div', { className: 'hx-copy' },
+        d.eyebrow ? h('span', { className: 'hx-eb' }, d.eyebrow) : null,
+        h('h1', null, d.title),
+        d.desc ? h('p', null, d.desc) : null,
+        h('div', { className: 'hx-act' }, h('a', { className: 'gobtn', href: '/quote' }, h('span', { className: 'gob' }, h('small', null, 'PRICE'), h('b', null, d.primary || '看報價')), h('i', { className: 'goa' }, '→'))),
+        d.note ? h('small', { className: 'hx-note' }, d.note) : null),
+      h('div', { className: 'hx-media' }, h('video', { src: d.video, poster: d.image, autoPlay: true, muted: true, loop: true, playsInline: true, preload: 'metadata', 'aria-label': d.alt || '' }))));
+};
 
 
 /* AI 辦公室：完整功能（只講拿到什麼，不講怎麼做） */
@@ -297,7 +308,7 @@ var S = function (type, variant, data) { return { id: '', type: type, variant: v
 var TAGS = { items: [{ text: 'AI 明星' }, { text: 'IP 孵化' }, { text: '老闆不用露臉' }, { text: 'AI 辦公室' }] };
 var IPS = { items: [{ text: '王拓恩' }, { text: '貓探長' }, { text: '村山爺爺' }] };
 var DOORS = [
-  { href: '/works', en: 'WORKS', title: '作品', desc: '王拓恩〈第五年〉、貓探長、村山爺爺，三個 IP 的真實數字', image: M + 'tuoen.jpg' },
+  { href: '/works', en: 'WORKS', title: '作品', desc: '愛德華、王拓恩、貓探長、村山爺爺，四個 IP 的真實數字', image: M + 'tuoen.jpg' },
   { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
   { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
   { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
@@ -369,7 +380,7 @@ var site = {
   name: '維拓傳媒', slogan: '為你的名字，鑄一個時代', logo: M + 'logo.png', nav: 'left', onepage: false, floatc: 'line', ordersLabel: '諮詢',
   pages: [
     { id: 'home', name: '首頁', slug: '/', sections: [
-      S('herox', 'cover', { eyebrow: 'Victor Media Division · 維拓傳媒', title: '為你的名字，鑄一個時代', desc: '維拓傳媒專注個人品牌與 IP 孵化。從人設定位、內容企劃、AI 動畫到社群經營，把你的專業變成看得見、留得住的資產。', primary: '看報價', note: '貓探長單支 9.8 萬觀看・村山爺爺 3 週起量', image: M + 'hero.jpg' }),
+      S('herox', 'cover', { eyebrow: 'Victor Media Division · 維拓傳媒', title: '為你的名字，鑄一個時代', desc: '維拓傳媒專注個人品牌與 IP 孵化。從人設定位、內容企劃、AI 動畫到社群經營，把你的專業變成看得見、留得住的資產。', primary: '看報價', note: '貓探長單支 9.8 萬觀看・村山爺爺 3 週起量', video: M + 'hero_edward.mp4', image: M + 'hero_edward.jpg', alt: '愛德華在早餐店櫃台用貓掌點手機' }),
       S('marquee', 'big', TAGS),
       S('doors', '', { title: '你想先看哪一個', sub: '點進去看，每一頁上面的選單都能隨時切換。', items: DOORS }),
       S('bignum', 'counters', { title: '做出來的數字', items: [{ value: '9.8 萬', label: '貓探長單支觀看' }, { value: '34.7 萬', label: '貓探長兩個月 Reels 觀看' }, { value: '3 週', label: '村山爺爺從 0 到起量' }, { value: '1,000+', label: '村山爺爺單夜增粉' }] }),
@@ -377,10 +388,10 @@ var site = {
       S('marquee', 'text', IPS)
     ] },
     { id: 'works', name: '作品', slug: '/works', sections: [
-      S('pagehead', '', { en: 'WORKS', title: '我們做起來的 IP', desc: '三個帳號，三種做法。數字都是帳號後台的真實數據。' }),
-      S('bignum', 'outline', { title: '第五年', desc: '王拓恩 第二季第 1 集・角色、場景、配音、對嘴全部 AI 演出' }),
-      S('video', 'full', { title: '王拓恩 第二季〈第五年〉', desc: '十八歲選秀沒被選上那天，他給自己五年。今年是第五年。', caption: '第二季第 1 集・2 分 47 秒', src: M + 'fifth.mp4', poster: M + 'f45.jpg' }),
-      S('ipcases', '', { title: '三個 IP', sub: 'AI 明星、動畫、真人，各有各的做法。', items: [
+      S('pagehead', '', { en: 'WORKS', title: '我們做起來的 IP', desc: '四個 IP，四種做法。數字都是帳號後台的真實數據。' }),
+      S('video', 'full', { title: '愛德華救店・早餐店篇', desc: '早上開門，椅子空空的。愛德華決定幫老闆想辦法。', caption: 'AI 廣告短片・34 秒・寫實真人＋真貓', src: M + 'edward.mp4', poster: M + 'edward_p.jpg' }),
+      S('ipcases', '', { title: '四個 IP', sub: 'AI 廣告、AI 明星、動畫、真人，各有各的做法。', items: [
+        { name: '愛德華', tag: 'AI 廣告・寵物溫暖短劇', plat: 'Instagram', handle: '@victor_149131', url: 'https://www.instagram.com/victor_149131/', image: M + 'edward_p.jpg', desc: '維拓傳媒的招牌貓。救店系列幫店家拍廣告，生活版跟主人小翊過日子，寫實真人＋真貓、配音對嘴全部 AI 做。', stats: [['帳號粉絲', '1,036'], ['「遲到十四分鐘」平均看', '19.5 秒'], ['廣告片長', '34 秒']] },
         { name: '王拓恩', tag: 'AI 明星・寫實短劇', plat: 'Instagram', handle: '@en05_24', url: 'https://www.instagram.com/en05_24/', image: M + 'f45.jpg', desc: '23 歲業餘棒球員，公開是 AI。每週一集寫實短劇，角色、台灣腔配音、對嘴全部 AI 做。', stats: [['第二季開播', '10 月'], ['〈第五年〉觀看', '2,189'], ['按讚', '101']] },
         { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', image: M + 'cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '961']] },
         { name: '村山爺爺', tag: '真人 IP・日本觀光', plat: 'Threads', handle: 'Threads', desc: '85 歲的日本觀光大使。0 粉起號，3 週快速起量，單夜增粉破千，第二個月開始商業變現。', stats: [['起量', '3 週'], ['單夜增粉', '1,000+'], ['開始變現', '第 2 個月']] }] }),
