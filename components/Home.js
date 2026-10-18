@@ -308,7 +308,7 @@ var S = function (type, variant, data) { return { id: '', type: type, variant: v
 var TAGS = { items: [{ text: 'AI 明星' }, { text: 'IP 孵化' }, { text: '老闆不用露臉' }, { text: 'AI 辦公室' }] };
 var IPS = { items: [{ text: '王拓恩' }, { text: '貓探長' }, { text: '村山爺爺' }] };
 var DOORS = [
-  { href: '/works', en: 'WORKS', title: '作品', desc: '貓探長、村山爺爺，兩個 IP 的真實數字', image: M + 'tuoen.jpg' },
+  { href: '/works', en: 'WORKS', title: '作品', desc: '我們經營的 IP，和它們的真實數字', image: M + 'tuoen.jpg' },
   { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
   { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
   { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
@@ -388,10 +388,10 @@ var site = {
       S('marquee', 'text', IPS)
     ] },
     { id: 'works', name: '作品', slug: '/works', sections: [
-      S('pagehead', '', { en: 'WORKS', title: '我們做起來的 IP', desc: '兩個 IP，兩種做法。數字都是帳號後台的真實數據。' }),
-      S('ipcases', '', { title: '兩個 IP', sub: '動畫和真人，兩種做法。', items: [
+      S('pagehead', '', { en: 'WORKS', title: '我們做起來的 IP', desc: '從 0 粉起號到商業變現，數字都是帳號後台的真實數據。' }),
+      S('ipcases', '', { title: '經營的 IP', sub: '動畫、真人，每個 IP 都量身做企劃。', items: [
         { name: '貓探長', tag: '動畫 IP・情緒療癒', plat: 'Instagram', handle: '@mtz.1390931', url: 'https://www.instagram.com/mtz.1390931/', video: M + 'ip_cat.mp4', image: M + 'ip_cat.jpg', desc: '插畫動畫結合情緒洞察，拆解職場和感情裡說不出口的事。從 0 粉起號，兩支破 9 萬觀看。', stats: [['單支最高觀看', '9.8 萬'], ['8～10 月 Reels 觀看', '34.7 萬'], ['粉絲', '983']] },
-        { name: '村山爺爺', tag: '真人 IP・日本觀光', plat: 'Threads', handle: 'Threads', video: M + 'ip_murayama.mp4', image: M + 'ip_murayama.jpg', desc: '85 歲的日本觀光大使。0 粉起號，3 週快速起量，單夜增粉破千，第二個月開始商業變現。', stats: [['起量', '3 週'], ['單夜增粉', '1,000+'], ['開始變現', '第 2 個月']] }] }),
+        { name: '村山爺爺', tag: '真人 IP・86 歲日本觀光大使', plat: 'Threads', handle: '@japan.grandpa', url: 'https://www.threads.com/@japan.grandpa', video: M + 'ip_murayama.mp4', image: M + 'ip_murayama.jpg', desc: '村山正弘，86 歲，當過多年五星級飯店總經理，現在還在第一線帶日本高端小團。維拓從企劃、拍法到經營一手做起來：0 粉起號，3 週起量，單夜增粉破千，第 2 個月開始商業變現。', stats: [['Threads 粉絲', '8,225'], ['置頂串文按讚', '2,416'], ['開始變現', '第 2 個月']] }] }),
       S('next', '', nextOf('/works'))
     ] },
     { id: 'demo', name: '服務示範', slug: '/demo', sections: [
