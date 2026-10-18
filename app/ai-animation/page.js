@@ -4,7 +4,7 @@ import { meta, Ld } from '../seo';
 import { BIZ, AIFAQ } from '../../components/faq';
 import CAT from '../../components/cat.json';
 export const revalidate = 300;
-export const metadata = meta('/ai-animation', 'AI 動畫代言、老闆 AI 分身、AI 短影音代營運｜維拓傳媒', '老闆不用露臉也能天天出片：幫你的店做專屬 AI 角色或老闆 AI 分身，台灣腔配音、對嘴、字幕全包。免費角色試看，體驗動畫 1,990 元，短影音 6,000 元起。');
+export const metadata = meta('/ai-animation', 'AI 動畫代言價格・AI 動畫廣告・老闆 AI 分身｜維拓傳媒', '老闆不用露臉也能天天出片：幫你的店做專屬 AI 角色或老闆 AI 分身，台灣腔配音、對嘴、字幕全包。免費角色試看，體驗動畫 1,990 元，短影音 6,000 元起。');
 const g = CAT.find((x) => /動畫/.test(x.g)) || { items: [] };
 const service = {
   '@context': 'https://schema.org', '@type': 'Service', name: 'AI 動畫服務', serviceType: 'AI 動畫短影音、AI 角色代言、老闆 AI 分身',
