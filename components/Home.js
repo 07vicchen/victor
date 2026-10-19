@@ -391,7 +391,7 @@ var site = {
   name: '維拓傳媒', slogan: '為你的品牌，拓出一片天', logo: M + 'logo.png', nav: 'left', onepage: false, floatc: 'line', ordersLabel: '諮詢',
   pages: [
     { id: 'home', name: '首頁', slug: '/', sections: [
-      S('herox', 'cover', { eyebrow: '維拓傳媒｜AI 動畫代言・短影音代操・網頁設計・SEO', title: '為你的品牌，拓出一片天', desc: '維拓傳媒幫店家和個人品牌做 AI 動畫代言（短影音每支 6,000 元起）、短影音代操（AI 動畫每月 15,000 元起、真人拍攝每月 45,000 元起）、網頁設計（一頁式 15,000 元起）、SEO 和 AI 搜尋優化（每月 8,800 元起）、LINE AI 客服（每月 1,980 元起）。老闆不用露臉，每一項都有公開價格，全台線上合作。', primary: '看報價', note: '貓探長單支 9.8 萬觀看・村山爺爺 3 週起量', video: M + 'hero_edward.mp4', image: M + 'hero_edward.jpg', alt: '愛德華在早餐店櫃台用貓掌點手機' }),
+      S('herox', 'cover', { eyebrow: '維拓傳媒｜AI 動畫代言・短影音代操・網頁設計・SEO', title: '為你的品牌，拓出一片天', desc: '老闆不用露臉，讓 AI 角色替你開口。先免費做一個你家的代言角色給你看，喜歡再用 1,990 元做成會動的影片。之後 AI 動畫短影音每支 6,000 元起、短影音代操一天 500 元（每月 15,000 元起）、一頁式網頁 15,000 元起、SEO 和 AI 搜尋優化先做 4,800 元健檢、LINE AI 客服一天不到 70 元（每月 1,980 元起）。每一項都有公開價格，全台線上合作。', primary: '看報價', note: '貓探長單支 9.8 萬觀看・村山爺爺 3 週起量', video: M + 'hero_edward.mp4', image: M + 'hero_edward.jpg', alt: '愛德華在早餐店櫃台用貓掌點手機' }),
       S('marquee', 'big', TAGS),
       S('doors', '', { title: '你想先看哪一個', sub: '點進去看，每一頁上面的選單都能隨時切換。', items: DOORS }),
       S('bignum', 'counters', { title: '做出來的數字', items: [{ value: '9.8 萬', label: '貓探長單支觀看' }, { value: '34.7 萬', label: '貓探長兩個月 Reels 觀看' }, { value: '3 週', label: '村山爺爺從 0 到起量' }, { value: '1,000+', label: '村山爺爺單夜增粉' }] }),
