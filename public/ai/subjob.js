@@ -7,7 +7,10 @@
   var E = function (s) { return VAI.E(s); }, PAD = 0.12;
   function fmt(t) { t = Math.max(0, t || 0); var m = Math.floor(t / 60), s = t - m * 60; return m + ":" + (s < 10 ? "0" : "") + s.toFixed(1); }
   function accentOf(job) { var m = String(job.note || "").match(/#[0-9a-fA-F]{6}/); return m ? m[0] : ""; }
-  function modOf(job) { return (window.SUBFX && SUBFX.list.filter(function (q) { return q.id === job.module; })[0]) || (window.SUBFX && SUBFX.list[1]); }
+  // 完整剪片選的「剪法」對應到最接近的字幕樣子，讓預覽跟選的一樣
+  var CUTMAP = { "爆點跳字": "pop", "三段式知識框": "invert", "倒敘懸念": "cinema", "聊天泡泡": "bubble", "柔光質感": "fadeup", "命理字卡": "quote", "手寫筆記": "marker", "綜藝爆笑": "variety", "直播帶貨": "karaoke", "新聞快報": "ticker" };
+  function modOf(job) { var id = job.module || (job.mode !== "subs" ? CUTMAP[String(job.style || "").trim()] : "") || "pop";
+    return (window.SUBFX && SUBFX.list.filter(function (q) { return q.id === id; })[0]) || (window.SUBFX && SUBFX.list[1]); }
   async function signed(path, sec) { var r = await VAI.client().storage.from("ai-videos").createSignedUrl(path, sec || 3600); if (r.error) throw new Error(r.error.message); return r.data.signedUrl; }
   function defEdit(job) { var e = job.edit || {}; return { direction: e.direction || "", trimGaps: e.trimGaps !== false, hook: e.hook !== false, title: e.title || "", titleSec: e.titleSec == null ? 0 : +e.titleSec, sticky: e.sticky || "", stickyPos: e.stickyPos || "tl" }; }
   // 常駐文字：整支影片一直在（店名、IG 帳號、優惠…）
@@ -70,7 +73,7 @@
     var mod = modOf(job), acc = accentOf(job) || (mod && mod.accent) || "#FF3B30";
     var raf = 0, urls = {}, durs = [], curSrc = -1, pv = null, multi = (job.files || []).length > 1;
     box.innerHTML = '<div class="sed"><div class="sed-v"><div class="sed-stage"><video playsinline controls preload="metadata"></video><canvas width="540" height="960" aria-hidden="true"></canvas></div>' +
-      '<div class="bar"><button class="btn sm" type="button" data-pv>▶ 預覽剪完的樣子</button><span class="note" data-len></span></div><p class="note">' + (mod ? "字幕樣子：" + E(mod.name) + "。" : "") + "按「預覽」會照你的剪法從頭播一次。</p></div>" +
+      '<div class="bar"><button class="btn sm" type="button" data-pv>▶ 預覽剪完的樣子</button><span class="note" data-len></span></div><p class="note">' + (job.mode !== "subs" ? "你選的剪法：" + E(job.style || "交給 AI 挑") + "。預覽是字幕的大概樣子，成品照這個剪法剪。" : (mod ? "字幕樣子：" + E(mod.name) + "。" : "")) + "按「預覽」會照你的剪法從頭播一次。</p></div>" +
       '<div class="sed-l"><div class="bar"><label class="f" style="flex:1;min-width:180px"><span>上方標題（選填）</span><input type="text" data-title maxlength="40" placeholder="例如：釣蝦兩小時 一隻都沒有" value="' + E(edit.title) + '"></label><label class="f"><span>標題顯示</span><select data-tsec><option value="0"' + (edit.titleSec ? "" : " selected") + '>一直都在</option><option value="3"' + (edit.titleSec == 3 ? " selected" : "") + '>前 3 秒</option><option value="5"' + (edit.titleSec == 5 ? " selected" : "") + '>前 5 秒</option><option value="8"' + (edit.titleSec == 8 ? " selected" : "") + '>前 8 秒</option></select></label></div>' +
       '<div class="bar"><label class="f" style="flex:1;min-width:180px"><span>常駐文字（整支一直在，選填，會記住下次自動帶入）</span><input type="text" data-sticky maxlength="40" placeholder="例如：IG @niangniang・全館 8 折" value="' + E(edit.sticky) + '"></label><label class="f"><span>位置</span><select data-spos><option value="tl"' + (edit.stickyPos === "tl" ? " selected" : "") + '>左上</option><option value="tr"' + (edit.stickyPos === "tr" ? " selected" : "") + '>右上</option><option value="top"' + (edit.stickyPos === "top" ? " selected" : "") + '>上方中間</option><option value="bottom"' + (edit.stickyPos === "bottom" ? " selected" : "") + '>下方</option></select></label></div>' +
       '<label class="f"><span>這支想剪成怎樣（選填）</span><input type="text" data-dir maxlength="200" placeholder="例如：30 秒內、輕鬆搞笑、最後叫大家留言" value="' + E(edit.direction) + '"></label>' +
