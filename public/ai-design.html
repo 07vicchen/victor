@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 美編｜維拓傳媒 AI 工具</title>
+<meta name="description" content="維拓 AI 美編：上傳商品照，AI 去背修圖、套專業版型、寫標題和描述，一件商品一分鐘，整組圖一鍵存到手機。月租 999 元起。">
+<meta property="og:title" content="AI 美編｜一張商品照，換一整組會賣的圖">
+<meta property="og:description" content="去背修圖、套版型、寫標題描述，一鍵存整組。月租 999 元起。">
+<meta name="theme-color" content="#f6f5f1">
+<link rel="icon" href="/m/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Playfair+Display:ital,wght@0,600;1,500&family=Space+Grotesk:wght@500;600;700&family=Roboto:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="/ai/editorial.css">
+</head>
+<body>
+<div class="wrap">
+  <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>AI TOOLS</small></div></a>
+    <div class="tabs"><a href="/ai-tools">AI 工具</a><a href="/ai-design" aria-current="page">AI 美編</a><a href="/ai-video">AI 剪片</a></div>
+    <div class="who" id="who"><a class="btn sm" href="#member">登入會員</a></div></nav>
+
+  <section class="hero" id="top">
+    <div>
+      <div class="kicker">VICTOR MEDIA // AI 美編</div>
+      <h1>一張商品照，<br>換一整組<span>會賣的</span>圖</h1>
+      <p class="lead">上傳商品照，AI 美編幫你去背、套上專業版型、寫好標題和描述。一件商品大約一分鐘，整組圖一鍵存到手機，要上哪個平台都可以。</p>
+      <div class="cta"><a class="btn" href="#plans">看方案</a><a class="btn gh" href="#member">會員登入開始用</a></div>
+      <div class="stats"><div><b>60</b><span>秒做完一件</span></div><div><b>99</b><span>種模組</span></div><div><b>16</b><span>種品牌色＋自訂</span></div></div>
+    </div>
+    <div class="vis" id="vis" aria-label="AI 美編做出來的商品圖">
+      <div class="pr p1"><canvas width="420" height="420"></canvas><i></i></div>
+      <div class="pr p2"><canvas width="420" height="420"></canvas><i></i></div>
+      <div class="pr p3"><canvas width="420" height="420"></canvas><i></i></div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <div class="sh"><small>WHAT IT DOES</small><h2>你只要拍照，剩下交給 AI 美編</h2></div>
+    <div class="feats">
+      <div class="feat"><span class="ic">01</span><b>一鍵去背</b><span>背景單純的商品照，按一下就去背，商品乾淨地放進版型。</span></div>
+      <div class="feat"><span class="ic">02</span><b>一次做一整組</b><span>封面、賣點、細節、尺寸表、顏色、穿搭，勾選要的模組，一次全部做好。</span></div>
+      <div class="feat"><span class="ic">03</span><b>AI 寫標題描述</b><span>AI 看照片寫商品名稱、描述、Hashtag，買家會搜的字放前面，口吻像你自己寫的。</span></div>
+      <div class="feat"><span class="ic">04</span><b>整家店同一個風格</b><span>選品牌色、或從照片自動抓色；logo 選填，有放就每張自動加上。</span></div>
+      <div class="feat"><span class="ic">05</span><b>每月新增模組</b><span>每月 1 號至少新增 5 款，照當月賣得好的商品圖更新，訂閱期間都能用。</span></div>
+      <div class="feat"><span class="ic">06</span><b>一鍵存整組</b><span>整組圖加上文案打包存下來，任何購物平台、官網、社群都能用。</span></div>
+    </div>
+  </section>
+
+  <section class="sect" id="plans">
+    <div class="sh"><small>PLANS</small><h2>方案：月租 999 起</h2><p>按月付費，隨時升級。年繳付 10 個月用 12 個月。</p></div>
+    <div class="bar" style="margin-bottom:14px"><span class="note">付款方式</span><button class="chip" type="button" data-bill="month" aria-pressed="true">月繳</button><button class="chip" type="button" data-bill="year" aria-pressed="false">年繳（送 2 個月）</button></div>
+    <div class="plans" id="planCards"></div>
+    <div id="extras"></div>
+    <p class="fine">價格為目前方案，如有調整以網站公告為準。</p>
+  </section>
+
+  <section class="sect" id="member">
+    <div class="sh"><small>MEMBER</small><h2>會員專區</h2><p id="memSub">登入後就能直接在這裡做圖。</p></div>
+    <div id="memBox"><p class="note">讀取中…</p></div>
+    <div id="work" hidden>
+      <div class="work">
+        <div class="col">
+          <div class="usage" id="usage"></div>
+          <div class="panel">
+            <div class="ph"><b>1</b><div><h3>放商品照</h3><p>背景越單純，去背越乾淨。可以放 1～2 張，AI 寫文案時會一起看。</p></div></div>
+            <div class="bar"><label class="up">上傳商品照<input type="file" accept="image/*" id="file" multiple hidden></label><button class="chip" type="button" id="cut" disabled>一鍵去背</button><button class="chip" type="button" id="uncut" hidden>還原背景</button><span class="note" id="msg">目前：示範商品</span></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><b>2</b><div><h3>商品資料＋AI 文案</h3><p>填越多，AI 寫得越準。按一次算 1 件商品。</p></div></div>
+            <div class="grid2">
+              <label class="f full"><span>商品名稱</span><input type="text" id="pName" maxlength="80" placeholder="例如：涼感棉寬版短T"></label>
+              <label class="f"><span>售價</span><input type="number" id="pPrice" min="0" placeholder="390"></label>
+              <label class="f"><span>規格</span><input type="text" id="pSpec" maxlength="200" placeholder="顏色：白、黑／尺寸：S～XL"></label>
+              <label class="f full"><span>賣點、材質、尺寸、出貨方式</span><textarea id="pNote" rows="3" maxlength="1200" placeholder="涼感棉、不透膚、台灣現貨 24 小時出貨"></textarea></label>
+              <label class="f full"><span>你的店名和說話口吻（選填）</span><input type="text" id="pTone" maxlength="200" placeholder="娘娘駕到／像姐妹聊天、口語、不浮誇"></label>
+            </div>
+            <div class="bar"><button class="btn" type="button" id="genAI">AI 寫標題和描述</button><span class="msg" id="aiMsg"></span></div>
+            <div id="aiOut"></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><b>3</b><div><h3>品牌色和 logo</h3><p>選一個代表你的店的顏色，所有圖一起換。logo 選填。</p></div></div>
+            <div id="colors"></div>
+            <div class="bar"><div class="custom"><input type="color" id="pick" value="#c8963e" aria-label="自訂顏色"><span class="note">自訂</span></div><button class="chip" type="button" id="auto">從商品照自動取色</button></div>
+            <div class="bar"><label class="up">上傳 logo（選填）<input type="file" accept="image/*" id="logoF" hidden></label><span class="note" id="logoMsg">沒有也可以</span></div>
+            <div class="bar" id="logoPos" hidden><span class="note">logo 位置</span><button class="chip" type="button" data-lp="tr" aria-pressed="false">右上</button><button class="chip" type="button" data-lp="br" aria-pressed="true">右下</button><button class="chip" type="button" data-lp="bl" aria-pressed="false">左下</button><button class="chip" type="button" id="logoX">拿掉</button></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><b>4</b><div><h3>選行業和模組</h3><p>勾選要放進這組的圖，右邊手機就是買家看到的樣子。</p></div></div>
+            <div class="bar"><span class="note">行業</span><button class="chip" type="button" data-ind="cloth" aria-pressed="true">服飾</button><button class="chip" type="button" data-ind="gen" aria-pressed="false">一般商品</button><button class="chip" type="button" disabled>美妝（製作中）</button><button class="chip" type="button" disabled>3C（製作中）</button><button class="chip" type="button" disabled>食品（製作中）</button></div>
+            <div class="bar" id="styRow"><span class="note">風格</span><button class="chip" type="button" data-sty="s" aria-pressed="true">簡約</button><button class="chip" type="button" data-sty="k" aria-pressed="false">韓系</button><button class="chip" type="button" data-sty="st" aria-pressed="false">街頭</button><span class="note" id="styNote"></span></div>
+            <div class="sum" id="sum"></div>
+            <div class="lib" id="lib"></div>
+          </div>
+        </div>
+        <div class="phone-wrap">
+          <div class="phone"><div class="notch"></div><div class="slides"><div class="track" id="track"></div><span class="cnt" id="cnt"></span></div>
+            <div class="pi"><div class="pr" id="pvPr"></div><div class="t" id="pvT"></div></div></div>
+          <span class="phone-cap">BUYER VIEW // 買家看到的樣子</span>
+          <button class="btn dl" type="button" id="dlAll">一鍵存整組圖</button>
+          <span class="note" id="dlMsg"></span>
+        </div>
+      </div>
+    </div>
+    <div id="admin"></div>
+  </section>
+
+  <footer><img src="/m/logo.png" alt="" width="36" height="36" style="border-radius:50%"><span>維拓傳媒 Victor Media・維拓顧問有限公司 統一編號 62180576</span><a href="/ai-tools">AI 工具</a><a href="/ai-video">AI 剪片</a><a href="/">回官網</a></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="/ai/tpl.js"></script>
+<script src="/ai/core.js"></script>
+<script src="/ai/design.js"></script>
+</body>
+</html>

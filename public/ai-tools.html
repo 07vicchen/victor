@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 工具｜AI 美編、AI 剪片｜維拓傳媒</title>
+<meta name="description" content="維拓傳媒 AI 工具：AI 美編幫你去背修圖、套版型、寫商品文案；AI 剪片幫你剪停頓、排重點、上字幕音效。會員登入就能用，月租 999 元起。">
+<meta property="og:title" content="維拓 AI 工具｜AI 美編・AI 剪片">
+<meta property="og:description" content="沒有美編、沒時間剪片，也能每天端出好看的內容。月租 999 元起。">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0d0c0b">
+<link rel="icon" href="/m/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&family=Playfair+Display:ital,wght@1,500&family=Space+Grotesk:wght@500;700&family=Roboto:wght@500;700;900&display=swap">
+<style>
+/* 官網 AI 工具區：跟官網同色（墨黑＋香檳金）。上：總覽；中：AI 美編、AI 剪片各一大段詳細說明＋示範；下：方案比較、常見問題、兩個入口 */
+:root{--bg:#0d0c0b;--s2:#161412;--s3:#1d1a17;--ink:#f2ede4;--mid:#a39a8c;--dim:#6f675b;--line:#2c2722;--line2:#5e554a;--gold:#d6b46a;--gold2:#e3c487;--goldSoft:#2a2316;--accent:#c9785b;--ok:#8fc9a5;
+  --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;--serif:"Noto Serif TC",serif;--it:"Playfair Display",Georgia,serif;--num:"Space Grotesk",sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{margin:0;font:15.5px/1.85 var(--body)}
+a{color:var(--gold2)}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+.in{max-width:1160px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+header.top{border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);background:#0d0c0bee;backdrop-filter:blur(8px);z-index:20}
+header.top .in{display:flex;align-items:center;gap:14px;padding-block:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.logo b{font:900 16px var(--body);letter-spacing:.1em}
+header nav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+header nav a{text-decoration:none;color:var(--mid);font-size:14px;padding:6px 12px;border-radius:999px}
+header nav a.on{color:#14110c;background:var(--gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font:700 15px var(--body);padding:13px 26px;border-radius:999px;background:var(--gold);color:#14110c;border:1px solid var(--gold);transition:background .25s,box-shadow .25s}
+.btn:hover{background:var(--gold2);box-shadow:0 0 28px #d6b46a55}
+.btn.gh{background:transparent;color:var(--gold2)}
+.kick{font:700 12px var(--num);letter-spacing:.3em;color:var(--gold)}
+h1,h2,h3{text-wrap:balance}
+
+.hero{padding-block:70px 60px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-30% -10% auto auto;width:70%;height:140%;background:radial-gradient(closest-side,#d6b46a26,transparent);pointer-events:none}
+.hero h1{margin:14px 0 18px;font:900 clamp(34px,5vw,62px)/1.18 var(--serif)}
+.hero h1 em{font:italic 500 1em var(--it),var(--serif);color:var(--gold2)}
+.hero p{max-width:40em;color:var(--mid);font-size:17px;margin:0 0 28px}
+.pick2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:36px}
+.door{position:relative;display:flex;flex-direction:column;gap:10px;padding:26px;border:1px solid var(--line2);border-radius:22px;background:linear-gradient(160deg,#1f1b15,#121110);text-decoration:none;color:var(--ink);overflow:hidden;transition:transform .3s,border-color .3s}
+.door:hover{transform:translateY(-4px);border-color:var(--gold)}
+.door .nm{font:900 28px var(--serif)}.door .nm small{font:700 12px var(--num);letter-spacing:.24em;color:var(--gold);display:block}
+.door p{margin:0;color:var(--mid)}
+.door .go{margin-top:auto;font-weight:700;color:var(--gold2)}
+.door{padding-right:200px;min-height:230px}
+.door canvas{position:absolute;right:16px;bottom:-24px;width:160px;opacity:.9;transform:rotate(-8deg);border-radius:8px;box-shadow:0 20px 40px #000a}
+
+.pain{padding-block:40px 30px;border-top:1px solid var(--line)}
+.pain h2{font:900 clamp(26px,3.2vw,38px)/1.3 var(--serif);margin:10px 0 22px}
+.pains{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.pains div{border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--s2)}
+.pains b{display:block;font-size:16px;margin-bottom:4px}.pains span{color:var(--mid);font-size:14px}
+
+.tool{padding-block:70px;border-top:1px solid var(--line)}
+.thead{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:40px;align-items:center}
+.thead h2{font:900 clamp(30px,4vw,48px)/1.2 var(--serif);margin:10px 0 14px}
+.thead h2 em{font:italic 500 1em var(--it),var(--serif);color:var(--gold2)}
+.thead p{color:var(--mid);margin:0 0 18px}
+.ticks{list-style:none;margin:0 0 24px;padding:0;display:flex;flex-direction:column;gap:8px}
+.ticks li{padding-left:28px;position:relative}.ticks li::before{content:"";position:absolute;left:0;top:.6em;width:16px;height:8px;border-left:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(-45deg)}
+.show{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.show canvas{width:100%;height:auto;display:block;border-radius:10px;box-shadow:0 14px 30px #000a;aspect-ratio:1/1;max-width:100%}
+.show canvas:nth-child(2){transform:translateY(-16px)}
+.vshow{display:flex;justify-content:center;gap:14px;align-items:flex-end}
+.vshow canvas{width:200px;max-width:42%;border-radius:18px;border:8px solid #1d1c1a;box-shadow:0 20px 50px #000c;height:auto}
+.vshow canvas+canvas{width:160px;opacity:.9}
+.sub2{font:900 22px var(--serif);margin:46px 0 16px;display:flex;align-items:center;gap:12px}
+.sub2::after{content:"";flex:1;height:1px;background:var(--line)}
+.fgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fi{border:1px solid var(--line);border-radius:16px;padding:20px;background:var(--s2);display:flex;flex-direction:column;gap:6px}
+.fi i{font:italic 500 26px/1 var(--it);color:var(--gold);font-style:italic}
+.fi b{font-size:16.5px}.fi span{color:var(--mid);font-size:14px;line-height:1.75}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.steps div{padding:20px;border-right:1px solid var(--line);background:var(--s2)}
+.steps div:last-child{border-right:0}
+.steps b{font:700 13px var(--num);letter-spacing:.2em;color:var(--gold)}.steps strong{display:block;font-size:16px;margin:4px 0}.steps span{color:var(--mid);font-size:14px}
+.mods{display:flex;flex-wrap:wrap;gap:8px}
+.mods span{border:1px solid var(--line2);border-radius:999px;padding:5px 12px;font-size:13.5px;color:var(--ink)}
+.mods span em{font-style:normal;color:var(--gold);font-size:11.5px;margin-left:4px}
+.forwho{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.forwho div{border-left:2px solid var(--gold);padding:4px 14px}
+.forwho b{display:block}.forwho span{color:var(--mid);font-size:14px}
+
+.price{padding-block:70px;border-top:1px solid var(--line)}
+.price h2{font:900 clamp(28px,3.6vw,44px)/1.25 var(--serif);margin:10px 0 8px}
+.ptabs{display:inline-flex;border:1px solid var(--line2);border-radius:999px;padding:4px;margin:20px 0}
+.ptabs button{border:0;background:transparent;color:var(--mid);font:700 14.5px var(--body);padding:8px 20px;border-radius:999px;cursor:pointer}
+.ptabs button[aria-selected="true"]{background:var(--gold);color:#14110c}
+.plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.plan{border:1px solid var(--line);border-radius:20px;padding:24px 20px;background:var(--s2);display:flex;flex-direction:column;gap:12px;position:relative}
+.plan.hot{border-color:var(--gold);background:linear-gradient(170deg,#2a2418,#161412 60%);box-shadow:0 0 40px #d6b46a1f}
+.plan .bd{position:absolute;top:-11px;left:20px;background:var(--gold);color:#14110c;font:700 12px var(--body);padding:2px 12px;border-radius:999px}
+.plan h3{margin:0;font:900 19px var(--serif)}
+.plan .p{font:700 40px/1 var(--num);color:var(--gold2)}.plan .p small{font:500 14px var(--body);color:var(--mid)}
+.plan .q{font-size:15px}.plan .q b{color:var(--gold2);font:700 22px var(--num)}
+.plan ul{margin:0;padding-left:18px;color:var(--mid);font-size:14px;display:flex;flex-direction:column;gap:4px}
+.plan .btn{margin-top:auto;padding:11px}
+.fine{color:var(--dim);font-size:13px;margin-top:14px}
+
+.faq{padding-block:60px;border-top:1px solid var(--line)}
+.faq h2{font:900 clamp(26px,3vw,36px)/1.3 var(--serif);margin:10px 0 18px}
+.qa{display:flex;flex-direction:column;gap:8px}
+.qa details{border:1px solid var(--line);border-radius:14px;background:var(--s2)}
+.qa summary{cursor:pointer;list-style:none;padding:16px 18px;font-weight:700;display:flex;justify-content:space-between;gap:12px}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::after{content:"+";color:var(--gold);font-size:20px;line-height:1}
+.qa details[open]{border-color:var(--gold)}
+.qa details[open] summary::after{content:"−"}
+.qa p{margin:0;padding:0 18px 18px;color:var(--mid)}
+.end{padding-block:60px 80px;text-align:center;border-top:1px solid var(--line)}
+.end h2{font:900 clamp(28px,3.6vw,44px)/1.3 var(--serif);margin:0 0 20px}
+.end .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-block:20px}
+.monthly{margin-top:16px;border:1px solid var(--gold);border-radius:18px;padding:18px 22px;display:flex;gap:18px;align-items:center;background:linear-gradient(120deg,#2a2316,#161412)}
+.monthly b{font:700 42px/1 var(--num);color:var(--gold2);flex:none}
+.monthly strong{display:block;font-size:17px}.monthly span{color:var(--mid);font-size:14px}
+@media (max-width:640px){.monthly{flex-direction:column;align-items:flex-start}}
+@media (max-width:960px){.thead{grid-template-columns:1fr}.fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.plans{grid-template-columns:repeat(2,minmax(0,1fr))}.pains{grid-template-columns:repeat(2,minmax(0,1fr))}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.steps div:nth-child(2){border-right:0}.steps div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+@media (max-width:640px){.pick2,.fgrid,.plans,.pains,.forwho{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.steps div{border-right:0;border-bottom:1px solid var(--line)}.door{padding-right:26px;padding-bottom:150px}.door canvas{width:120px;right:16px}header nav{margin-left:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.extras{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.ex{border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--s2)}
+.ex h4{margin:0 0 8px;font:900 16px var(--serif)}.ex p{margin:0;color:var(--mid);font-size:14px}
+.ex .row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.ex .row span{color:var(--mid)}.ex .row span b{color:var(--ink);margin-right:6px}
+.ex .row em{font-style:normal;font-weight:700;white-space:nowrap}.ex .row em s{color:var(--dim);font-weight:400;margin-right:4px}
+.ex .row.hot em{color:var(--gold2)}
+.plan .pq{font:900 26px var(--serif)}
+@media (max-width:960px){.extras{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+
+<header class="top"><div class="in"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="36" height="36" style="border-radius:50%"><b>維拓傳媒</b></a>
+  <nav aria-label="AI 工具"><a href="/">回官網首頁</a><a class="on" href="#top">AI 工具</a><a href="#design">AI 美編</a><a href="#video">AI 剪片</a><a href="#price">價格</a><a href="/ai-design#member">會員登入</a></nav></div></header>
+
+<main id="top">
+<section class="hero"><div class="in">
+  <div class="kick">VICTOR MEDIA · AI TOOLS</div>
+  <h1>沒有美編、沒時間剪片，<br>也能每天<em>端出好看的內容</em></h1>
+  <p>維拓傳媒把我們幫客戶做圖、剪片的方法，做成兩個你自己就能用的 AI 工具。登入會員，上傳照片或影片，幾分鐘拿到成品，存下來就能發。</p>
+  <div class="pick2">
+    <a class="door" href="/ai-design"><span class="nm"><small>AI DESIGN</small>AI 美編</span><p>一張商品照，換一整組會賣的圖：去背修圖、套版型、寫標題和描述。</p><span class="go">看 AI 美編怎麼買 →</span><canvas id="d1" width="340" height="340"></canvas></a>
+    <a class="door" href="/ai-video"><span class="nm"><small>AI VIDEO</small>AI 剪片</span><p>一段素材，剪成一支看得完的短影音：剪停頓、排重點、上字幕音效。</p><span class="go">看 AI 剪片怎麼買 →</span><canvas id="v1" width="270" height="480"></canvas></a>
+  </div>
+</div></section>
+
+<section class="pain"><div class="in">
+  <div class="kick">SOUND FAMILIAR?</div>
+  <h2>這些事，是不是每天都在發生</h2>
+  <div class="pains">
+    <div><b>商品圖拍了，沒人修</b><span>請美編一張好幾百，自己修又修不好，商品頁看起來就是比別人便宜。</span></div>
+    <div><b>新品一多，上架上到半夜</b><span>每件都要想標題、寫描述、做尺寸表，一個晚上上不了幾件。</span></div>
+    <div><b>影片拍了一堆，放著沒剪</b><span>剪一支要兩三個小時，最後乾脆不發，帳號就這樣停住。</span></div>
+    <div><b>發了也沒人看完</b><span>開頭太慢、停頓太多、沒字幕，觀眾三秒就滑走。</span></div>
+  </div>
+</div></section>
+
+<section class="tool" id="design"><div class="in">
+  <div class="thead">
+    <div><div class="kick">TOOL 01 · AI 美編</div><h2>一張商品照，<br>換一整組<em>會賣的圖</em></h2>
+      <p>手機隨手拍一張，AI 美編幫你去背、修圖、套上專業版型，連商品名稱、描述、Hashtag 都寫好。一件商品大約一分鐘，整家店的圖看起來像同一位美編做的。</p>
+      <ul class="ticks"><li>不用學修圖，照片丟進去就好</li><li>一次產出封面、細節、尺寸表、顏色、穿搭一整組</li><li>整組一鍵存到手機，任何購物平台、社群都能用</li></ul>
+      <a class="btn" href="/ai-design">前往 AI 美編，看方案</a></div>
+    <div class="show"><canvas id="s1" width="360" height="360"></canvas><canvas id="s2" width="360" height="360"></canvas><canvas id="s3" width="360" height="360"></canvas></div>
+  </div>
+
+  <h3 class="sub2">它會幫你做這些事</h3>
+  <div class="fgrid">
+    <div class="fi"><i>01</i><b>自動去背、修圖</b><span>背景亂、光線暗都沒關係。AI 自動去背、調亮、校正顏色、裁成正方形，商品看起來乾淨又有質感。</span></div>
+    <div class="fi"><i>02</i><b>一次做出一整組商品圖</b><span>不是只有一張封面。封面、賣點大標、細節放大、尺寸表、顏色一覽、穿搭建議，照你的行業挑好，一次全部做完。</span></div>
+    <div class="fi"><i>03</i><b>AI 寫標題、描述、Hashtag</b><span>AI 看照片寫商品名稱，把買家會搜尋的字放前面；描述分段寫好賣點、規格、出貨說明，口吻照你的店，不會有 AI 腔。</span></div>
+    <div class="fi"><i>04</i><b>整家店同一個風格</b><span>選一個品牌色，或從商品照自動抓顏色；有 logo 就上傳（選填），每張圖自動放上。新商品一上，風格一樣整齊。</span></div>
+    <div class="fi"><i>05</i><b>活動檔期自動換</b><span>雙 11、週年慶、換季上新、第二件折扣，活動圖和促銷封面直接套，不用每次重做。</span></div>
+    <div class="fi"><i>06</i><b>一鍵存整組</b><span>勾好要的圖，按一下整組打包存到手機或電腦，要上哪個平台、發哪個社群都可以。</span></div>
+  </div>
+
+  <div class="monthly"><b>每月 1 號</b><div><strong>每個月至少新增 5 款模組</strong><span>我們每個月研究當月賣得最好的商品圖怎麼做，做成新模組放進去。訂閱期間持續更新，不用另外加錢；旗艦方案搶先一個月用。</span></div></div>
+
+  <h3 class="sub2">服飾專用模組（陸續加入美妝、3C、食品）</h3>
+  <div class="mods">
+    <span>白底主圖</span><span>尺寸表</span><span>顏色一覽</span><span>第二件折扣封面</span><span>尺寸量法圖<em>專業</em></span><span>試穿身高體重<em>專業</em></span><span>布料感受指標<em>專業</em></span><span>細節三格<em>專業</em></span><span>正反面對照<em>專業</em></span><span>三種穿搭建議<em>專業</em></span><span>洗滌方式<em>專業</em></span><span>尺碼推薦表<em>專業</em></span><span>多件組合價<em>專業</em></span><span>品牌故事<em>專業</em></span><span>雜誌風封面<em>專業</em></span><span>韓系封面<em>旗艦</em></span><span>街頭風封面<em>旗艦</em></span><span>黑金質感封面<em>旗艦</em></span><span>倒數限時搶購<em>旗艦</em></span><span>AI 模特兒穿搭<em>旗艦</em></span><span>…共 30 款</span>
+  </div>
+
+  <h3 class="sub2">怎麼用</h3>
+  <div class="steps">
+    <div><b>STEP 1</b><strong>上傳商品照</strong><span>手機拍一張就好，多張更好。</span></div>
+    <div><b>STEP 2</b><strong>選顏色和模組</strong><span>選品牌色、行業和要的模組，logo 選填。</span></div>
+    <div><b>STEP 3</b><strong>AI 一分鐘做好</strong><span>整組圖加上標題、描述、Hashtag。</span></div>
+    <div><b>STEP 4</b><strong>一鍵存下來</strong><span>存到手機，上傳到你的賣場或社群。</span></div>
+  </div>
+
+  <h3 class="sub2">適合誰</h3>
+  <div class="forwho"><div><b>網拍、電商賣家</b><span>商品多、上新快，需要大量又整齊的商品圖。</span></div><div><b>服飾、美妝品牌</b><span>要有質感、要一致，但請不起專職美編。</span></div><div><b>實體店開網店</b><span>想把店裡的商品搬上網，又不知道從哪裡開始。</span></div></div>
+</div></section>
+
+<section class="tool" id="video"><div class="in">
+  <div class="thead">
+    <div><div class="kick">TOOL 02 · AI 剪片</div><h2>一段素材，<br>剪成一支<em>看得完的片</em></h2>
+      <p>把拍好的影片丟進來，AI 剪片幫你剪掉停頓和口誤、把最抓人的那句放到開頭、排出起承轉合，再上逐字字幕、音效和配樂。存下來就能發 IG、TikTok、YouTube Shorts。</p>
+      <ul class="ticks"><li>不會剪片也沒關係，選一種剪法就好</li><li>照爆款節奏剪，前 3 秒先抓住人</li><li>手機、相機拍的，橫的直的都可以</li></ul>
+      <a class="btn" href="/ai-video">前往 AI 剪片，看方案</a></div>
+    <div class="vshow"><canvas id="w1" width="270" height="480"></canvas><canvas id="w2" width="270" height="480"></canvas></div>
+  </div>
+
+  <h3 class="sub2">它會幫你做這些事</h3>
+  <div class="fgrid">
+    <div class="fi"><i>01</i><b>剪掉停頓和口誤</b><span>嗯、啊、講錯重講、沉默的空白，AI 自動找出來剪掉，一支三分鐘的素材常常剩不到一分鐘，節奏一下就緊了。</span></div>
+    <div class="fi"><i>02</i><b>排出起承轉合</b><span>AI 先找出最精彩的那一句放在開頭抓注意力，再照因果把內容排好，觀眾比較願意看到最後。</span></div>
+    <div class="fi"><i>03</i><b>逐字字幕，不擋臉</b><span>自動聽寫上字幕，重點字換顏色、放大；字幕位置會避開臉和商品。你也可以貼台詞，錯字更少。</span></div>
+    <div class="fi"><i>04</i><b>音效和配樂</b><span>笑點、轉場、重點自動配音效；背景音樂是原創配樂，沒有版權問題。也可以不要配樂，發的時候用平台的熱門歌。</span></div>
+    <div class="fi"><i>05</i><b>橫的變直的</b><span>橫拍的、多人對話的影片，AI 跟著講話的人臉裁成直式滿版；兩個人一來一往時可以上下分割。</span></div>
+    <div class="fi"><i>06</i><b>重點動效卡＋品牌 logo</b><span>章節、大數字、價格、清單、金句，在對的時間自動跳出來；有上傳 logo 就放在角落當浮水印（選填）。</span></div>
+  </div>
+
+  <div class="monthly"><b>每月 1 號</b><div><strong>每個月至少新增 5 種剪法</strong><span>我們每個月研究當月爆款影片怎麼剪、用什麼字幕和轉場，做成新剪法和新配樂放進去。訂閱期間持續更新，不用另外加錢；旗艦方案搶先一個月用。</span></div></div>
+
+  <h3 class="sub2">10 種剪法，照內容挑（每月增加）</h3>
+  <div class="mods"><span>爆點跳字<em>口播</em></span><span>三段式知識框<em>教學</em></span><span>倒敘懸念<em>故事</em></span><span>聊天泡泡<em>Podcast</em></span><span>柔光質感<em>美業</em></span><span>命理字卡<em>命理</em></span><span>手寫筆記<em>療癒</em></span><span>綜藝爆笑<em>搞笑</em></span><span>直播帶貨<em>賣貨</em></span><span>新聞快報<em>時事</em></span></div>
+
+  <h3 class="sub2">怎麼用</h3>
+  <div class="steps">
+    <div><b>STEP 1</b><strong>上傳素材</strong><span>最多 5 支短素材，或 1 支 30 分鐘內的長片。</span></div>
+    <div><b>STEP 2</b><strong>選剪法</strong><span>挑剪法、字體、顏色，有特別交代寫在備註。</span></div>
+    <div><b>STEP 3</b><strong>AI 自動剪</strong><span>剪接、字幕、音效、配樂一次做好。</span></div>
+    <div><b>STEP 4</b><strong>存下來就能發</strong><span>附一段可以直接貼的貼文文案。</span></div>
+  </div>
+
+  <h3 class="sub2">適合誰</h3>
+  <div class="forwho"><div><b>老闆、講師口播</b><span>有內容、會講，但沒時間剪。</span></div><div><b>直播主、帶貨賣家</b><span>直播錄下來，切成很多支短影音再賣一次。</span></div><div><b>美業、命理、Podcast</b><span>每週固定出片，要穩定又要有自己的風格。</span></div></div>
+</div></section>
+
+<section class="price" id="price"><div class="in">
+  <div class="kick">PRICING</div>
+  <h2>月租制，999 起</h2><p style="color:var(--mid);margin:0">按月付費，隨時升級。兩個工具分開訂，要哪個買哪個。</p>
+  <div class="ptabs" role="tablist"><button type="button" role="tab" data-t="design" aria-selected="true">AI 美編</button><button type="button" role="tab" data-t="video" aria-selected="false">AI 剪片</button></div>
+  <div class="plans" id="plans"></div>
+  <div id="extras"></div>
+  <p class="fine" id="fineNote"></p>
+</div></section>
+
+<section class="faq"><div class="in">
+  <div class="kick">FAQ</div><h2>常見問題</h2>
+  <div class="qa" id="qa">
+    <details><summary>我完全不會修圖、不會剪片，用得來嗎？</summary><p>可以。你只要上傳照片或影片、選好想要的樣子，剩下 AI 會做。每一步畫面上都有說明，不用學任何軟體。</p></details>
+    <details><summary>做出來的圖和影片，可以用在哪裡？</summary><p>都可以。成品存在你的手機或電腦，要上購物平台、官網、IG、Facebook、TikTok、YouTube 都行，沒有綁定任何平台。</p></details>
+    <details><summary>有免費試用嗎？</summary><p>沒有免費方案，最低 999 元一個月。按月付費，覺得不需要了下個月不續就好。</p></details>
+    <details><summary>一定要放 logo 嗎？</summary><p>不用，logo 是選填。有上傳的話，AI 美編會放在每張圖的角落，AI 剪片會放在影片角落當浮水印，位置可以自己選。</p></details>
+    <details><summary>模組和剪法會更新嗎？</summary><p>會。每個月 1 號至少新增 5 款，跟著當月爆款的做法更新，訂閱期間都能用，不用另外付錢。旗艦方案可以比別人早一個月用到。</p></details>
+    <details><summary>方案可以中途升級嗎？</summary><p>可以，隨時升級，立刻能用到更多模組或更多支數。</p></details>
+    <details><summary>AI 剪片的配樂會不會有版權問題？</summary><p>內建配樂是原創的，可以放心用。你也可以上傳自己有授權的音樂，或選不要配樂，發的時候用平台內建的熱門歌。</p></details>
+    <details><summary>公司有好幾個品牌、好幾個人要用怎麼辦？</summary><p>選「企業組」。可以多品牌、多帳號一起用，也能幫你量身做專屬模組和剪法，由專人對接，價格依需求報價。</p></details>
+  </div>
+</div></section>
+
+<section class="end"><div class="in">
+  <h2>今天開始，讓 AI 當你的美編和剪輯師</h2>
+  <div class="cta"><a class="btn" href="/ai-design">AI 美編：看方案</a><a class="btn gh" href="/ai-video">AI 剪片：看方案</a></div>
+</div></section>
+</main>
+<footer><div class="in">© 維拓傳媒 Victor Media · 維拓顧問有限公司 統一編號 62180576 · 示範畫面為示意</div></footer>
+
+<script src="/ai/tpl.js"></script>
+<script src="/ai/vid.js"></script>
+<script src="/ai/core.js"></script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function plans(t){$("#plans").innerHTML=VAI.planCards(t,{href:t==="design"?"/ai-design#plans":"/ai-video#plans"});$("#fineNote").textContent="價格為目前方案，如有調整以網站公告為準。"}
+$$("[data-t]").forEach(b=>b.onclick=()=>{$$("[data-t]").forEach(x=>x.setAttribute("aria-selected",String(x===b)));plans(b.dataset.t)});plans("design");$("#extras").innerHTML=VAI.extras();
+// 常見問題：一次只開一題
+$$("#qa details").forEach(d=>d.addEventListener("toggle",()=>{if(d.open)$$("#qa details").forEach(x=>{if(x!==d)x.open=false})}));
+// ===== 示範圖 =====
+const BIG=document.createElement("canvas");BIG.width=BIG.height=S;
+function paintT(id,fn,c,st){col=c;sty=st;const g=BIG.getContext("2d");g.save();g.clearRect(0,0,S,S);fn(g,shirtImg());g.restore();const t=$(id);t.getContext("2d").drawImage(BIG,0,0,t.width,t.height)}
+function stills(){paintT("#d1",c_white,"#c9a96e","s");paintT("#s1",c_white,"#c9a96e","s");paintT("#s2",c_size,"#9a7a3a","s");paintT("#s3",c_kor,"#c49a9a","k")}
+stills();
+const vids=[["#v1",0],["#w1",8],["#w2",4]].map(([id,s])=>[$(id),VSTY[s][3]]);const vis=new Set();
+const io=new IntersectionObserver(es=>es.forEach(e=>{const i=vids.findIndex(v=>v[0]===e.target);e.isIntersecting?vis.add(i):vis.delete(i)}));vids.forEach(v=>io.observe(v[0]));
+vids.forEach((v,i)=>frame(v[0],v[1],i+.8));
+const t0=performance.now();function loop(now){const t=Math.max(0,(now-t0)/1000);vis.forEach(i=>frame(vids[i][0],vids[i][1],t+i));if(!RM)requestAnimationFrame(loop)}requestAnimationFrame(loop);
+(document.fonts&&document.fonts.load?document.fonts.load(`900 60px "Noto Sans TC"`,"尺寸表韓系每天都想穿的那件"):Promise.resolve()).then(()=>setTimeout(stills,60)).catch(()=>{});
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 剪片｜維拓傳媒 AI 工具</title>
+<meta name="description" content="維拓 AI 剪片：素材丟進來，剪掉停頓口誤、排出起承轉合、上逐字字幕和音效配樂，拿到一支看得完的短影音。月租 999 元起。">
+<meta property="og:title" content="AI 剪片｜一段素材，剪成一支看得完的片">
+<meta property="og:description" content="剪停頓、排重點、上字幕音效，存下來直接發。月租 999 元起。">
+<meta name="theme-color" content="#f6f5f1">
+<link rel="icon" href="/m/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Playfair+Display:ital,wght@0,600;1,500&family=Space+Grotesk:wght@500;600;700&family=Roboto:wght@500;700;900&display=swap">
+<link rel="stylesheet" href="/ai/editorial.css">
+<style>
+.vframes{display:flex;gap:18px;justify-content:center;align-items:flex-end;min-width:0}
+.vframes figure{margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.vframes figcaption{font:500 11px var(--num);letter-spacing:.15em;color:var(--dim)}
+.vframes canvas{width:220px;max-width:100%;height:auto;box-shadow:0 24px 50px #2b221033;display:block}
+.vframes figure+figure canvas{width:170px}
+.styles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.st{border:1px solid var(--line);background:#fff;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
+.st:hover{transform:translateY(-3px);box-shadow:0 14px 30px #2b22101a}
+.st canvas{width:100%;height:auto;aspect-ratio:9/16;max-width:100%;display:block;background:#000}
+.st .cap{padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.st .cap b{font:700 14px var(--body)}.st .cap span{font-size:12.5px;color:var(--mid);line-height:1.5}
+.st .cap em{font-style:normal;font:600 11px var(--num);color:var(--gold)}
+.drop{position:relative;border:1px dashed var(--fg);background:#fff;padding:22px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop b{font:900 18px var(--serif)}
+.flist{display:flex;flex-direction:column;gap:6px}
+.flist div{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--line);background:#fff;padding:8px 12px;font-size:13.5px}
+.flist div span{color:var(--mid)}
+.pick2{display:flex;flex-wrap:wrap;gap:8px}
+.job{border:1px solid var(--line);background:#fff;padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}
+.job .s{font-weight:700}.job .s.queued{color:var(--gold2)}.job .s.working{color:#2457d6}.job .s.done{color:var(--ok)}.job .s.error{color:#b23b2e}
+.prog{height:4px;background:var(--line);width:100%}.prog i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
+@media (max-width:1000px){.styles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.styles{grid-template-columns:repeat(2,minmax(0,1fr))}.vframes canvas{width:160px}.vframes figure+figure canvas{width:120px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>AI TOOLS</small></div></a>
+    <div class="tabs"><a href="/ai-tools">AI 工具</a><a href="/ai-design">AI 美編</a><a href="/ai-video" aria-current="page">AI 剪片</a></div>
+    <div class="who" id="who"><a class="btn sm" href="#member">登入會員</a></div></nav>
+
+  <section class="hero" id="top">
+    <div>
+      <div class="kicker">VICTOR MEDIA // AI 剪片</div>
+      <h1>一段素材，<br>剪成一支<span>看得完的</span>片</h1>
+      <p class="lead">把拍好的影片丟進來，AI 剪片幫你剪掉停頓和口誤、把最抓人的那句放到開頭、排出起承轉合，再上逐字字幕、音效和配樂。存下來就能發 IG、TikTok、YouTube Shorts。</p>
+      <div class="cta"><a class="btn" href="#plans">看方案</a><a class="btn gh" href="#member">會員登入開始用</a></div>
+      <div class="stats"><div><b>10</b><span>種剪法</span></div><div><b>3</b><span>秒抓住注意力</span></div><div><b>150</b><span>支／月（旗艦）</span></div></div>
+    </div>
+    <div class="vframes"><figure><canvas id="h1v" width="270" height="480" aria-label="AI 剪片示範"></canvas><figcaption>NO.01 爆點跳字</figcaption></figure><figure><canvas id="h2v" width="270" height="480" aria-label="AI 剪片示範"></canvas><figcaption>NO.05 柔光質感</figcaption></figure></div>
+  </section>
+
+  <section class="sect">
+    <div class="sh"><small>WHAT IT DOES</small><h2>不會剪片，也能天天發好看的影片</h2></div>
+    <div class="feats">
+      <div class="feat"><span class="ic">01</span><b>剪掉停頓和口誤</b><span>嗯、啊、講錯重講、沉默空白自動剪掉，節奏一下就緊了。</span></div>
+      <div class="feat"><span class="ic">02</span><b>排出起承轉合</b><span>最精彩那句放開頭，再照因果排好，觀眾才會看完。</span></div>
+      <div class="feat"><span class="ic">03</span><b>逐字字幕不擋臉</b><span>自動聽寫上字幕，重點字換色放大，避開臉和商品。</span></div>
+      <div class="feat"><span class="ic">04</span><b>音效和原創配樂</b><span>笑點、轉場自動配音效，配樂是原創的，沒有版權問題。</span></div>
+      <div class="feat"><span class="ic">05</span><b>橫的變直的</b><span>橫拍、多人對話也行，跟著講話的人臉裁成直式滿版。</span></div>
+      <div class="feat"><span class="ic">06</span><b>每月新增剪法</b><span>每月 1 號至少新增 5 種，照當月爆款影片的剪法更新。</span></div>
+    </div>
+  </section>
+
+  <section class="sect">
+    <div class="sh"><small>10 STYLES</small><h2>10 種剪法，照內容挑</h2><p>每種的字幕、轉場、音效、節奏都不一樣，也可以全部交給 AI 挑。每月持續增加。</p></div>
+    <div class="styles" id="styles"></div>
+  </section>
+
+  <section class="sect" id="plans">
+    <div class="sh"><small>PLANS</small><h2>方案：月租 999 起</h2><p>按月付費，隨時升級。年繳付 10 個月用 12 個月。沒用完的支數不累積到下個月。</p></div>
+    <div class="bar" style="margin-bottom:14px"><span class="note">付款方式</span><button class="chip" type="button" data-bill="month" aria-pressed="true">月繳</button><button class="chip" type="button" data-bill="year" aria-pressed="false">年繳（送 2 個月）</button></div>
+    <div class="plans" id="planCards"></div>
+    <div id="extras"></div>
+    <p class="fine">價格為目前方案，如有調整以網站公告為準。</p>
+  </section>
+
+  <section class="sect" id="member">
+    <div class="sh"><small>MEMBER</small><h2>會員專區</h2><p id="memSub">登入後就能直接在這裡交片給 AI 剪。</p></div>
+    <div id="memBox"><p class="note">讀取中…</p></div>
+    <div id="work" hidden>
+      <div class="col">
+        <div class="usage" id="usage"></div>
+        <div class="panel">
+          <div class="ph"><b>1</b><div><h3>上傳素材</h3><p>最多 5 支，每支 50MB 以內（手機拍的 1～2 分鐘影片大約這個大小）。</p></div></div>
+          <div class="drop"><input type="file" id="vf" accept="video/*,.mp4,.mov,.m4v" multiple aria-label="選擇影片"><b>點這裡選影片，或拖進來</b><span class="note">mp4、mov 都可以，橫的直的都行</span></div>
+          <div class="flist" id="flist"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><b>2</b><div><h3>選剪法</h3><p>不知道選哪個，就選「交給 AI 挑」。</p></div></div>
+          <div class="pick2" id="stPick"></div>
+          <p class="note" id="stNote"></p>
+        </div>
+        <div class="panel">
+          <div class="ph"><b>3</b><div><h3>特別交代和 logo（選填）</h3><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
+          <label class="f"><span>備註</span><textarea id="vNote" rows="3" maxlength="500"></textarea></label>
+          <div class="bar"><label class="up">上傳 logo（選填）<input type="file" accept="image/*" id="vLogo" hidden></label><span class="note" id="vLogoMsg">有放的話會放在影片角落</span></div>
+        </div>
+        <div class="bar"><button class="btn" type="button" id="send">交給 AI 剪（用掉 1 支）</button><span class="msg" id="sendMsg"></span></div>
+        <div class="prog" id="prog" hidden><i></i></div>
+        <div class="sh" style="margin-top:20px"><h2 style="font-size:24px">我的影片</h2><p>剪好會顯示「完成」，按下載就能存下來。</p></div>
+        <div class="jobs" id="jobs"></div>
+      </div>
+    </div>
+    <div id="admin"></div>
+  </section>
+
+  <footer><img src="/m/logo.png" alt="" width="36" height="36" style="border-radius:50%"><span>維拓傳媒 Victor Media・維拓顧問有限公司 統一編號 62180576</span><a href="/ai-tools">AI 工具</a><a href="/ai-design">AI 美編</a><a href="/">回官網</a></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>var F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif',N='"Roboto","Noto Sans TC",sans-serif';</script>
+<script src="/ai/vid.js"></script>
+<script src="/ai/core.js"></script>
+<script src="/ai/video.js"></script>
+</body>
+</html>

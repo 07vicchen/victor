@@ -1,0 +1,73 @@
+/* AI 剪片頁：示範影片、剪法卡、方案、會員上傳素材、我的影片、管理員面板 */
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
+  var E = VAI.E, RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var DESC = [["口播、老闆講話", "字一次跳 2～4 個，停頓全剪，重點推近"], ["知識、教學", "上大標題、中畫面、下字幕，換重點跳章節卡"], ["故事、短劇", "先放最精彩那句再倒回去講，電影黑邊"], ["Podcast、多人聊天", "誰講話就變誰的泡泡，左右對話"], ["美業、保養", "慢慢推近、柔光、細字，看起來貴"], ["命理、星座", "深色字卡，關鍵字金色大字配鐘聲"], ["療癒、心靈", "筆記卡一字一字寫，重點螢光筆劃過"], ["搞笑、日常", "1.1 倍速，大字彈出畫面震"], ["賣衣服、推產品", "卡拉 OK 字幕，價格大字跳出、限時閃"], ["科技、時事", "新聞快報條、LIVE、故障轉場"]];
+  var BASIC = [0, 1, 8];
+  var bill = "month", files = [], vlogo = null, pickSt = -1, plan = "basic";
+  // ===== 示範 =====
+  var demos = [[$("#h1v"), VSTY[0][3]], [$("#h2v"), VSTY[4][3]]];
+  $("#styles").innerHTML = VSTY.map(function (s, i) { return '<div class="st"><canvas width="270" height="480" aria-label="' + s[0] + '"></canvas><div class="cap"><em>NO.' + String(i + 1).padStart(2, "0") + (BASIC.indexOf(i) >= 0 ? "・入門可用" : "・專業以上") + "</em><b>" + s[0] + "</b><span>" + DESC[i][0] + "：" + DESC[i][1] + "</span></div></div>"; }).join("");
+  $$("#styles canvas").forEach(function (c, i) { demos.push([c, VSTY[i][3]]); });
+  var vis = new Set(), io = new IntersectionObserver(function (es) { es.forEach(function (e) { var i = demos.findIndex(function (d) { return d[0] === e.target; }); e.isIntersecting ? vis.add(i) : vis.delete(i); }); });
+  demos.forEach(function (d, i) { io.observe(d[0]); frame(d[0], d[1], i * .7 + .6); });
+  var t0 = performance.now(); function loop(now) { var t = Math.max(0, (now - t0) / 1000); vis.forEach(function (i) { frame(demos[i][0], demos[i][1], t + i * .7); }); if (!RM) requestAnimationFrame(loop); } requestAnimationFrame(loop);
+  // ===== 方案 =====
+  function plans() { $("#planCards").innerHTML = VAI.planCards("video", { buy: 1 }).replace(/元／月/g, bill === "year" ? "元／月（年繳付 10 個月）" : "元／月"); $("#extras").innerHTML = VAI.extras(); $$("[data-buy]").forEach(function (b) { b.onclick = function () { buy(b.dataset.buy.split(":")[1]); }; }); }
+  $$("[data-bill]").forEach(function (b) { b.onclick = function () { bill = b.dataset.bill; $$("[data-bill]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); plans(); }; });
+  var wantPlan = null; try { wantPlan = JSON.parse(localStorage.getItem("vai-want-video") || "null"); } catch (e) {}
+  async function buy(id) { wantPlan = id; try { localStorage.setItem("vai-want-video", JSON.stringify(id)); } catch (e) {} var m = await VAI.refresh(); $("#member").scrollIntoView({ behavior: "smooth" });
+    if (m && m.login) { wantPlan = null; try { localStorage.removeItem("vai-want-video"); } catch (e) {} try { await VAI.request("video", id, bill); } catch (e) { $("#memBox").insertAdjacentHTML("afterbegin", '<p class="msg err">' + E(e.message) + "</p>"); } } }
+  plans();
+  // ===== 會員 =====
+  var onMeFn = function (me) {
+    var who = $("#who"), box = $("#memBox"), work = $("#work");
+    if (!me || !me.login) { who.innerHTML = '<a class="btn sm" href="#member">登入會員</a>'; work.hidden = true; $("#admin").innerHTML = ""; VAI.authBox(box, "/ai-video#member"); return; }
+    who.innerHTML = "<span>" + E(me.email) + '</span><button class="btn sm gh" type="button" id="out">登出</button>'; $("#out").onclick = async function () { await VAI.client().auth.signOut(); VAI.refresh(); };
+    var d = me.video || {};
+    if (me.admin) $("#memSub").textContent = "管理員帳號：全部功能免費使用。";
+    if (d.status === "active") { box.innerHTML = ""; plan = d.plan; work.hidden = false; usage(d); boot(); jobs(); }
+    else { work.hidden = true; var p = d.plan && VAI.PRICE.video.plans.filter(function (x) { return x.id === d.plan; })[0];
+      if (d.status === "pending") box.innerHTML = '<div class="state"><h3>已收到你的申請</h3><p>方案：<b>' + E(p ? p.n : d.plan) + "</b>（" + (d.billing === "year" ? "年繳" : "月繳") + '）</p><p class="note">線上刷卡正在串接中。現在請加官方 LINE <b>' + VAI.LINE + '</b>，傳「AI 剪片＋你的信箱」，確認付款後馬上開通，開通後重新整理這頁就能用。</p></div>';
+      else if (d.status === "expired") box.innerHTML = '<div class="state"><h3>方案已到期</h3><p class="note">加官方 LINE <b>' + VAI.LINE + "</b> 續約，或到上面「方案」重新選擇。</p></div>";
+      else box.innerHTML = '<div class="state"><h3>還沒有開通方案</h3><p class="note">到上面「方案」選一個，送出申請後會告訴你怎麼付款。</p><a class="btn" href="#plans">去選方案</a></div>';
+      if (wantPlan && d.status !== "pending" && d.status !== "active") { var w = wantPlan; wantPlan = null; try { localStorage.removeItem("vai-want-video"); } catch (e) {} VAI.request("video", w, bill).catch(function () {}); } }
+    if (me.admin) VAI.adminPanel($("#admin"), "video");
+  };
+  function usage(d) { var lim = d.limit >= 1000000 ? "不限" : d.limit, pct = d.limit >= 1000000 ? 4 : Math.min(100, d.used / d.limit * 100);
+    $("#usage").innerHTML = "<span>本月已交 <b>" + d.used + "</b> 支／" + lim + (d.free ? "（管理員免費）" : "") + '</span><span class="bar2"><i style="width:' + pct + '%"></i></span><span class="note">方案：' + E((VAI.PRICE.video.plans.filter(function (x) { return x.id === d.plan; })[0] || {}).n || "") + (d.period_end ? "，到 " + d.period_end : "") + "</span>"; }
+  var booted = false;
+  function boot() { var allowAll = plan !== "basic";
+    $("#stPick").innerHTML = '<button class="chip" type="button" data-st="-1" aria-pressed="' + (pickSt === -1) + '">交給 AI 挑</button>' + VSTY.map(function (s, i) { var ok = allowAll || BASIC.indexOf(i) >= 0; return '<button class="chip" type="button" data-st="' + i + '" aria-pressed="' + (pickSt === i) + '"' + (ok ? "" : " disabled") + ">" + s[0] + "</button>"; }).join("");
+    $("#stNote").textContent = allowAll ? "" : "入門方案可用 3 種剪法，升級專業就能用全部。";
+    $$("[data-st]").forEach(function (b) { b.onclick = function () { pickSt = +b.dataset.st; $$("[data-st]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
+    if (booted) return; booted = true;
+    $("#vf").onchange = function (e) { var add = [].slice.call(e.target.files); add.forEach(function (f) { if (files.length < 5) files.push(f); }); e.target.value = ""; listFiles(); };
+    $("#vLogo").onchange = function (e) { vlogo = e.target.files[0] || null; $("#vLogoMsg").textContent = vlogo ? "已選 logo：" + vlogo.name : "有放的話會放在影片角落"; };
+    $("#send").onclick = send; }
+  function listFiles() { $("#flist").innerHTML = files.map(function (f, i) { var big = f.size > 50 * 1048576; return "<div><b>" + E(f.name) + "</b><span" + (big ? ' style="color:#b23b2e"' : "") + ">" + (f.size / 1048576).toFixed(1) + " MB" + (big ? "（超過 50MB）" : "") + '</span><button class="chip" type="button" data-rm="' + i + '">移除</button></div>'; }).join("");
+    $$("[data-rm]").forEach(function (b) { b.onclick = function () { files.splice(+b.dataset.rm, 1); listFiles(); }; }); }
+  async function send() { var m = $("#sendMsg"), b = $("#send"), pg = $("#prog");
+    if (!files.length) { m.className = "msg err"; m.textContent = "先選至少一支影片"; return; }
+    if (files.some(function (f) { return f.size > 50 * 1048576; })) { m.className = "msg err"; m.textContent = "有影片超過 50MB，請先移除或剪短一點"; return; }
+    b.disabled = true; pg.hidden = false; m.className = "msg"; var c = VAI.client(), uid = (await c.auth.getUser()).data.user.id, stamp = Date.now(), up = [];
+    try {
+      for (var i = 0; i < files.length; i++) { m.textContent = "上傳中 " + (i + 1) + "/" + files.length + "…"; pg.firstChild.style.width = (i / files.length * 90) + "%";
+        var f = files[i], path = uid + "/" + stamp + "_" + i + "." + ((f.name.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, "") || "mp4");
+        var r = await c.storage.from("ai-videos").upload(path, f, { contentType: f.type || "video/mp4" }); if (r.error) throw new Error("上傳失敗：" + r.error.message); up.push({ path: path, name: f.name, size: f.size }); }
+      var lp = null; if (vlogo) { lp = uid + "/" + stamp + "_logo." + ((vlogo.name.split(".").pop() || "png").toLowerCase()); var lr = await c.storage.from("ai-videos").upload(lp, vlogo, { contentType: vlogo.type || "image/png" }); if (lr.error) lp = null; }
+      var st = pickSt < 0 ? "交給 AI 挑" : VSTY[pickSt][0];
+      var s = await c.rpc("ai_video_submit", { p_files: up, p_style: st, p_note: $("#vNote").value, p_logo: lp }); if (s.error) throw new Error(s.error.message);
+      pg.firstChild.style.width = "100%"; m.className = "msg ok"; m.textContent = "送出了！編號 #" + s.data + "，剪好會在下面「我的影片」顯示。"; files = []; listFiles(); $("#vNote").value = ""; VAI.refresh(); jobs();
+    } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+    b.disabled = false; setTimeout(function () { pg.hidden = true; pg.firstChild.style.width = "0"; }, 1500); }
+  async function jobs() { var c = VAI.client(), r = await c.from("ai_video_jobs").select("id,style,status,result,created_at,files").order("id", { ascending: false }).limit(50), box = $("#jobs");
+    if (r.error) { box.innerHTML = '<p class="msg err">' + E(r.error.message) + "</p>"; return; }
+    if (!r.data.length) { box.innerHTML = '<p class="note">還沒有影片。上面選好素材按「交給 AI 剪」就會出現在這裡。</p>'; return; }
+    var ST = { queued: "排隊中", working: "剪輯中", done: "完成", error: "有問題，我們會聯絡你" };
+    box.innerHTML = r.data.map(function (j) { return '<div class="job"><span><b>#' + j.id + "</b>　" + E(j.style || "") + "・" + (j.files || []).length + " 支素材・" + new Date(j.created_at).toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) + '</span><span class="s ' + j.status + '">' + ST[j.status] + "</span>" + (j.status === "done" && j.result && j.result.path ? '<button class="btn sm" type="button" data-get="' + E(j.result.path) + '">下載成品</button>' : "") + "</div>"; }).join("");
+    $$("[data-get]").forEach(function (b) { b.onclick = async function () { var s = await c.storage.from("ai-videos").createSignedUrl(b.dataset.get, 3600, { download: true }); if (!s.error) location.href = s.data.signedUrl; }; }); }
+  setInterval(function () { if (!$("#work").hidden) jobs(); }, 60000);
+  VAI.onMe(onMeFn);
+})();

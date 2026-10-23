@@ -1,0 +1,111 @@
+/* 維拓 AI 工具共用：會員登入、方案與價格、開通狀態、管理員面板。三個頁面（/ai-tools、/ai-design、/ai-video）共用 */
+(function () {
+  "use strict";
+  var SB_URL = "https://cswhroimywfyokxxogis.supabase.co", SB_KEY = "sb_publishable_vNNC0f5QzxX7uUl2hqvKhA_WSXIhwiY";
+  var API = "https://victormoney.vercel.app";
+  // ===== 價格與方案（之後改價錢只改這裡）=====
+  var PRICE = {
+    design: { name: "AI 美編", unit: "件商品", plans: [
+      { id: "basic", n: "入門", p: 999, q: "每月 <b>30</b> 件商品", f: ["10 個基本模組（白底封面、賣點大標、尺寸表、顏色一覽…）", "簡約風格", "AI 寫標題、描述、Hashtag", "一鍵存整組", "每月新增模組"] },
+      { id: "pro", n: "專業", p: 2499, hot: 1, q: "每月 <b>150</b> 件商品", f: ["30 個模組，含服飾專用：試穿表、布料指標、穿搭建議、尺碼推薦…", "品牌色、logo 自由換", "檔期活動圖", "每月新增模組"] },
+      { id: "max", n: "旗艦", p: 4999, q: "商品數 <b>不限</b>", f: ["全部 99 種模組（每款再加韓系、街頭風格）", "雜誌風、黑金質感封面", "每月含 20 張 AI 模特兒／情境圖", "每月新模組搶先一個月用"] },
+      { id: "ent", n: "企業組", p: 0, q: "模組 <b>不限</b>", f: ["旗艦全部", "多品牌、多帳號一起用", "量身做專屬模組", "專人對接"] }] },
+    video: { name: "AI 剪片", unit: "支影片", plans: [
+      { id: "basic", n: "入門", p: 999, q: "每月 <b>15</b> 支", f: ["每支成品 60 秒內", "3 種基本剪法", "剪停頓口誤、逐字字幕", "音效、原創配樂", "每月新增剪法"] },
+      { id: "pro", n: "專業", p: 2499, hot: 1, q: "每月 <b>50</b> 支", f: ["每支成品 90 秒內", "全部剪法＋重點動效卡", "橫拍轉直式、多人對話分割", "品牌字體、顏色、logo", "每月新增剪法和配樂"] },
+      { id: "max", n: "旗艦", p: 4999, q: "每月 <b>150</b> 支", f: ["每支成品 3 分鐘內", "每月含 30 支 AI 配音", "優先處理，排隊最短", "每月新剪法搶先一個月用"] },
+      { id: "ent", n: "企業組", p: 0, q: "支數 <b>不限</b>", f: ["旗艦全部", "多品牌、多帳號一起用", "專屬剪法、片頭片尾", "專人對接"] }] },
+    bundle: [{ n: "入門組", p: 1699, was: 1998, d: "AI 美編入門＋AI 剪片入門" }, { n: "專業組", p: 3999, was: 4998, d: "AI 美編專業＋AI 剪片專業", hot: 1 }, { n: "旗艦組", p: 7999, was: 9998, d: "AI 美編旗艦＋AI 剪片旗艦" }],
+    year: "年繳：付 10 個月，用 12 個月",
+    addons: [["AI 美編加 50 件商品", "399 元"], ["AI 模特兒／情境圖", "每張 29 元"], ["AI 剪片加 10 支", "499 元"], ["AI 配音", "每支 39 元"], ["急件優先處理", "每支 49 元"], ["多國語字幕", "每支 29 元"]],
+    setup: [["品牌風格包代設定（logo、品牌色、常用模組）", "一次 1,990 元"], ["品牌片頭片尾設定", "一次 1,990 元"]],
+    service: ["交給維拓做（員工用同一套工具幫你做圖、剪片）", "每月 9,800 元起"]
+  };
+  var LINE_ID = "@898biiyu";
+  var sb = null, me = null, listeners = [];
+  function E(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function client() { if (!sb && window.supabase) sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, detectSessionInUrl: true } }); return sb; }
+  async function refresh() {
+    var c = client(); if (!c) return null;
+    var s = (await c.auth.getSession()).data.session;
+    if (!s) { me = { login: false }; } else { var r = await c.rpc("ai_tool_me"); me = r.error ? { login: true, err: r.error.message } : r.data; }
+    listeners.forEach(function (f) { try { f(me); } catch (e) {} });
+    return me;
+  }
+  function onMe(f) { listeners.push(f); if (me) f(me); }
+  async function token() { var s = (await client().auth.getSession()).data.session; return s ? s.access_token : ""; }
+  function planCards(tool, opt) {
+    opt = opt || {};
+    return PRICE[tool].plans.map(function (p) {
+      return '<div class="plan' + (p.hot ? " hot" : "") + '">' + (p.hot ? '<span class="bd">最多人選</span>' : "") + "<h3>" + p.n + '</h3><div class="p">' + (p.p ? p.p.toLocaleString() + "<small> 元／月</small>" : '<span class="pq">專案報價</span>') + '</div><div class="q">' + p.q + "</div><ul>" + p.f.map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul>" +
+        (opt.buy ? '<button class="btn' + (p.hot ? "" : " gh") + '" type="button" data-buy="' + tool + ":" + p.id + '">' + (p.p ? "選" + p.n : "聯絡我們") + "</button>" : '<a class="btn' + (p.hot ? "" : " gh") + '" href="' + (opt.href || "#") + '">' + (p.p ? "選" + p.n : "聯絡我們") + "</a>") + "</div>";
+    }).join("");
+  }
+  function extras() {
+    return '<div class="extras"><div class="ex"><h4>美編＋剪片 組合包</h4>' + PRICE.bundle.map(function (b) { return '<div class="row' + (b.hot ? " hot" : "") + '"><span><b>' + b.n + "</b>" + b.d + '</span><em><s>' + b.was.toLocaleString() + "</s> " + b.p.toLocaleString() + " 元／月</em></div>"; }).join("") + '</div>' +
+      '<div class="ex"><h4>年繳更划算</h4><p>' + PRICE.year + '，所有方案、組合包都適用。</p><h4 style="margin-top:14px">加購（用超過再買）</h4>' + PRICE.addons.map(function (a) { return '<div class="row"><span>' + a[0] + "</span><em>" + a[1] + "</em></div>"; }).join("") + "</div>" +
+      '<div class="ex"><h4>選購設定</h4>' + PRICE.setup.map(function (a) { return '<div class="row"><span>' + a[0] + "</span><em>" + a[1] + "</em></div>"; }).join("") + '<h4 style="margin-top:14px">懶得自己做？</h4><div class="row"><span>' + PRICE.service[0] + "</span><em>" + PRICE.service[1] + "</em></div></div></div>";
+  }
+  // ===== 登入框 =====
+  function authBox(el, back) {
+    el.innerHTML = '<div class="auth"><h3>登入會員</h3><p class="note">第一次用？輸入信箱就會自動建立帳號。</p>' +
+      '<label class="f"><span>電子信箱</span><input type="email" id="auEmail" autocomplete="email" placeholder="you@example.com"></label>' +
+      '<div class="bar"><button class="btn" type="button" id="auOtp">寄登入連結到信箱</button><button class="btn gh" type="button" id="auPwT">用密碼登入</button></div>' +
+      '<div id="auPw" hidden><label class="f"><span>密碼</span><input type="password" id="auPass" autocomplete="current-password"></label><div class="bar"><button class="btn" type="button" id="auIn">登入</button><button class="btn gh" type="button" id="auUp">用這組信箱密碼註冊</button></div></div>' +
+      '<p class="msg" id="auMsg" role="status"></p></div>';
+    var m = el.querySelector("#auMsg"), em = function () { return el.querySelector("#auEmail").value.trim(); };
+    var say = function (t, ok) { m.textContent = t; m.className = "msg" + (ok ? " ok" : " err"); };
+    el.querySelector("#auPwT").onclick = function () { el.querySelector("#auPw").hidden = false; };
+    el.querySelector("#auOtp").onclick = async function () {
+      if (!/.+@.+\..+/.test(em())) return say("請先輸入正確的信箱");
+      this.disabled = true; var r = await client().auth.signInWithOtp({ email: em(), options: { emailRedirectTo: location.origin + back } }); this.disabled = false;
+      r.error ? say("寄送失敗：" + r.error.message) : say("登入連結寄出了，請到信箱點連結，會自動回到這一頁。", true);
+    };
+    el.querySelector("#auIn").onclick = async function () {
+      var r = await client().auth.signInWithPassword({ email: em(), password: el.querySelector("#auPass").value });
+      r.error ? say(r.error.message === "Invalid login credentials" ? "信箱或密碼不對" : r.error.message) : (say("登入成功", true), refresh());
+    };
+    el.querySelector("#auUp").onclick = async function () {
+      var pw = el.querySelector("#auPass").value; if (pw.length < 8) return say("密碼至少 8 個字");
+      var r = await client().auth.signUp({ email: em(), password: pw, options: { emailRedirectTo: location.origin + back } });
+      r.error ? say(r.error.message) : r.data.session ? (say("註冊成功", true), refresh()) : say("註冊成功，請到信箱點確認連結。", true);
+    };
+  }
+  // ===== 開通（綠界串好之前，先送出申請、管理員手動開通）=====
+  async function request(tool, plan, billing) {
+    var r = await client().rpc("ai_tool_request", { p_tool: tool, p_plan: plan, p_billing: billing || "month" });
+    if (r.error) throw new Error(r.error.message);
+    await refresh(); return r.data;
+  }
+  // ===== 管理員面板 =====
+  async function adminPanel(el, tool) {
+    var c = client();
+    async function draw() {
+      var r = await c.rpc("ai_tool_admin_list"); if (r.error) { el.innerHTML = '<p class="msg err">' + E(r.error.message) + "</p>"; return; }
+      var rows = (r.data || []).filter(function (x) { return x.tool === tool; });
+      var jobs = [];
+      if (tool === "video") { var j = await c.rpc("ai_video_admin_list"); jobs = j.data || []; }
+      el.innerHTML = '<div class="adm"><h3>管理員：' + PRICE[tool].name + " 會員開通</h3>" + (rows.length ? rows.map(function (x) {
+        var plan = PRICE[tool].plans.filter(function (p) { return p.id === x.plan; })[0];
+        return '<details class="acc"><summary><b>' + E(x.email) + "</b><span>" + (plan ? plan.n : x.plan) + "・" + (x.billing === "year" ? "年繳" : "月繳") + "・" + { pending: "待開通", active: "使用中", cancelled: "已停用" }[x.status] + (x.period_end ? "・到 " + x.period_end : "") + '</span></summary><div class="bar"><button class="btn" data-a="' + E(x.email) + '" data-m="' + (x.billing === "year" ? 12 : 1) + '">收到款，開通' + (x.billing === "year" ? " 12 個月" : " 1 個月") + '</button><button class="btn gh" data-c="' + E(x.email) + '">停用</button></div></details>';
+      }).join("") : '<p class="note">還沒有人申請。</p>') +
+        (tool === "video" ? "<h3 style=\"margin-top:18px\">剪片工作</h3>" + (jobs.length ? jobs.map(function (x) {
+          return '<details class="acc"><summary><b>#' + x.id + " " + E(x.email) + "</b><span>" + E(x.style || "") + "・" + { queued: "排隊中", working: "剪輯中", done: "完成", error: "有問題" }[x.status] + '</span></summary><div class="note">' + E(x.note || "沒有備註") + '</div><div class="bar" data-files="' + E(JSON.stringify(x.files)) + '">' + (x.files || []).map(function (f, i) { return '<button class="btn gh" data-dl="' + E(f.path) + '">下載素材 ' + (i + 1) + "</button>"; }).join("") + (x.logo ? '<button class="btn gh" data-dl="' + E(x.logo) + '">下載 logo</button>' : "") + '</div><div class="bar"><button class="btn gh" data-w="' + x.id + '">標記剪輯中</button><label class="btn">上傳成品並完成<input type="file" accept="video/*" data-done="' + x.id + '" hidden></label></div></details>';
+        }).join("") : '<p class="note">還沒有剪片工作。</p>') : "") + '<p class="msg" id="admMsg"></p></div>';
+      var say = function (t, ok) { var m = el.querySelector("#admMsg"); m.textContent = t; m.className = "msg" + (ok ? " ok" : " err"); };
+      el.querySelectorAll(".acc").forEach(function (d) { d.addEventListener("toggle", function () { if (d.open) el.querySelectorAll(".acc").forEach(function (x) { if (x !== d) x.open = false; }); }); });
+      el.querySelectorAll("[data-a]").forEach(function (b) { b.onclick = async function () { var r = await c.rpc("ai_tool_admin_set", { p_email: b.dataset.a, p_tool: tool, p_status: "active", p_months: +b.dataset.m }); r.error ? say(r.error.message) : (say("已開通", true), draw()); }; });
+      el.querySelectorAll("[data-c]").forEach(function (b) { b.onclick = async function () { var r = await c.rpc("ai_tool_admin_set", { p_email: b.dataset.c, p_tool: tool, p_status: "cancelled", p_months: 1 }); r.error ? say(r.error.message) : (say("已停用", true), draw()); }; });
+      el.querySelectorAll("[data-dl]").forEach(function (b) { b.onclick = async function () { var r = await c.storage.from("ai-videos").createSignedUrl(b.dataset.dl, 3600, { download: true }); r.error ? say(r.error.message) : (location.href = r.data.signedUrl); }; });
+      el.querySelectorAll("[data-w]").forEach(function (b) { b.onclick = async function () { await c.rpc("ai_video_admin_set", { p_id: +b.dataset.w, p_status: "working" }); draw(); }; });
+      el.querySelectorAll("[data-done]").forEach(function (inp) { inp.onchange = async function () { var f = inp.files[0]; if (!f) return; say("上傳成品中…", true);
+        var uid = (await c.auth.getUser()).data.user.id, path = uid + "/results/" + inp.dataset.done + "_" + Date.now() + "." + (f.name.split(".").pop() || "mp4");
+        var u = await c.storage.from("ai-videos").upload(path, f, { contentType: f.type || "video/mp4" }); if (u.error) return say("上傳失敗：" + u.error.message);
+        var r = await c.rpc("ai_video_admin_set", { p_id: +inp.dataset.done, p_status: "done", p_result: { path: path, name: f.name } }); r.error ? say(r.error.message) : (say("已完成，客人可以下載了", true), draw()); }; });
+    }
+    draw();
+  }
+  window.VAI = { PRICE: PRICE, E: E, client: client, refresh: refresh, onMe: onMe, token: token, planCards: planCards, extras: extras, authBox: authBox, request: request, adminPanel: adminPanel, API: API, LINE: LINE_ID };
+  function boot(n) { if (!window.supabase) return n < 25 ? setTimeout(function () { boot(n + 1); }, 200) : null; client().auth.onAuthStateChange(function () { refresh(); }); refresh(); }
+  boot(0);
+})();

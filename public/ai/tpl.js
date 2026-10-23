@@ -1,0 +1,193 @@
+/* 維拓 AI 美編：商品圖版型（畫在 canvas 上）。需要的全域變數在這裡先宣告 */
+var F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif',N='"Roboto","Noto Sans TC",sans-serif';
+var S=1080;var col="#c8963e",prod=null,prodUp=null;
+var P={name:"不鏽鋼真空保溫瓶 500ml",head:"冰塊放一天都還在",badges:["24H 保冰","316 不鏽鋼","單手開蓋"],price:590,orig:890,
+  sizes:[["容量","350ml","500ml","750ml"],["高度","19cm","23cm","27cm"],["口徑","6.5cm","6.5cm","7cm"],["重量","280g","330g","410g"]],
+  colors:[["霧黑",0],["奶白",1],["湖水綠",160],["蜜桃粉",330],["海軍藍",210]]};
+// ---------- 示範商品：畫一個保溫瓶（透明背景） ----------
+function sampleProduct(){const c=document.createElement("canvas");c.width=600;c.height=1000;const g=c.getContext("2d");
+  const body=g.createLinearGradient(150,0,450,0);body.addColorStop(0,"#3a3d44");body.addColorStop(.35,"#6b707b");body.addColorStop(.5,"#8b909b");body.addColorStop(1,"#2a2d33");
+  rr(g,150,250,300,700,60);g.fillStyle=body;g.fill();
+  g.fillStyle="#ffffff22";rr(g,190,300,26,600,13);g.fill();
+  const lid=g.createLinearGradient(170,0,430,0);lid.addColorStop(0,"#1c1d21");lid.addColorStop(.5,"#45474e");lid.addColorStop(1,"#141518");
+  rr(g,175,110,250,150,30);g.fillStyle=lid;g.fill();rr(g,210,60,180,70,22);g.fill();
+  g.strokeStyle="#2a2b30";g.lineWidth=26;g.beginPath();g.arc(300,70,70,Math.PI*1.1,Math.PI*1.9);g.stroke();
+  g.fillStyle="#c8963e";g.fillRect(150,262,300,10);
+  g.fillStyle="#ffffffcc";g.font=`700 34px ${N}`;g.textAlign="center";g.fillText("VICTOR",300,640);g.font=`500 18px ${N}`;g.fillText("THERMO 500",300,672);
+  return c}
+function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+const iw=i=>i.naturalWidth||i.width,ih=i=>i.naturalHeight||i.height;
+function fit(g,img,x,y,w,h,mode){const r=mode==="cover"?Math.max(w/iw(img),h/ih(img)):Math.min(w/iw(img),h/ih(img)),W=iw(img)*r,H=ih(img)*r;g.drawImage(img,x+(w-W)/2,y+(h-H)/2,W,H);return [x+(w-W)/2,y+(h-H)/2,W,H]}
+function shadow(g,cx,y,w){const gr=g.createRadialGradient(cx,y,0,cx,y,w/2);gr.addColorStop(0,"#00000033");gr.addColorStop(1,"#00000000");g.save();g.scale(1,.18);g.fillStyle=gr;g.beginPath();g.arc(cx,y/.18,w/2,0,7);g.fill();g.restore()}
+function txt(g,t,x,y,font,color,align){g.font=font;g.fillStyle=color;g.textAlign=align||"left";g.textBaseline="middle";g.fillText(t,x,y);g.textAlign="left"}
+function pill(g,t,x,y,bg,fg,size){g.font=`700 ${size}px ${F}`;const w=g.measureText(t).width+size*1.3;rr(g,x,y,w,size*1.8,size*.9);g.fillStyle=bg;g.fill();txt(g,t,x+size*.65,y+size*.92,`700 ${size}px ${F}`,fg);return w}
+const light=(hex,a)=>{const n=parseInt(hex.slice(1),16),r=n>>16,g2=n>>8&255,b=n&255,m=v=>Math.round(v+(255-v)*a);return `rgb(${m(r)},${m(g2)},${m(b)})`};
+
+// ---------- 九種版型 ----------
+function cover1(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);shadow(g,540,960,560);fit(g,img,140,90,800,880,"contain");
+  pill(g,"台灣現貨",40,40,col,"#fff",34);
+  g.fillStyle=col;g.beginPath();g.moveTo(S-260,0);g.lineTo(S,0);g.lineTo(S,260);g.closePath();g.fill();
+  g.save();g.translate(S-95,95);g.rotate(Math.PI/4);txt(g,"免運",0,0,`900 46px ${F}`,"#fff","center");g.restore()}
+function cover2(g,img){g.fillStyle=light(col,.88);g.fillRect(0,0,S,S);g.fillStyle=light(col,.75);g.beginPath();g.arc(760,560,380,0,7);g.fill();
+  shadow(g,760,990,460);fit(g,img,480,120,560,880,"contain");
+  txt(g,"NEW",70,130,`900 40px ${N}`,col);
+  g.font=`900 92px ${F}`;g.fillStyle="#1b1b1b";g.textBaseline="top";const lines=wrap(g,P.head,430);lines.slice(0,3).forEach((l,i)=>g.fillText(l,70,180+i*110));
+  let y=200+Math.min(3,lines.length)*110+20;P.badges.forEach(b=>{pill(g,"✓ "+b,70,y,col,"#fff",36);y+=88})}
+function detail(g,img){g.fillStyle="#f4f4f2";g.fillRect(0,0,S,S);const [x,y,w,h]=fit(g,img,60,80,520,920,"contain");
+  const spots=[[.5,.12,"單手按壓開蓋"],[.5,.55,"霧面防滑塗層"],[.5,.88,"加厚防摔底座"]];
+  spots.forEach(([fx,fy,label],i)=>{const sx=x+w*fx,sy=y+h*fy,cx=800,cy=200+i*330,R=130;
+    g.strokeStyle=col;g.lineWidth=4;g.setLineDash([10,8]);g.beginPath();g.moveTo(sx,sy);g.lineTo(cx-R,cy);g.stroke();g.setLineDash([]);
+    g.fillStyle=col;g.beginPath();g.arc(sx,sy,10,0,7);g.fill();
+    g.save();g.beginPath();g.arc(cx,cy,R,0,7);g.clip();g.fillStyle="#fff";g.fillRect(cx-R,cy-R,2*R,2*R);
+    const z=2.4,sw=iw(img)/w,sh=ih(img)/h,srcW=2*R/z*sw,srcH=2*R/z*sh,srcX=(sx-x)*sw-srcW/2,srcY=(sy-y)*sh-srcH/2;
+    g.drawImage(img,srcX,srcY,srcW,srcH,cx-R,cy-R,2*R,2*R);g.restore();
+    g.strokeStyle=col;g.lineWidth=8;g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
+    pill(g,label,cx-R-20,cy+R-20,"#1b1b1b","#fff",28)})}
+function sizes(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);g.fillStyle=col;g.fillRect(0,0,S,150);
+  txt(g,"尺寸規格表",60,78,`900 60px ${F}`,"#fff");txt(g,"SIZE GUIDE",S-60,82,`700 30px ${N}`,"#ffffffaa","right");
+  fit(g,img,60,200,280,560,"contain");
+  const x0=380,y0=210,cw=[160,160,160,160],rh=112;
+  P.sizes.forEach((row,r)=>{row.forEach((cell,c)=>{const x=x0+cw.slice(0,c).reduce((a,b)=>a+b,0),y=y0+r*rh;
+    g.fillStyle=r===0?light(col,.85):(r%2?"#fafafa":"#fff");g.fillRect(x,y,cw[c],rh);g.strokeStyle="#e4e4e4";g.lineWidth=2;g.strokeRect(x,y,cw[c],rh);
+    txt(g,cell,x+cw[c]/2,y+rh/2,`${r===0||c===0?900:500} ${c===0?32:36}px ${F}`,r===0?col:"#222","center")})});
+  g.fillStyle="#f6f6f4";rr(g,60,830,S-120,180,16);g.fill();
+  txt(g,"・手工測量，誤差 ±1cm",100,885,`500 32px ${F}`,"#444");txt(g,"・不同螢幕顯示顏色可能略有差異",100,950,`500 32px ${F}`,"#444")}
+function colors(g,img){g.fillStyle="#fafafa";g.fillRect(0,0,S,S);txt(g,"顏色一覽",60,90,`900 60px ${F}`,"#1b1b1b");txt(g,`共 ${P.colors.length} 色`,S-60,95,`700 34px ${F}`,col,"right");
+  const n=P.colors.length,w=(S-120)/n;
+  P.colors.forEach(([name,hue],i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,170,w-16,760,18);g.fill();
+    g.save();g.filter=hue===1?"brightness(1.9) saturate(0.2)":hue?`sepia(1) saturate(4) hue-rotate(${hue-40}deg) brightness(1.15)`:"none";fit(g,img,x+20,210,w-40,620,"contain");g.restore();
+    txt(g,name,x+w/2,880,`700 32px ${F}`,"#222","center")});
+  g.fillStyle=col;g.fillRect(60,970,S-120,8)}
+function scene(g,img){const wall=g.createLinearGradient(0,0,0,700);wall.addColorStop(0,"#e9e2d6");wall.addColorStop(1,"#d9cfbf");g.fillStyle=wall;g.fillRect(0,0,S,700);
+  g.fillStyle="#fff8";g.fillRect(620,80,340,420);g.strokeStyle="#c9bda8";g.lineWidth=10;g.strokeRect(620,80,340,420);g.beginPath();g.moveTo(790,80);g.lineTo(790,500);g.moveTo(620,290);g.lineTo(960,290);g.stroke();
+  const desk=g.createLinearGradient(0,700,0,S);desk.addColorStop(0,"#9a7652");desk.addColorStop(1,"#6e5238");g.fillStyle=desk;g.fillRect(0,700,S,380);
+  g.fillStyle="#2f5d3a";g.beginPath();g.ellipse(170,560,80,150,-.3,0,7);g.fill();g.fillStyle="#b9b2a6";rr(g,110,640,130,110,16);g.fill();
+  g.fillStyle="#f3efe8";rr(g,720,690,260,60,10);g.fill();
+  shadow(g,470,840,420);fit(g,img,280,250,380,600,"contain");
+  pill(g,"AI 情境圖・示意",40,40,"#1b1b1bcc","#fff",30)}
+function model(g,img){const bg=g.createLinearGradient(0,0,S,S);bg.addColorStop(0,light(col,.8));bg.addColorStop(1,light(col,.55));g.fillStyle=bg;g.fillRect(0,0,S,S);
+  g.fillStyle="#00000018";g.beginPath();g.arc(430,300,120,0,7);g.fill();rr(g,270,430,320,650,140);g.fill();
+  g.save();g.translate(640,560);g.rotate(-.12);fit(g,img,-120,-260,240,520,"contain");g.restore();
+  g.fillStyle="#00000018";rr(g,560,600,130,70,35);g.fill();
+  g.fillStyle="#fff";rr(g,60,S-210,S-120,150,18);g.fill();
+  txt(g,"AI 模特兒試穿／手拿",100,S-160,`900 44px ${F}`,"#1b1b1b");txt(g,"正式版用付費生圖產生真人感模特兒，這裡是示意",100,S-100,`500 28px ${F}`,"#666");
+  pill(g,"付費功能",40,40,"#1b1b1bcc","#fff",30)}
+function beforeAfter(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);
+  g.save();g.beginPath();g.rect(0,0,S/2,S);g.clip();g.fillStyle="#d8d6d2";g.fillRect(0,0,S/2,S);g.filter="grayscale(1) brightness(.75) contrast(.8)";fit(g,img,40,150,S/2-80,760,"contain");g.restore();
+  g.save();g.beginPath();g.rect(S/2,0,S/2,S);g.clip();g.fillStyle=light(col,.85);g.fillRect(S/2,0,S/2,S);fit(g,img,S/2+40,150,S/2-80,760,"contain");g.restore();
+  g.fillStyle="#fff";g.fillRect(S/2-4,0,8,S);g.beginPath();g.arc(S/2,S/2,46,0,7);g.fill();txt(g,"VS",S/2,S/2+2,`900 34px ${N}`,col,"center");
+  pill(g,"使用前",40,40,"#1b1b1b","#fff",34);pill(g,"使用後",S/2+40,40,col,"#fff",34);
+  txt(g,"一般杯 3 小時就退冰",S/4,S-80,`700 36px ${F}`,"#333","center");txt(g,"保冰一整天",S*3/4,S-80,`900 40px ${F}`,col,"center")}
+function event(g,img){const bg=g.createLinearGradient(0,0,0,S);bg.addColorStop(0,"#1b1b1b");bg.addColorStop(1,col);g.fillStyle=bg;g.fillRect(0,0,S,S);
+  for(let i=0;i<14;i++){g.fillStyle=i%2?"#ffffff14":"#ffffff08";g.beginPath();g.moveTo(540,540);g.arc(540,540,900,i*Math.PI/7,(i+.5)*Math.PI/7);g.fill()}
+  txt(g,"11.11",540,170,`900 190px ${N}`,"#fff","center");txt(g,"年度最狂  限時 3 天",540,300,`900 56px ${F}`,"#ffe6a8","center");
+  g.fillStyle="#ffffff";g.beginPath();g.arc(540,640,250,0,7);g.fill();fit(g,img,390,420,300,440,"contain");
+  g.fillStyle="#fff";rr(g,150,920,780,130,65);g.fill();
+  txt(g,`$${P.orig}`,330,985,`700 44px ${N}`,"#999","center");g.strokeStyle="#999";g.lineWidth=4;g.beginPath();g.moveTo(250,988);g.lineTo(410,982);g.stroke();
+  txt(g,`$${P.price}`,640,985,`900 84px ${N}`,col,"center");pill(g,"免運",790,950,col,"#fff",30)}
+function wrap(g,t,max){const out=[];let line="";for(const ch of t){if(g.measureText(line+ch).width>max&&line){out.push(line);line=ch}else line+=ch}if(line)out.push(line);return out}
+
+
+// ====== 服飾模組庫 ======
+var CP={name:"涼感棉寬版短T",head:"一穿就不想脫的寬版T",badges:["涼感棉","不透膚","男女可穿"],price:390,orig:590,
+  sizes:[["尺寸","S","M","L","XL"],["衣長","66","69","72","75"],["胸寬","54","57","60","63"],["肩寬","50","53","56","59"],["袖長","20","21","22","23"]],
+  colors:[["白","#f2f1ed"],["黑","#26272b"],["燕麥","#d6c6ab"],["霧藍","#8ea5bf"],["橄欖","#7b8054"]],
+  fit:[["小A","160cm / 48kg","M","寬鬆好看"],["小B","168cm / 55kg","L","剛好不貼身"],["阿傑","178cm / 70kg","XL","微寬落肩"]],
+  fabric:[["彈性",3],["厚度",3],["透膚",1],["版型寬鬆",4]]};
+var STY={s:{name:"簡約",bg:"#ffffff",panel:"#f3f3f1",ink:"#1b1b1b",mute:"#777",w:900},
+  k:{name:"韓系",bg:"#f5eee8",panel:"#ebe1d7",ink:"#4d3a2c",mute:"#9a8573",w:700},
+  st:{name:"街頭",bg:"#121212",panel:"#1f1f1f",ink:"#f5f5f5",mute:"#9a9a9a",w:900}};
+var sty="s",shirtCache={};
+function shirt(color){if(shirtCache[color])return shirtCache[color];var c=document.createElement("canvas");c.width=700;c.height=760;var g=c.getContext("2d");
+  var path=()=>{g.beginPath();g.moveTo(250,60);g.quadraticCurveTo(350,130,450,60);g.lineTo(600,120);g.lineTo(690,300);g.lineTo(580,350);g.lineTo(540,280);g.lineTo(545,730);g.quadraticCurveTo(350,750,155,730);g.lineTo(160,280);g.lineTo(120,350);g.lineTo(10,300);g.lineTo(100,120);g.closePath()};
+  path();g.fillStyle=color;g.fill();
+  g.save();path();g.clip();var sh=g.createLinearGradient(0,0,700,0);sh.addColorStop(0,"#0000002a");sh.addColorStop(.3,"#00000000");sh.addColorStop(.7,"#00000000");sh.addColorStop(1,"#00000033");g.fillStyle=sh;g.fillRect(0,0,700,760);
+  g.strokeStyle="#00000022";g.lineWidth=3;[[160,280,545,280]].forEach(()=>{});g.beginPath();g.moveTo(170,700);g.lineTo(530,700);g.moveTo(560,335);g.lineTo(670,290);g.moveTo(140,335);g.lineTo(30,290);g.stroke();
+  g.strokeStyle="#ffffff30";g.lineWidth=6;g.beginPath();g.moveTo(260,200);g.quadraticCurveTo(300,450,250,700);g.stroke();g.restore();
+  g.strokeStyle="#00000030";g.lineWidth=10;g.beginPath();g.moveTo(255,64);g.quadraticCurveTo(350,140,445,64);g.stroke();
+  shirtCache[color]=c;return c}
+var shirtImg=()=>prodUp||shirt(CP.colors[0][1]==="#f2f1ed"?"#e9e7e1":CP.colors[0][1]);
+function Z(){return STY[sty]}
+function bgFill(g){var z=Z();g.fillStyle=z.bg;g.fillRect(0,0,S,S)}
+function hd(g,t,x,y,size,color,align){var z=Z();txt(g,t,x,y,`${z.w} ${size}px ${F}`,color||z.ink,align)}
+function bars(g,label,v,x,y,w){var z=Z();txt(g,label,x,y,`700 34px ${F}`,z.ink);for(let i=0;i<5;i++){rr(g,x+210+i*(w-210)/5,y-16,(w-210)/5-10,32,8);g.fillStyle=i<v?col:z.panel;g.fill()}}
+function tableAt(g,rows,x,y,w,rh){var z=Z(),cw=w/rows[0].length;rows.forEach((r,ri)=>r.forEach((c,ci)=>{g.fillStyle=ri===0?col:(ri%2?z.panel:z.bg);g.fillRect(x+ci*cw,y+ri*rh,cw,rh);g.strokeStyle=z.mute+"55";g.lineWidth=2;g.strokeRect(x+ci*cw,y+ri*rh,cw,rh);
+  txt(g,c,x+ci*cw+cw/2,y+ri*rh+rh/2,`${ri===0||ci===0?800:500} ${ri===0?34:32}px ${F}`,ri===0?"#fff":z.ink,"center")}))}
+function stamp(g,t,x,y,size,rot){g.save();g.translate(x,y);g.rotate(rot||-.12);g.strokeStyle=col;g.lineWidth=6;g.font=`900 ${size}px ${F}`;var w=g.measureText(t).width+40;rr(g,-w/2,-size*.8,w,size*1.6,10);g.stroke();txt(g,t,0,0,`900 ${size}px ${F}`,col,"center");g.restore()}
+// 30 個服飾版型
+function c_white(g,i){g.fillStyle="#fff";g.fillRect(0,0,S,S);shadow(g,540,990,620);fit(g,i,110,100,860,860,"contain");pill(g,"台灣現貨",40,40,col,"#fff",34);pill(g,"S～XL",40,116,"#1b1b1b","#fff",30)}
+function c_size(g,i){bgFill(g);hd(g,"尺寸表",60,90,64);txt(g,"單位 cm・平量",S-60,95,`500 28px ${F}`,Z().mute,"right");tableAt(g,CP.sizes,60,170,S-120,120);txt(g,"手工測量誤差 ±2cm，建議對照自己常穿的衣服",60,S-60,`500 30px ${F}`,Z().mute)}
+function c_colors(g){bgFill(g);hd(g,"顏色一覽",60,90,64);txt(g,`共 ${CP.colors.length} 色`,S-60,95,`700 32px ${F}`,col,"right");var n=CP.colors.length,w=(S-120)/n;
+  CP.colors.forEach(([nm,c],k)=>{fit(g,shirt(c),60+k*w+10,220,w-20,560,"contain");g.fillStyle=c;g.beginPath();g.arc(60+k*w+w/2,850,26,0,7);g.fill();g.strokeStyle=Z().mute;g.lineWidth=2;g.stroke();txt(g,nm,60+k*w+w/2,920,`700 34px ${F}`,Z().ink,"center")})}
+function c_promo(g,i){bgFill(g);fit(g,i,240,180,600,680,"contain");g.fillStyle=col;g.fillRect(0,0,S,150);hd(g,"第二件 5 折",S/2,78,80,"#fff","center");
+  g.fillStyle=col;rr(g,S/2-260,S-170,520,120,60);g.fill();txt(g,`單件 $${CP.price}`,S/2,S-110,`900 56px ${N}`,"#fff","center")}
+function c_measure(g,i){bgFill(g);hd(g,"怎麼量",60,90,64);var [x,y,w,h]=fit(g,shirt("#d9d9d6"),190,170,700,740,"contain");g.strokeStyle=col;g.lineWidth=6;g.setLineDash([16,10]);
+  var L=(a,b,c,d,t,tx,ty)=>{g.beginPath();g.moveTo(a,b);g.lineTo(c,d);g.stroke();pill(g,t,tx,ty,col,"#fff",30)};
+  L(x+w*.24,y+h*.3,x+w*.76,y+h*.3,"A 胸寬",x+w*.38,y+h*.33);L(x+w*.5,y+h*.06,x+w*.5,y+h*.96,"B 衣長",x+w*.53,y+h*.6);L(x+w*.33,y+h*.1,x+w*.67,y+h*.1,"C 肩寬",x+w*.4,y+h*.13);g.setLineDash([])}
+function c_fit(g,i){bgFill(g);hd(g,"試穿參考",60,90,64);txt(g,"身材相近可以參考",S-60,95,`500 28px ${F}`,Z().mute,"right");
+  CP.fit.forEach(([n,hw,sz,fb],k)=>{var y=180+k*270,z=Z();g.fillStyle=z.panel;rr(g,60,y,S-120,240,20);g.fill();fit(g,i,80,y+20,200,200,"contain");
+    txt(g,n,320,y+70,`900 44px ${F}`,z.ink);txt(g,hw,320,y+130,`500 34px ${N}`,z.mute);txt(g,fb,320,y+185,`500 32px ${F}`,z.ink);
+    g.fillStyle=col;g.beginPath();g.arc(S-170,y+120,80,0,7);g.fill();txt(g,sz,S-170,y+122,`900 70px ${N}`,"#fff","center")});txt(g,"示意資料，正式版填你的真實試穿紀錄",60,S-40,`500 24px ${F}`,Z().mute)}
+function c_fabric(g,i){bgFill(g);hd(g,"布料感受",60,90,64);fit(g,i,60,180,380,420,"contain");CP.fabric.forEach(([l,v],k)=>bars(g,l,v,480,250+k*95,S-540));
+  g.fillStyle=Z().panel;rr(g,60,660,S-120,320,20);g.fill();hd(g,"材質",100,720,40);txt(g,"棉 95%・彈性纖維 5%",100,790,`500 36px ${F}`,Z().ink);txt(g,"親膚、不悶熱，洗後不易變形",100,850,`500 34px ${F}`,Z().mute)}
+function c_detail(g,i){bgFill(g);hd(g,"細節",60,90,64);var spots=[[.5,.1,"領口雙針車"],[.08,.4,"袖口反摺"],[.5,.95,"下擺側開衩"]];
+  spots.forEach(([fx,fy,l],k)=>{var x=60+k*330,y=200,w=300;g.save();rr(g,x,y,w,520,18);g.clip();g.fillStyle=Z().panel;g.fillRect(x,y,w,520);var im=i,sx=iw(im)*fx,sy=ih(im)*fy,sw=iw(im)*.35;
+    g.drawImage(im,Math.max(0,sx-sw/2),Math.max(0,sy-sw*.85),sw,sw*1.7,x,y,w,520);g.restore();txt(g,l,x+w/2,780,`700 34px ${F}`,Z().ink,"center")});
+  g.fillStyle=col;g.fillRect(60,860,S-120,6);txt(g,"做工看得到，穿久不走樣",S/2,930,`${Z().w} 44px ${F}`,Z().ink,"center")}
+function c_frontback(g,i){bgFill(g);fit(g,i,40,160,480,700,"contain");g.save();g.translate(S,0);g.scale(-1,1);fit(g,i,40,160,480,700,"contain");g.restore();
+  hd(g,"正面",280,110,46,null,"center");hd(g,"背面",S-280,110,46,null,"center");g.fillStyle=Z().mute+"55";g.fillRect(S/2-1,160,2,700);txt(g,"背面無印花・前短後長",S/2,960,`500 34px ${F}`,Z().mute,"center")}
+function c_outfit(g,i){bgFill(g);hd(g,"三種穿法",60,90,64);var looks=[["配寬褲","#3d4a5c","pants"],["配長裙","#b59c7a","skirt"],["配外套","#5a5f45","coat"]];
+  looks.forEach(([t,c,k],n)=>{var x=60+n*330,z=Z();g.fillStyle=z.panel;rr(g,x,170,300,720,20);g.fill();fit(g,i,x+40,200,220,240,"contain");g.fillStyle=c;
+    if(k==="pants"){rr(g,x+85,450,60,360,12);g.fill();rr(g,x+155,450,60,360,12);g.fill()}else if(k==="skirt"){g.beginPath();g.moveTo(x+100,450);g.lineTo(x+200,450);g.lineTo(x+250,820);g.lineTo(x+50,820);g.closePath();g.fill()}else{rr(g,x+30,190,240,420,30);g.globalAlpha=.85;g.fill();g.globalAlpha=1;fit(g,i,x+90,230,120,140,"contain");rr(g,x+95,620,110,230,10);g.fillStyle="#2b2b2b";g.fill()}
+    txt(g,t,x+150,940,`700 38px ${F}`,z.ink,"center")})}
+function c_wash(g){bgFill(g);hd(g,"洗滌方式",60,90,64);var it=[["30°","冷水手洗或洗衣袋"],["✕","不可漂白"],["〰","低溫熨燙"],["☁","平放陰乾"]];
+  it.forEach(([ic,t],k)=>{var y=190+k*190,z=Z();g.strokeStyle=col;g.lineWidth=6;rr(g,60,y,140,140,20);g.stroke();txt(g,ic,130,y+72,`900 56px ${N}`,col,"center");txt(g,t,240,y+72,`700 44px ${F}`,z.ink)});
+  txt(g,"深淺色分開洗，第一次可能輕微退色",60,S-60,`500 30px ${F}`,Z().mute)}
+function c_new(g,i){bgFill(g);txt(g,"NEW",60,150,`900 200px ${N}`,col);txt(g,"ARRIVAL",70,270,`700 70px ${N}`,Z().ink);fit(g,i,420,260,620,700,"contain");hd(g,"秋冬新品上市",60,S-90,56)}
+function c_stock(g,i){g.fillStyle="#fff";g.fillRect(0,0,S,S);fit(g,i,140,140,800,800,"contain");stamp(g,"24H 出貨",S-230,190,64,.15);pill(g,"台灣現貨",40,40,"#1b1b1b","#fff",36)}
+function c_grid(g,i){bgFill(g);var pts=["涼感棉","不透膚","寬版落肩","男女可穿","5 色","S～XL","可機洗","不起毛球"];let k=0;
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++){var x=30+c*345,y=30+r*345,z=Z();rr(g,x,y,330,330,18);if(r===1&&c===1){g.fillStyle="#fff";g.fill();fit(g,i,x+20,y+20,290,290,"contain")}else{g.fillStyle=(r+c)%2?col:z.panel;g.fill();txt(g,pts[k++],x+165,y+165,`${z.w} 46px ${F}`,(r+c)%2?"#fff":z.ink,"center")}}}
+function c_mag(g,i){bgFill(g);fit(g,i,200,160,840,880,"contain");txt(g,"VICTOR",60,130,`900 150px ${N}`,col);g.save();g.translate(80,900);g.rotate(-Math.PI/2);txt(g,"2026 AUTUMN COLLECTION",0,0,`700 36px ${N}`,Z().ink);g.restore();hd(g,CP.head,S-60,S-70,48,null,"right")}
+function c_sizeguide(g){bgFill(g);hd(g,"尺碼推薦",60,90,64);var hs=["150","155","160","165","170","175","180"],ws=["45","50","55","60","65","70"],rec=(h,w)=>["S","S","M","M","L","L","XL"][Math.min(6,Math.floor((h+w)/2))];
+  var x0=220,y0=200,cw=(S-x0-60)/ws.length,rh=100;txt(g,"身高\\體重",x0-20,y0-40,`500 26px ${F}`,Z().mute,"right");
+  ws.forEach((w,c)=>txt(g,w+"kg",x0+c*cw+cw/2,y0-30,`700 28px ${N}`,Z().ink,"center"));
+  hs.forEach((h,r)=>{txt(g,h,x0-20,y0+r*rh+rh/2,`700 30px ${N}`,Z().ink,"right");ws.forEach((w,c)=>{var v=rec(r,c),idx="SMLX".indexOf(v[0]);g.fillStyle=light(col,.85-idx*.18);g.fillRect(x0+c*cw+3,y0+r*rh+3,cw-6,rh-6);txt(g,v,x0+c*cw+cw/2,y0+r*rh+rh/2,`900 34px ${N}`,idx>2?"#fff":"#1b1b1b","center")})});
+  txt(g,"示意，正式版依你的版型調整",60,S-40,`500 24px ${F}`,Z().mute)}
+function c_compare(g,i){bgFill(g);hd(g,"新版 vs 舊版",60,90,60);var z=Z();g.fillStyle=z.panel;rr(g,60,170,460,800,20);g.fill();g.fillStyle=light(col,.85);rr(g,560,170,460,800,20);g.fill();
+  fit(g,shirt("#9a9a9a"),110,210,360,380,"contain");fit(g,i,610,210,360,380,"contain");
+  [["布料","一般棉","涼感棉"],["領口","容易鬆","雙針車"],["長度","偏短","加長 3cm"]].forEach(([a,b,c],k)=>{var y=670+k*95;txt(g,a+"："+b,290,y,`500 34px ${F}`,z.mute,"center");txt(g,a+"："+c,790,y,`800 36px ${F}`,col,"center")})}
+function c_return(g){bgFill(g);hd(g,"退換貨說明",60,90,64);[["7 天鑑賞期","收到後 7 天內可申請"],["尺寸不合可換","來回運費一人一趟"],["保持吊牌完整","未下水、未穿著"]].forEach(([a,b],k)=>{var y=200+k*250,z=Z();g.fillStyle=z.panel;rr(g,60,y,S-120,210,20);g.fill();
+  g.fillStyle=col;g.beginPath();g.arc(160,y+105,55,0,7);g.fill();txt(g,String(k+1),160,y+107,`900 54px ${N}`,"#fff","center");txt(g,a,260,y+80,`${z.w} 46px ${F}`,z.ink);txt(g,b,260,y+145,`500 32px ${F}`,z.mute)})}
+function c_bundle(g){bgFill(g);hd(g,"多件更划算",60,90,64);[[1,CP.price],[2,690],[3,990]].forEach(([n,p],k)=>{var x=60+k*330,z=Z(),best=k===2;g.fillStyle=best?col:z.panel;rr(g,x,190,300,720,22);g.fill();
+  for(let j=0;j<n;j++)fit(g,shirt(CP.colors[j+1][1]),x+30+j*30,240+j*40,220,260,"contain");
+  txt(g,`${n} 件`,x+150,640,`900 56px ${F}`,best?"#fff":z.ink,"center");txt(g,`$${p}`,x+150,740,`900 70px ${N}`,best?"#fff":col,"center");if(best)txt(g,"最划算",x+150,840,`700 36px ${F}`,"#fff","center")})}
+function c_season(g,i){var gr=g.createLinearGradient(0,0,S,S);gr.addColorStop(0,light(col,.75));gr.addColorStop(1,col);g.fillStyle=gr;g.fillRect(0,0,S,S);
+  for(let k=0;k<26;k++){g.fillStyle="#ffffff40";g.beginPath();g.ellipse((k*397)%S,(k*263)%S,14,24,k,0,7);g.fill()}fit(g,i,330,250,420,520,"contain");hd(g,"秋冬上新",S/2,140,96,"#fff","center");txt(g,"早鳥 9 折",S/2,880,`900 64px ${F}`,"#fff","center")}
+function c_label(g){bgFill(g);hd(g,"成分與產地",60,90,64);var z=Z();g.fillStyle="#fbfaf6";rr(g,280,170,520,800,16);g.fill();g.strokeStyle=z.mute;g.lineWidth=2;g.stroke();g.fillStyle=z.bg;g.beginPath();g.arc(540,220,22,0,7);g.fill();
+  [["品名",CP.name],["成分","棉 95%"," 彈性纖維 5%"],["尺寸","M"],["產地","台灣"]].forEach((r,k)=>{txt(g,r[0],330,330+k*150,`500 30px ${F}`,"#888");txt(g,r.slice(1).join("、"),330,380+k*150,`700 34px ${F}`,"#222")})}
+function c_story(g,i){bgFill(g);fit(g,i,60,120,440,520,"contain");hd(g,"為什麼做這件T",560,170,50);var z=Z();g.font=`500 34px ${F}`;g.fillStyle=z.ink;g.textBaseline="top";
+  wrap(g,"夏天穿T恤最怕悶、怕透、洗幾次就變形。我們試了 12 種布，最後選這款涼感棉，自己先穿了一整個夏天才敢賣。",420).forEach((l,k)=>g.fillText(l,560,240+k*54));
+  g.fillStyle=col;g.fillRect(60,720,S-120,4);txt(g,"— 店主 Vicky（示意）",S-60,790,`500 32px ${F}`,z.mute,"right")}
+function c_kor(g,i){g.fillStyle="#f6efe9";g.fillRect(0,0,S,S);g.fillStyle="#e9ddd0";rr(g,560,80,440,600,220);g.fill();fit(g,i,500,120,560,600,"contain");
+  txt(g,"daily",80,200,`500 120px Georgia,serif`,"#7a6250");txt(g,"basic tee",90,320,`italic 500 70px Georgia,serif`,"#7a6250");txt(g,"每天都想穿的那件",80,820,`700 56px ${F}`,"#4d3a2c");pill(g,"韓系寬版",80,880,col,"#fff",32)}
+function c_street(g,i){g.fillStyle="#111";g.fillRect(0,0,S,S);g.save();g.rotate(-.08);g.fillStyle=col;g.fillRect(-50,640,S+100,180);g.restore();
+  txt(g,"NO RULES",S/2,140,`900 150px ${N}`,"#fff","center");fit(g,i,250,200,580,620,"contain");txt(g,"OVERSIZE TEE",S/2,750,`900 80px ${N}`,"#111","center");txt(g,"街頭寬版 ・ 男女都能穿",S/2,960,`700 40px ${F}`,"#fff","center")}
+function c_lux(g,i){g.fillStyle="#0e0d0b";g.fillRect(0,0,S,S);g.strokeStyle="#c8a35a";g.lineWidth=3;g.strokeRect(40,40,S-80,S-80);g.strokeRect(56,56,S-112,S-112);
+  fit(g,i,240,190,600,620,"contain");txt(g,"PREMIUM COTTON",S/2,140,`500 44px Georgia,serif`,"#c8a35a","center");txt(g,"質感涼感棉",S/2,900,`700 56px ${F}`,"#efe6d2","center")}
+function c_flatlay(g,i){g.fillStyle="#e8e2d8";g.fillRect(0,0,S,S);g.save();g.translate(330,330);g.rotate(-.1);fit(g,i,-280,-280,560,560,"contain");g.restore();
+  g.fillStyle="#3d4a5c";rr(g,560,420,170,480,20);g.fill();rr(g,750,420,170,480,20);g.fill();g.fillStyle="#f5f5f5";rr(g,180,760,150,90,40);g.fill();rr(g,350,780,150,90,40);g.fill();
+  g.fillStyle="#2b2b2b";g.beginPath();g.arc(870,190,90,0,7);g.fill();pill(g,"一件 T 搭出整套",60,60,col,"#fff",34)}
+function c_closeup(g,i){g.save();g.beginPath();g.rect(0,0,S,S);g.clip();g.drawImage(i,iw(i)*.3,ih(i)*.35,iw(i)*.3,ih(i)*.3,0,0,S,S);g.restore();
+  g.fillStyle="#0007";g.fillRect(0,S-220,S,220);txt(g,"摸得到的細緻布紋",60,S-140,`900 60px ${F}`,"#fff");txt(g,"涼感棉・320 針密織",60,S-70,`500 36px ${F}`,"#ddd")}
+function c_count(g,i){g.fillStyle="#141414";g.fillRect(0,0,S,S);txt(g,"限時搶購",S/2,120,`900 90px ${F}`,"#fff","center");
+  ["02","14","36"].forEach((n,k)=>{g.fillStyle=col;rr(g,190+k*250,200,200,200,20);g.fill();txt(g,n,290+k*250,302,`900 110px ${N}`,"#fff","center");txt(g,["天","時","分"][k],290+k*250,440,`500 34px ${F}`,"#aaa","center")});
+  fit(g,i,330,480,420,420,"contain");txt(g,`$${CP.price}`,S/2,980,`900 80px ${N}`,col,"center")}
+function c_ai_model(g,i){model(g,i)}
+function c_ai_scene(g,i){scene(g,i)}
+var CLOTH=[
+ ["服飾白底主圖",1,c_white],["服飾尺寸表",1,c_size],["顏色一覽（自動換色）",1,c_colors],["第二件折扣封面",1,c_promo],
+ ["尺寸量法圖",2,c_measure],["試穿身高體重",2,c_fit],["布料感受指標",2,c_fabric],["細節三格",2,c_detail],["正反面對照",2,c_frontback],["三種穿搭建議",2,c_outfit],
+ ["洗滌方式",2,c_wash],["新品上市",2,c_new],["現貨 24H 出貨",2,c_stock],["九宮格賣點",2,c_grid],["雜誌風封面",2,c_mag],["尺碼推薦表",2,c_sizeguide],
+ ["新舊款對比",2,c_compare],["退換貨說明",2,c_return],["多件組合價",2,c_bundle],["換季上新",2,c_season],["成分吊牌",2,c_label],["品牌故事",2,c_story],["平拍穿搭",2,c_flatlay],
+ ["韓系封面",3,c_kor],["街頭風封面",3,c_street],["質感黑金封面",3,c_lux],["布紋大特寫",3,c_closeup],["倒數限時搶購",3,c_count],["AI 模特兒穿搭（付費生圖）",3,c_ai_model],["AI 街拍情境（付費生圖）",3,c_ai_scene]];
+var GEN_TIER=[1,1,1,1,1,3,3,2,1];
