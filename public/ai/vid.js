@@ -9,7 +9,9 @@ var VSTY=[
  ["手寫筆記","療癒、心靈","下方筆記卡一字一字寫出來，重點字螢光筆劃過",{bg:["#7a6a58","#4a3e33"],sub:"note",tc:"#3B2A1E",hl:"#FFD66B",bar:null}],
  ["綜藝爆笑","搞笑、日常","1.1 倍速，重點字大字放大，尷尬點打「？？？」",{bg:["#5a2a3a","#2a1220"],sub:"slam",tc:"#fff",hl:"#FF3B6B",bar:null}],
  ["直播帶貨","賣衣服、推產品","卡拉 OK 字幕講到哪亮到哪，價格大字跳出、左上角限時標籤",{bg:["#5a1a1e","#2a0a0d"],sub:"karaoke",tc:"#fff",hl:"#FFE600",bar:null}],
- ["新聞快報","科技、時事","新聞台快報條、左上角 LIVE，下方滾動跑馬燈",{bg:["#1d2a44","#0b1222"],sub:"news",tc:"#fff",hl:"#ff4d4d",bar:"#c8102e"}]];
+ ["新聞快報","科技、時事","新聞台快報條、左上角 LIVE，下方滾動跑馬燈",{bg:["#1d2a44","#0b1222"],sub:"news",tc:"#fff",hl:"#ff4d4d",bar:"#c8102e"}],
+ ["多人對話切鏡","Podcast、訪談、多人聊天","誰講話就切到誰的臉，一來一往時上下分割，字幕上方有名字牌",{bg:["#3a3a44","#15151a"],sub:"split",tc:"#fff",hl:"#FFE14D",bar:null}],
+ ["金句電影字卡","心靈成長、個人品牌","畫面像電影橫幅放中間，講到金句切黑底金字卡",{bg:["#2a2722","#0b0b0b"],sub:"goldq",tc:"#EDE6D6",hl:"#D9B870",bar:null}]];
 let LOGO=null;
 var LINES=["你知道為什麼","你的影片沒人看完嗎","因為前三秒","就讓人滑走了","剪掉停頓","重點放最前面","觀眾就會留下來"];
 
@@ -32,10 +34,15 @@ function sub(g,W,H,o,txt,k,t){var s=W/540;g.textAlign="center";g.textBaseline="m
   else if(o.sub==="karaoke"){g.font=`900 ${52*s}px ${F}`;var w=g.measureText(txt).width;g.lineWidth=10*s;g.strokeStyle="#E0242F";g.strokeText(txt,W/2,H*.74);g.fillStyle=o.tc;g.fillText(txt,W/2,H*.74);g.save();g.beginPath();g.rect(W/2-w/2,H*.68,w*Math.min(1,k*1.4),H*.12);g.clip();g.fillStyle=o.hl;g.fillText(txt,W/2,H*.74);g.restore();
     if(1){g.fillStyle="#E0242F";g.beginPath();g.roundRect(24*s,30*s,120*s,50*s,8*s);g.fill();g.fillStyle="#fff";g.font=`900 ${30*s}px ${F}`;g.fillText("限時",84*s,56*s)}
     g.fillStyle="#FFE600";g.font=`900 ${60*s}px ${N}`;g.fillText("$390",W/2,H*.32)}
+  else if(o.sub==="split"){var who=Math.floor(t/1.6)%2,nm=["Vic","希亞"];g.fillStyle="#000";g.fillRect(0,H/2-3*s,W,6*s);
+    for(var q=0;q<2;q++){var y0=q*H/2;g.fillStyle=q===who?o.hl:"rgba(255,255,255,.75)";g.beginPath();g.roundRect(20*s,y0+20*s,110*s,40*s,20*s);g.fill();g.fillStyle="#111";g.font=`900 ${24*s}px ${F}`;g.fillText(nm[q],75*s,y0+41*s)}
+    g.font=`900 ${40*s}px ${F}`;g.lineWidth=9*s;g.strokeStyle="#000";g.strokeText(txt,W/2,H/2);g.fillStyle=who?"#9EE6FF":o.hl;g.fillText(txt,W/2,H/2)}
+  else if(o.sub==="goldq"){var card=Math.floor(t/1.6)%3===2;if(card){g.fillStyle="#000";g.fillRect(0,0,W,H);g.globalAlpha=.12;g.font=`900 ${200*s}px "Noto Serif TC",serif`;g.fillStyle=o.hl;g.fillText(txt.slice(0,2),W/2,H/2);g.globalAlpha=Math.min(1,k*3);g.font=`900 ${52*s}px "Noto Serif TC",serif`;g.fillStyle=o.hl;g.fillText(txt,W/2,H/2);g.globalAlpha=1}
+    else{g.fillStyle="#000";g.fillRect(0,0,W,H*.27);g.fillRect(0,H*.73,W,H*.27);g.font=`600 ${30*s}px "Noto Serif TC",serif`;g.fillStyle=o.tc;g.fillText(txt,W/2,H*.77)}}
   else if(o.sub==="news"){g.fillStyle=o.bar;g.fillRect(0,H*.8,W,70*s);g.fillStyle="#fff";g.fillRect(0,H*.8+70*s,W,46*s);g.font=`900 ${34*s}px ${F}`;g.fillStyle="#fff";g.textAlign="left";g.fillText("快報",20*s,H*.8+35*s);g.fillText(txt,120*s,H*.8+35*s);g.fillStyle="#c8102e";g.font=`700 ${26*s}px ${F}`;var off=(t*80*s)%W;g.fillText("AI 剪片・自動上字幕・剪掉停頓",W-off,H*.8+93*s);
     {g.fillStyle="#c8102e";g.beginPath();g.arc(36*s,40*s,10*s,0,7);g.fill()}g.fillStyle="#fff";g.font=`900 ${26*s}px ${N}`;g.fillText("LIVE",54*s,42*s);g.textAlign="center"}
 }
 function frame(cv,o,t){var g=cv.getContext("2d"),W=cv.width,H=cv.height,per=1.6,i=Math.floor(t/per)%LINES.length,k=(t%per)/per;
-  bgGrad(g,W,H,o.bg);var z=1;person(g,W,H,t,z);
+  bgGrad(g,W,H,o.bg);var z=1;if(o.sub==="split"){for(var q=0;q<2;q++){g.save();g.beginPath();g.rect(0,q*H/2,W,H/2);g.clip();g.translate(0,q*H/2-H*.2);person(g,W,H,t+q*1.3,.85);g.restore()}}else person(g,W,H,t,z);
     sub(g,W,H,o,LINES[i],k,t);if(LOGO){var m=Math.min(W*.18/LOGO.width,W*.18/LOGO.height),w=LOGO.width*m,h=LOGO.height*m;g.globalAlpha=.85;g.drawImage(LOGO,W-w-W*.05,o.sub==="frame"||o.sub==="news"?H*.22:W*.05,w,h);g.globalAlpha=1}g.fillStyle="#c9a96e";g.fillRect(0,H-6,W*((t%(per*LINES.length))/(per*LINES.length)),6)}
 

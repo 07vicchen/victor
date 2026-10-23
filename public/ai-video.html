@@ -62,7 +62,7 @@
       <h1>一段素材，<br>剪成一支<span>看得完的</span>片</h1>
       <p class="lead">把拍好的影片丟進來，AI 剪片幫你剪掉停頓和口誤、把最抓人的那句放到開頭、排出起承轉合，再上逐字字幕、音效和配樂。存下來就能發 IG、TikTok、YouTube Shorts。</p>
       <div class="cta"><a class="btn" href="#plans">看方案</a><a class="btn gh" href="#member">會員登入開始用</a></div>
-      <div class="stats"><div><b>10</b><span>種剪法</span></div><div><b>3</b><span>秒抓住注意力</span></div><div><b>150</b><span>支／月（旗艦）</span></div></div>
+      <div class="stats"><div><b>12</b><span>種剪法</span></div><div><b>3</b><span>秒抓住注意力</span></div><div><b>150</b><span>支／月（旗艦）</span></div></div>
     </div>
     <div class="vframes"><figure><canvas id="h1v" width="270" height="480" aria-label="AI 剪片示範"></canvas><figcaption>NO.01 爆點跳字</figcaption></figure><figure><canvas id="h2v" width="270" height="480" aria-label="AI 剪片示範"></canvas><figcaption>NO.05 柔光質感</figcaption></figure></div>
   </section>
@@ -72,15 +72,15 @@
     <div class="feats">
       <div class="feat"><span class="ic">01</span><b>剪掉停頓和口誤</b><span>嗯、啊、講錯重講、沉默空白自動剪掉，節奏一下就緊了。</span></div>
       <div class="feat"><span class="ic">02</span><b>排出起承轉合</b><span>最精彩那句放開頭，再照因果排好，觀眾才會看完。</span></div>
-      <div class="feat"><span class="ic">03</span><b>逐字字幕不擋臉</b><span>自動聽寫上字幕，重點字換色放大，避開臉和商品。</span></div>
-      <div class="feat"><span class="ic">04</span><b>音效和原創配樂</b><span>笑點、轉場自動配音效，配樂是原創的，沒有版權問題。</span></div>
+      <div class="feat"><span class="ic">03</span><b>字幕先給你確認</b><span>AI 聽寫上字幕，出片前先給你確認：改錯字、✂ 剪掉句子、⭐ 重點放開頭。</span></div>
+      <div class="feat"><span class="ic">04</span><b>原創配樂、不加廉價特效</b><span>配樂是原創的，沒有版權問題，也可以不要。不加晃動、閃白這類特效。</span></div>
       <div class="feat"><span class="ic">05</span><b>橫的變直的</b><span>橫拍、多人對話也行，跟著講話的人臉裁成直式滿版。</span></div>
       <div class="feat"><span class="ic">06</span><b>每月新增剪法</b><span>每月 1 號至少新增 5 種，照當月爆款影片的剪法更新。</span></div>
     </div>
   </section>
 
   <section class="sect">
-    <div class="sh"><small>10 STYLES</small><h2>10 種剪法，照內容挑</h2><p>每種的字幕、轉場、音效、節奏都不一樣，也可以全部交給 AI 挑。每月持續增加。</p></div>
+    <div class="sh"><small>12 STYLES</small><h2>12 種剪法，照內容挑</h2><p>每種的字幕和節奏都不一樣，也可以交給 AI 挑。入門方案可用爆點跳字、三段式知識框、直播帶貨 3 種，專業以上 12 種全開。每月持續增加。</p></div>
     <div class="styles" id="styles"></div>
   </section>
 
@@ -104,6 +104,7 @@
     <div class="bar" style="margin-bottom:14px"><span class="note">付款方式</span><button class="chip" type="button" data-bill="month" aria-pressed="true">月繳</button><button class="chip" type="button" data-bill="year" aria-pressed="false">年繳（送 2 個月）</button></div>
     <div class="plans" id="planCards"></div>
     <div id="extras"></div>
+    <div class="feats" style="margin-top:14px"><div class="feat"><span class="ic">⏱</span><b>多久拿到</b><span>只上字幕：確認字幕後網頁直接出片，1 分鐘影片約 1 分鐘。完整剪片：24 小時內交片，旗艦 12 小時內。</span></div><div class="feat"><span class="ic">✎</span><b>可以改幾次</b><span>出片前改字幕不限次數。出片後：入門再改 1 次、專業 3 次、旗艦不限。</span></div><div class="feat"><span class="ic">✓</span><b>買到什麼</b><span>方案卡上寫的就是全部內容；AI 換人、加購支數、急件另外加購。</span></div></div>
     <p class="fine">價格為目前方案，如有調整以網站公告為準。</p>
   </section>
 
@@ -140,6 +141,8 @@
           <div class="ph"><b>3</b><div><h3>特別交代和 logo（選填）</h3><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
           <label class="f"><span>常用詞（品牌名、產品名、人名，用空格隔開，AI 打字幕時會照這個寫）</span><input type="text" id="vGloss" maxlength="1000" placeholder="例如：娘娘駕到 9D冰雕 KIKI"></label>
           <label class="f"><span>備註</span><textarea id="vNote" rows="3" maxlength="500"></textarea></label>
+          <div class="bar" id="musRow"><span class="note">配樂</span><button class="chip" type="button" data-mus="原創配樂" aria-pressed="true">原創配樂</button><button class="chip" type="button" data-mus="不要配樂" aria-pressed="false">不要配樂（發的時候用平台熱門歌）</button></div>
+          <div id="voRow"><label class="note" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="voOn">這支要 AI 配音（旗艦方案每月 30 支）</label><label class="f" id="voBox" hidden><span>配音稿（照這個唸，AI 配好聲音放進影片）</span><textarea id="voText" rows="3" maxlength="1500"></textarea></label></div>
           <div class="bar"><label class="up">上傳 logo（選填）<input type="file" accept="image/*" id="vLogo" hidden></label><span class="note">或直接打字</span><input type="text" id="vLogoT" maxlength="20" placeholder="例如：維拓傳媒" style="padding:9px 12px;border:1px solid var(--line);font:inherit;min-width:0;flex:1;max-width:240px"><span class="note" id="vLogoMsg">有放的話會放在影片角落</span></div>
         </div>
         <div class="bar"><button class="btn" type="button" id="send">交給 AI 剪（用掉 1 支）</button><span class="msg" id="sendMsg"></span></div>

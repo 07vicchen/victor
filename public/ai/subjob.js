@@ -8,7 +8,7 @@
   function fmt(t) { t = Math.max(0, t || 0); var m = Math.floor(t / 60), s = t - m * 60; return m + ":" + (s < 10 ? "0" : "") + s.toFixed(1); }
   function accentOf(job) { var m = String(job.note || "").match(/#[0-9a-fA-F]{6}/); return m ? m[0] : ""; }
   // 完整剪片選的「剪法」對應到最接近的字幕樣子，讓預覽跟選的一樣
-  var CUTMAP = { "爆點跳字": "pop", "三段式知識框": "invert", "倒敘懸念": "cinema", "聊天泡泡": "bubble", "柔光質感": "fadeup", "命理字卡": "quote", "手寫筆記": "marker", "綜藝爆笑": "variety", "直播帶貨": "karaoke", "新聞快報": "ticker" };
+  var CUTMAP = { "爆點跳字": "pop", "三段式知識框": "invert", "倒敘懸念": "cinema", "聊天泡泡": "bubble", "柔光質感": "fadeup", "命理字卡": "quote", "手寫筆記": "marker", "綜藝爆笑": "variety", "直播帶貨": "karaoke", "新聞快報": "ticker", "多人對話切鏡": "bubble", "金句電影字卡": "quote" };
   function modOf(job) { var id = job.module || (job.mode !== "subs" ? CUTMAP[String(job.style || "").trim()] : "") || "pop";
     return (window.SUBFX && SUBFX.list.filter(function (q) { return q.id === id; })[0]) || (window.SUBFX && SUBFX.list[1]); }
   async function signed(path, sec) { var r = await VAI.client().storage.from("ai-videos").createSignedUrl(path, sec || 3600); if (r.error) throw new Error(r.error.message); return r.data.signedUrl; }
