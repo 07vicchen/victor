@@ -76,9 +76,8 @@
     if (Math.floor(st.t * 2.4) % 2 === 0) { ctx.fillStyle = "#F4F1E8"; ctx.fillRect(cx, y - 28 * u, 5 * u, 56 * u); } }, { accent: "#7FE0C4" });
 
   // 05 霓虹燈
-  add("neon", "霓虹燈", "夜景、餐廳、潮流", "字像霓虹燈管發光，出現時會閃兩下，晚上拍的影片最搭。", function (ctx, W, H, st) {
-    var u = W / 720, i = cur(st); bgFill(ctx, W, H, st, "#07060d"); if (i < 0) return; var L = st.lines[i], lt = st.t - L.s, on = lt > .25 || (lt > .06 && lt < .1) || (lt > .16 && lt < .2);
-    if (!on) return; font(ctx, 900, 78 * u); ctx.textAlign = "center"; ctx.textBaseline = "middle"; var lines = wrap(ctx, plain(L), W - 100 * u), y = H * .68 - (lines.length - 1) * 45 * u;
+  add("neon", "霓虹燈", "夜景、餐廳、潮流", "字像霓虹燈管一樣發光，晚上拍的影片最搭。", function (ctx, W, H, st) {
+    var u = W / 720, i = cur(st); bgFill(ctx, W, H, st, "#07060d"); if (i < 0) return; var L = st.lines[i]; font(ctx, 900, 78 * u); ctx.textAlign = "center"; ctx.textBaseline = "middle"; var lines = wrap(ctx, plain(L), W - 100 * u), y = H * .68 - (lines.length - 1) * 45 * u;
     lines.forEach(function (ln) { ctx.save(); ctx.shadowColor = st.accent; ctx.shadowBlur = 34 * u; ctx.lineWidth = 6 * u; ctx.strokeStyle = st.accent; ctx.strokeText(ln, W / 2, y); ctx.shadowBlur = 12 * u; ctx.fillStyle = "#fff"; ctx.fillText(ln, W / 2, y); ctx.restore(); y += 90 * u; }); }, { accent: "#FF2E88" });
 
   // 06 螢光筆
@@ -129,9 +128,9 @@
     ctx.save(); ctx.beginPath(); ctx.rect(x, y - h / 2, w * q, h); ctx.clip(); ctx.fillStyle = "#111"; ctx.fillText(t, x + 25 * u, y); ctx.restore(); }, { accent: "#FFE600" });
 
   // 13 綜藝花字
-  add("variety", "綜藝花字", "搞笑、日常、綜藝感", "雙層彩色描邊、字歪一點還會晃，像綜藝節目的花字。", function (ctx, W, H, st) {
+  add("variety", "綜藝花字", "搞笑、日常、綜藝感", "雙層彩色描邊、字稍微歪一點，像綜藝節目的花字。", function (ctx, W, H, st) {
     var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) return; var L = st.lines[i], p = eb((st.t - L.s) / .3), t = plain(L); font(ctx, 900, 80 * u, null, plain(st.lines[i]), .8); ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.save(); ctx.translate(W / 2, H * .7); ctx.rotate((-4 + Math.sin(st.t * 6) * 1.5) * Math.PI / 180); ctx.scale(p, p); ctx.lineJoin = "round";
+    ctx.save(); ctx.translate(W / 2, H * .7); ctx.rotate(-3 * Math.PI / 180); ctx.scale(p, p); ctx.lineJoin = "round";
     ctx.lineWidth = 26 * u; ctx.strokeStyle = st.accent; ctx.strokeText(t, 0, 0); ctx.lineWidth = 12 * u; ctx.strokeStyle = "#fff"; ctx.strokeText(t, 0, 0); ctx.fillStyle = "#222"; ctx.fillText(t, 0, 0); ctx.restore(); }, { accent: "#FF4FA3" });
 
   // 14 極簡白字
@@ -164,13 +163,6 @@
   add("wave", "波浪字", "音樂、舞蹈、放鬆", "每個字像波浪一樣上下輕輕起伏，配音樂的影片很合。", function (ctx, W, H, st) {
     var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) return; var L = st.lines[i], t = plain(L), m = marks(L); font(ctx, 900, 64 * u, null, plain(st.lines[i])); ctx.textBaseline = "middle"; var w = ctx.measureText(t).width, x = (W - w) / 2, a = clamp((st.t - L.s) / .25, 0, 1);
     ctx.globalAlpha = a; ctx.lineJoin = "round"; for (var k = 0; k < t.length; k++) { var cw = ctx.measureText(t[k]).width, y = H * .72 + Math.sin(st.t * 5 + k * .7) * 12 * u; ctx.lineWidth = 10 * u; ctx.strokeStyle = "#20124d"; ctx.strokeText(t[k], x, y); ctx.fillStyle = m[k] ? st.accent : "#fff"; ctx.fillText(t[k], x, y); x += cw; } ctx.globalAlpha = 1; }, { accent: "#A78BFA" });
-
-  // 19 故障字
-  add("glitch", "故障錯位", "科技、遊戲、潮牌", "字出現時紅藍錯開、閃一下，像訊號不穩的螢幕。", function (ctx, W, H, st) {
-    var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) return; var L = st.lines[i], t = plain(L), lt = st.t - L.s, j = lt < .35 || (Math.floor(st.t * 10) % 17 === 0) ? 1 : 0; font(ctx, 900, 70 * u, null, plain(st.lines[i])); ctx.textAlign = "center"; ctx.textBaseline = "middle"; var y = H * .72;
-    if (j) { var o = (Math.sin(st.t * 90) * 8 + 6) * u; ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = "#ff0040"; ctx.fillText(t, W / 2 - o, y); ctx.fillStyle = "#00e5ff"; ctx.fillText(t, W / 2 + o, y + 2 * u); ctx.globalCompositeOperation = "source-over"; }
-    ctx.lineJoin = "round"; ctx.lineWidth = 8 * u; ctx.strokeStyle = "#000"; ctx.strokeText(t, W / 2, y); ctx.fillStyle = "#fff"; ctx.fillText(t, W / 2, y);
-    if (j) { ctx.fillStyle = "rgba(0,0,0,.6)"; ctx.fillRect(0, y - 6 * u + Math.sin(st.t * 50) * 20 * u, W, 5 * u); } }, { accent: "#00E5FF" });
 
   // 20 手機簡訊
   add("sms", "手機訊息", "情境劇、對話、感情", "先出現「正在輸入…」，再跳出藍色訊息，像在看人傳訊息。", function (ctx, W, H, st) {

@@ -3,7 +3,7 @@
   "use strict";
   var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
   var E = VAI.E, RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var DESC = [["口播、老闆講話", "字一次跳 2～4 個，停頓全剪，重點推近"], ["知識、教學", "上大標題、中畫面、下字幕，換重點跳章節卡"], ["故事、短劇", "先放最精彩那句再倒回去講，電影黑邊"], ["Podcast、多人聊天", "誰講話就變誰的泡泡，左右對話"], ["美業、保養", "慢慢推近、柔光、細字，看起來貴"], ["命理、星座", "深色字卡，關鍵字金色大字配鐘聲"], ["療癒、心靈", "筆記卡一字一字寫，重點螢光筆劃過"], ["搞笑、日常", "1.1 倍速，大字彈出畫面震"], ["賣衣服、推產品", "卡拉 OK 字幕，價格大字跳出、限時閃"], ["科技、時事", "新聞快報條、LIVE、故障轉場"]];
+  var DESC = [["口播、老闆講話", "字一次跳 2～4 個，停頓全剪，重點字換色"], ["知識、教學", "上大標題、中畫面、下字幕，換重點跳章節卡"], ["故事、短劇", "先放最精彩那句再倒回去講，電影黑邊"], ["Podcast、多人聊天", "誰講話就變誰的泡泡，左右對話"], ["美業、保養", "柔光、細字，看起來貴"], ["命理、星座", "深色字卡，關鍵字金色大字"], ["療癒、心靈", "筆記卡一字一字寫，重點螢光筆劃過"], ["搞笑、日常", "1.1 倍速，重點大字放大"], ["賣衣服、推產品", "卡拉 OK 字幕，價格大字跳出、限時標籤"], ["科技、時事", "新聞快報條、LIVE、跑馬燈"]];
   var BASIC = [0, 1, 8];
   var bill = "month", files = [], vlogo = null, pickSt = -1, plan = "basic", mode = "cut", pickMod = "", swWho = "本人", swPhotos = [], swProof = null;
   var renderCap = 2, openJob = null, editor = null, busy = {};
@@ -69,7 +69,7 @@
   function setMode(m) { mode = m; $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
     var subs = m === "subs"; $("#stPick").hidden = subs; $("#modPick").hidden = !subs; $("#accRow").hidden = !subs;
     $("#pickH").textContent = subs ? "選字幕模組" : "選剪法"; $("#pickP").textContent = subs ? "影片不會被剪，只上字幕。上面「字幕專區」可以看每種的樣子。" : "不知道選哪個，就選「交給 AI 挑」。";
-    $("#stNote").textContent = plan === "basic" ? (subs ? "入門方案可用 8 種字幕模組，升級專業就能用全部 24 種。" : "入門方案可用 3 種剪法，升級專業就能用全部。") : "";
+    $("#stNote").textContent = plan === "basic" ? (subs ? "入門方案可用 8 種字幕模組，升級專業就能用全部 23 種。" : "入門方案可用 3 種剪法，升級專業就能用全部。") : "";
     $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; }
   function listFiles() { $("#flist").innerHTML = files.map(function (f, i) { var big = f.size > 50 * 1048576; return "<div><b>" + E(f.name) + "</b><span" + (big ? ' style="color:#b23b2e"' : "") + ">" + (f.size / 1048576).toFixed(1) + " MB" + (big ? "（超過 50MB）" : "") + '</span><button class="chip" type="button" data-rm="' + i + '">移除</button></div>'; }).join("");
     $$("[data-rm]").forEach(function (b) { b.onclick = function () { files.splice(+b.dataset.rm, 1); listFiles(); }; }); }

@@ -12,7 +12,7 @@
       { id: "ent", n: "企業組", p: 0, q: "模組 <b>不限</b>", f: ["旗艦全部", "多品牌、多帳號一起用", "量身做專屬模組", "專人對接"] }] },
     video: { name: "AI 剪片", unit: "支影片", plans: [
       { id: "basic", n: "入門", p: 999, q: "每月 <b>15</b> 支", f: ["每支成品 60 秒內", "3 種基本剪法", "剪停頓口誤、逐字字幕", "音效、原創配樂", "字幕專區：8 種字幕模組", "每月新增剪法"] },
-      { id: "pro", n: "專業", p: 2499, hot: 1, q: "每月 <b>50</b> 支", f: ["每支成品 90 秒內", "全部剪法＋重點動效卡", "橫拍轉直式、多人對話分割", "品牌字體、顏色、logo", "字幕專區：全部 24 種字幕模組", "可用 AI 換人（自己或朋友授權的照片）", "每月新增剪法、字幕模組和配樂"] },
+      { id: "pro", n: "專業", p: 2499, hot: 1, q: "每月 <b>50</b> 支", f: ["每支成品 90 秒內", "全部剪法＋重點動效卡", "橫拍轉直式、多人對話分割", "品牌字體、顏色、logo", "字幕專區：全部 23 種字幕模組", "可用 AI 換人（自己或朋友授權的照片）", "每月新增剪法、字幕模組和配樂"] },
       { id: "max", n: "旗艦", p: 4999, q: "每月 <b>150</b> 支", f: ["每支成品 3 分鐘內", "每月含 30 支 AI 配音", "優先處理，排隊最短", "每月新剪法搶先一個月用"] },
       { id: "ent", n: "企業組", p: 0, q: "支數 <b>不限</b>", f: ["旗艦全部", "多品牌、多帳號一起用", "專屬剪法、片頭片尾", "專人對接"] }] },
     bundle: [{ n: "入門組", p: 1699, was: 1998, d: "AI 美編入門＋AI 剪片入門" }, { n: "專業組", p: 3999, was: 4998, d: "AI 美編專業＋AI 剪片專業", hot: 1 }, { n: "旗艦組", p: 7999, was: 9998, d: "AI 美編旗艦＋AI 剪片旗艦" }],
@@ -22,7 +22,7 @@
     service: ["交給維拓做（員工用同一套工具幫你做圖、剪片）", "每月 9,800 元起"]
   };
   var LINE_ID = "@898biiyu";
-  var GOOGLE_ON = false; // Google 登入接好後改成 true
+  var GOOGLE_ON = true;
   var sb = null, me = null, listeners = [];
   function E(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function client() { if (!sb && window.supabase) sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, detectSessionInUrl: true } }); return sb; }
@@ -92,7 +92,7 @@
         var plan = PRICE[tool].plans.filter(function (p) { return p.id === x.plan; })[0];
         return '<details class="acc"><summary><b>' + E(x.email) + "</b><span>" + (plan ? plan.n : x.plan) + "・" + (x.billing === "year" ? "年繳" : "月繳") + "・" + { pending: "待開通", active: "使用中", cancelled: "已停用" }[x.status] + (x.period_end ? "・到 " + x.period_end : "") + '</span></summary><div class="bar"><button class="btn" data-a="' + E(x.email) + '" data-m="' + (x.billing === "year" ? 12 : 1) + '">收到款，開通' + (x.billing === "year" ? " 12 個月" : " 1 個月") + '</button><button class="btn gh" data-c="' + E(x.email) + '">停用</button></div></details>';
       }).join("") : '<p class="note">還沒有人申請。</p>') +
-        (tool === "video" ? "<h3 style=\"margin-top:18px\">剪片工作</h3>" + (jobs.length ? jobs.map(function (x) {
+        (tool === "video" ? "<h3 style=\"margin-top:18px\">剪片工作</h3><p class=\"note\">出片規則：不加畫面晃動、閃白、故障這類特效（剪片室把「特效」勾掉），只做剪接、字幕、音效、配樂。</p>" + (jobs.length ? jobs.map(function (x) {
           return '<details class="acc"><summary><b>#' + x.id + " " + E(x.email) + "</b><span>" + (x.mode === "subs" ? "只上字幕・" + E(((window.SUBFX && SUBFX.list.filter(function (q) { return q.id === x.module; })[0]) || { name: x.module || "" }).name) : E(x.style || "")) + (x.swap ? "・AI 換人" : "") + "・" + ({ stt: "等 AI 聽寫", review: "客人確認字幕中", rendering: "客人出片中", queued: "排隊中", working: "剪輯中", done: "完成", error: "有問題" }[x.status] || x.status) + '</span></summary><div class="note">' + E(x.note || "沒有備註") + '</div>' + (x.swap ? '<div class="note">AI 換人：' + E(x.swap.who || "") + "，同意聲明 " + E(String(x.swap.consent_at || "").slice(0, 16).replace("T", " ")) + '</div><div class="bar">' + (x.swap.photos || []).map(function (p, i) { return '<button class="btn gh" data-dl="' + E(p) + '">換人照片 ' + (i + 1) + "</button>"; }).join("") + (x.swap.proof ? '<button class="btn gh" data-dl="' + E(x.swap.proof) + '">授權截圖</button>' : "") + "</div>" : "") + '<div class="bar" data-files="' + E(JSON.stringify(x.files)) + '">' + (x.files || []).map(function (f, i) { return '<button class="btn gh" data-dl="' + E(f.path) + '">下載素材 ' + (i + 1) + "</button>"; }).join("") + (x.logo ? '<button class="btn gh" data-dl="' + E(x.logo) + '">下載 logo</button>' : "") + (x.lines && x.lines.length ? '<button class="btn gh" data-srtid="' + x.id + '">下載客人確認的字幕</button>' : "") + '</div>' + (x.status === "stt" ? '<p class="note">客人的字幕還在等 AI 聽寫。</p>' : "") + '<div class="bar"><button class="btn gh" data-w="' + x.id + '">標記剪輯中</button><label class="btn">上傳成品並完成<input type="file" accept="video/*" data-done="' + x.id + '" hidden></label></div></details>';
         }).join("") : '<p class="note">還沒有剪片工作。</p>') : "") + '<p class="msg" id="admMsg"></p></div>';
       var say = function (t, ok) { var m = el.querySelector("#admMsg"); m.textContent = t; m.className = "msg" + (ok ? " ok" : " err"); };
