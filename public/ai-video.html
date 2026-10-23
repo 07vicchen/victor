@@ -37,10 +37,10 @@
 .pickl{min-width:0;display:grid;gap:12px}
 .pk{margin:6px 0 0;font-size:15px}.pk .note{font-weight:400;margin-left:4px}
 .pvb{position:sticky;top:80px;display:grid;gap:6px;justify-items:center}
-#pv{width:190px;max-width:100%;aspect-ratio:9/16;border-radius:10px;background:#222}
-#pvCap{text-align:center;margin:0}
+#pv,#pvA{width:190px;max-width:100%;aspect-ratio:9/16;border-radius:10px;background:#222}
+#pvCap,#pvCapA{text-align:center;margin:0}
 .pvm{display:flex;gap:12px;align-items:end}#pv2{width:120px;aspect-ratio:9/16;border-radius:8px;background:#222}
-@media(max-width:640px){.pickw{grid-template-columns:1fr}.pvb{position:static;order:-1}#pv{width:160px}}
+@media(max-width:640px){.pickw{grid-template-columns:1fr}.pvb{position:static;order:-1}#pv,#pvA{width:160px}}
 .job{border:1px solid var(--line);background:#fff;padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}
 .job .s{font-weight:700}.job .s.queued{color:var(--gold2)}.job .s.working{color:#2457d6}.job .s.done{color:var(--ok)}.job .s.error{color:#b23b2e}
 .prog{height:4px;background:var(--line);width:100%}.prog i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
@@ -129,14 +129,19 @@
           <div class="drop"><input type="file" id="vf" accept="video/*,.mp4,.mov,.m4v" multiple aria-label="選擇影片"><b>點這裡選影片，或拖進來</b><span class="note">mp4、mov 都可以，橫的直的都行</span></div>
           <div class="flist" id="flist"></div>
         </div>
-        <div class="panel">
-          <div class="ph"><b>2</b><div><h3 id="pickH">選剪法</h3><p id="pickP">不知道選哪個，就選「交給 AI 挑」。</p></div></div>
+        <div class="panel" id="cutPanel">
+          <div class="ph"><b>2</b><div><h3>選剪法</h3><p>決定影片怎麼剪、節奏怎麼走。不知道選哪個，就選「交給 AI 挑」。</p></div></div>
           <div class="pickw"><div class="pickl">
           <div class="pick2" id="stPick"></div>
-          <h4 class="pk" id="modH">字幕樣式<span class="note">（不選就用剪法配好的那款）</span></h4>
+          <p class="note" id="stNote"></p>
+          </div><div class="pvb"><canvas id="pvA" width="270" height="480" aria-label="剪法預覽"></canvas><p class="note" id="pvCapA"></p></div></div>
+        </div>
+        <div class="panel" id="subPanel">
+          <div class="ph"><b id="subNo">3</b><div><h3>選字幕樣式</h3><p id="subP">決定字幕長什麼樣子。不選就用剪法配好的那款。</p></div></div>
+          <div class="pickw"><div class="pickl">
           <div class="pick2" id="modPick"></div>
           <div class="bar" id="accRow"><div class="custom"><input type="color" id="acc" value="#ff3b30" aria-label="重點字顏色"><span class="note">重點字顏色</span></div></div>
-          <p class="note" id="stNote"></p>
+          <p class="note" id="modNote"></p>
           </div><div class="pvb"><canvas id="pv" width="270" height="480" aria-label="字幕預覽"></canvas><p class="note" id="pvCap"></p></div></div>
         </div>
         <div class="panel" id="swapPanel">
@@ -150,7 +155,7 @@
           </div>
         </div>
         <div class="panel">
-          <div class="ph"><b>3</b><div><h3>特別交代和 logo（選填）</h3><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
+          <div class="ph"><b id="noteNo">4</b><div><h3>特別交代和 logo（選填）</h3><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
           <label class="f"><span>常用詞（品牌名、產品名、人名，用空格隔開，AI 打字幕時會照這個寫）</span><input type="text" id="vGloss" maxlength="1000" placeholder="例如：娘娘駕到 9D冰雕 KIKI"></label>
           <label class="f"><span>備註</span><textarea id="vNote" rows="3" maxlength="500"></textarea></label>
           <div class="bar" id="musRow"><span class="note">配樂</span><button class="chip" type="button" data-mus="原創配樂" aria-pressed="true">原創配樂</button><button class="chip" type="button" data-mus="不要配樂" aria-pressed="false">不要配樂（發的時候用平台熱門歌）</button></div>

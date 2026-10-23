@@ -71,9 +71,9 @@
     VAI.client().from("ai_tool_glossary").select("words,sticky,sticky_pos").maybeSingle().then(function (r) { if (r && r.data) { savedSticky = r.data; if (!$("#vGloss").value) $("#vGloss").value = r.data.words || ""; } }, function () {});
     VAI.client().rpc("ai_render_cap").then(function (r) { if (r && !r.error) renderCap = r.data; }, function () {}); }
   function setMode(m) { mode = m; if (m === "subs" && !pickMod) { var f = $$("[data-mod]").filter(function (x) { return x.dataset.mod && !x.disabled; })[0]; if (f) { pickMod = f.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === f)); }); } } $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
-    var subs = m === "subs"; $("#stPick").hidden = subs; $("#musRow").hidden = subs; $("#voRow").hidden = subs || (plan !== "max" && plan !== "ent" && !window.__vaiAdmin); $("#modH").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
-    $("#pickH").textContent = subs ? "選字幕模組" : "選剪法"; $("#pickP").textContent = subs ? "影片不會被剪，只上字幕。上面「字幕專區」可以看每種的樣子。" : "不知道選哪個，就選「交給 AI 挑」。";
-    $("#stNote").textContent = plan === "basic" ? (subs ? "入門方案可用 8 種字幕模組，升級專業就能用全部 23 種。" : "入門方案可用 3 種剪法，升級專業就能用全部。") : "";
+    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "3"; $("#noteNo").textContent = subs ? "3" : "4"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $("#voRow").hidden = subs || (plan !== "max" && plan !== "ent" && !window.__vaiAdmin); $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
+    
+    $("#stNote").textContent = plan === "basic" ? "入門方案可用 3 種剪法，升級專業就能用全部。" : ""; $("#modNote").textContent = plan === "basic" ? "入門方案可用 8 種字幕樣式，升級專業就能用全部 23 種。" : "";
     pvSync(); $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; }
   // ===== 選了馬上預覽（用跟出片一樣的字幕程式畫） =====
   var logoImg = null, accTouched = false, pvT0 = performance.now(), pvOn = false;
@@ -82,11 +82,13 @@
   function pvSync(keep) { var c = $("#pv"); if (!c || !MODS.length) return; var m = curMod();
     if (!accTouched && m.accent && m.accent !== "#ffffff") $("#acc").value = m.accent;
     var cut = mode === "subs" ? "不剪，只上字幕" : (pickSt < 0 ? "交給 AI 挑剪法" : "剪法：" + VSTY[pickSt][0]);
-    $("#pvCap").innerHTML = E(cut) + "<br>字幕：<b>" + E(m.name) + "</b>" + (!pickMod && mode !== "subs" ? "（剪法配好的）" : "") + (mode !== "subs" && pickSt < 0 && !pickMod ? "<br>AI 會看影片再決定" : "");
+    $("#pvCap").innerHTML = "字幕：<b>" + E(m.name) + "</b>" + (!pickMod && mode !== "subs" ? "（剪法配好的）" : "") + "<br>" + E(cut);
+    $("#pvCapA").innerHTML = (pickSt < 0 ? "交給 AI 挑：AI 看完影片再決定剪法" : "剪法：<b>" + E(VSTY[pickSt][0]) + "</b>") + "<br>字幕：" + E(m.name);
     if (!keep) pvT0 = performance.now(); if (!pvOn) { pvOn = true; requestAnimationFrame(pvLoop); } }
   function pvLoop(now) { var c = $("#pv"); if (!c || $("#work").hidden) { pvOn = false; return; } var x = c.getContext("2d"), m = curMod(), t = ((now - pvT0) / 1000) % SUBFX.loop;
     var base = mode !== "subs" && pickSt >= 0 ? VSTY[pickSt][3] : { bg: ["#4a4540", "#2a2622"], sub: "word" }; x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
     var oo = Object.assign({}, base, { __mod: m, __acc: $("#acc").value }); frame(c, oo, RM ? 3 : t); pvLogo(x, c.width, c.height);
+    var cA = $("#pvA"); if (cA && !$("#cutPanel").hidden) { frame(cA, oo, RM ? 3 : t); pvLogo(cA.getContext("2d"), cA.width, cA.height); }
     var c2 = $("#pv2"); if (c2 && !$("#pvm").hidden) { frame(c2, oo, RM ? 3 : t); pvLogo(c2.getContext("2d"), c2.width, c2.height); }
     if (RM) { pvOn = false; return; } requestAnimationFrame(pvLoop); }
   function pvLogo(x, W, H) { if (logoImg && logoImg.complete && logoImg.naturalWidth) { var k = Math.min(W * .2 / logoImg.naturalWidth, W * .2 / logoImg.naturalHeight); x.save(); x.globalAlpha = .9; x.drawImage(logoImg, W - logoImg.naturalWidth * k - W * .05, H * .04, logoImg.naturalWidth * k, logoImg.naturalHeight * k); x.restore(); return; } var tt = ($("#vLogoT") && $("#vLogoT").value || "").trim(); if (!tt) return; var u = W / 720, px = 28 * u; x.save(); x.font = "800 " + px + "px " + SUBFX.SANS; x.textAlign = "right"; x.textBaseline = "top"; x.lineWidth = 5 * u; x.strokeStyle = "rgba(0,0,0,.55)"; x.strokeText(tt, W - 30 * u, 40 * u); x.fillStyle = "#fff"; x.fillText(tt, W - 30 * u, 40 * u); x.restore(); }
