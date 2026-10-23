@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 工具後台｜維拓傳媒</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/m/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/ai/editorial.css">
+<style>
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.kpi{background:#fff;border:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi b{font:700 26px var(--num,"Space Grotesk",sans-serif)}.kpi span{font-size:12.5px;color:var(--mid)}
+.kpi.hi{background:var(--fg);color:#fff;border-color:var(--fg)}.kpi.hi span{color:#d9d4c8}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:18px 0 10px}
+.tools input[type=search]{flex:1;min-width:180px;padding:10px 12px;border:1px solid var(--line);background:#fff;font:inherit}
+.list{display:flex;flex-direction:column;gap:8px}
+.mem{background:#fff;border:1px solid var(--line)}
+.mem[open]{border-color:var(--fg)}
+.mem summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.mem summary::-webkit-details-marker{display:none}
+.mem summary .who{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+.mem summary .who b{overflow-wrap:anywhere}.mem summary .who small{color:var(--mid)}
+.tag{font-size:12px;padding:3px 8px;border:1px solid var(--line);white-space:nowrap}
+.tag.active{background:#e7f2ea;border-color:#b9d8c3;color:#2f6a47}.tag.pending{background:#fff4dc;border-color:#ecd49a;color:#8a6414}
+.tag.expired,.tag.cancelled{background:#f6e6e3;border-color:#e3bcb5;color:#9a3a2c}.tag.none{color:var(--dim)}
+.mbody{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px}
+.tg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tc{border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tc h4{margin:0;font:700 15px var(--body)}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:13.5px}.row span:first-child{color:var(--mid)}
+.ub{height:6px;background:var(--line)}.ub i{display:block;height:100%;background:var(--gold)}
+.tc select{padding:7px;border:1px solid var(--line);font:inherit;background:#fff}
+.hist{display:flex;gap:4px;align-items:flex-end;height:36px}.hist i{flex:1;background:var(--goldSoft);border-top:2px solid var(--gold);min-height:2px}
+.mbody textarea{width:100%;min-height:60px;padding:8px;border:1px solid var(--line);font:inherit}
+.jl{font-size:13px;color:var(--mid);display:flex;flex-direction:column;gap:3px}
+.gate{max-width:520px}
+@media (max-width:800px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.tg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>AI 工具後台</small></div></a>
+    <div class="tabs"><a href="/ai-tools">AI 工具</a><a href="/ai-design#member">AI 美編</a><a href="/ai-video#member">AI 剪片</a></div>
+    <div class="who" id="who"></div></nav>
+
+  <section class="sect">
+    <div class="sh"><small>ADMIN</small><h2>會員與訂閱後台</h2><p id="sub">讀取中…</p></div>
+    <div id="gate"></div>
+    <div id="dash" hidden>
+      <div class="kpis" id="kpis"></div>
+      <div class="tools">
+        <input type="search" id="q" placeholder="搜尋信箱、名字、備註" aria-label="搜尋會員">
+        <button class="chip" type="button" data-f="all" aria-pressed="true">全部</button>
+        <button class="chip" type="button" data-f="pending" aria-pressed="false">待開通</button>
+        <button class="chip" type="button" data-f="active" aria-pressed="false">使用中</button>
+        <button class="chip" type="button" data-f="soon" aria-pressed="false">7 天內到期</button>
+        <button class="chip" type="button" data-f="expired" aria-pressed="false">已到期／停用</button>
+        <button class="chip" type="button" data-f="free" aria-pressed="false">只註冊沒買</button>
+        <button class="btn sm gh" type="button" id="csv">匯出 Excel（CSV）</button>
+      </div>
+      <p class="note" id="cnt"></p>
+      <div class="list" id="list"></div>
+      <p class="msg" id="msg" role="status"></p>
+    </div>
+  </section>
+  <footer><img src="/m/logo.png" alt="" width="36" height="36" style="border-radius:50%"><span>維拓傳媒 AI 工具後台・只有管理員看得到</span><a href="/">回官網</a></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="/ai/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); }, $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); }, E = VAI.E;
+  var TOOLS = { design: "AI 美編", video: "AI 剪片" }, LIM = { design: { basic: 30, pro: 150 }, video: { basic: 15, pro: 50, max: 150 } }, UNIT = { design: "件", video: "支" };
+  var ST = { active: "使用中", pending: "待開通", expired: "已到期", cancelled: "已停用", none: "沒買" };
+  var data = null, filt = "all", ym = "", openEmail = null;
+  function planOf(tool, id) { return VAI.PRICE[tool].plans.filter(function (p) { return p.id === id; })[0] || { n: id || "", p: 0 }; }
+  function monthly(tool, s) { var p = planOf(tool, s.plan).p || 0; return s.billing === "year" ? Math.round(p * 10 / 12) : p; }
+  function d(x) { return x ? new Date(x).toLocaleDateString("zh-TW", { year: "numeric", month: "numeric", day: "numeric" }) : "—"; }
+  function ago(x) { if (!x) return "沒來過"; var m = (Date.now() - new Date(x)) / 60000; if (m < 60) return Math.max(1, Math.round(m)) + " 分鐘前"; if (m < 1440) return Math.round(m / 60) + " 小時前"; return Math.round(m / 1440) + " 天前"; }
+  function days(x) { return x ? Math.ceil((new Date(x + "T23:59:59") - Date.now()) / 864e5) : null; }
+  function usedNow(m, tool) { var u = m.usage.filter(function (g) { return g.tool === tool && g.ym === ym; })[0]; return u ? u.used : 0; }
+  function stOf(m, tool) { var s = m.subs[tool]; return s ? s.status : "none"; }
+  function match(m) {
+    var q = $("#q").value.trim().toLowerCase(); if (q && (m.email + " " + (m.name || "") + " " + (m.note || "")).toLowerCase().indexOf(q) < 0) return false;
+    var sts = ["design", "video"].map(function (t) { return stOf(m, t); });
+    if (filt === "pending") return sts.indexOf("pending") >= 0;
+    if (filt === "active") return sts.indexOf("active") >= 0;
+    if (filt === "expired") return sts.indexOf("expired") >= 0 || sts.indexOf("cancelled") >= 0;
+    if (filt === "free") return sts[0] === "none" && sts[1] === "none";
+    if (filt === "soon") return ["design", "video"].some(function (t) { var s = m.subs[t]; var k = s && s.status === "active" ? days(s.period_end) : null; return k != null && k <= 7; });
+    return true; }
+  function kpis() {
+    var M = data.members, act = 0, pend = 0, soon = 0, mrr = 0, uD = 0, uV = 0, q = 0, paid = 0;
+    M.forEach(function (m) { var anyAct = false;
+      ["design", "video"].forEach(function (t) { var s = m.subs[t]; if (!s) return; if (s.status === "active") { anyAct = true; mrr += monthly(t, s); var k = days(s.period_end); if (k != null && k <= 7) soon++; } if (s.status === "pending") pend++; });
+      if (anyAct) act++; uD += usedNow(m, "design"); uV += usedNow(m, "video"); m.jobs.forEach(function (j) { if (j.status === "queued" || j.status === "working") q++; }); });
+    $("#kpis").innerHTML = [["會員總數", M.length], ["付費使用中", act], ["待開通（要處理）", pend, pend > 0], ["7 天內到期", soon], ["預估每月收入", "$" + mrr.toLocaleString(), true], ["本月美編用量", uD + " 件"], ["本月剪片用量", uV + " 支"], ["影片排隊／剪輯中", q, q > 0]]
+      .map(function (k) { return '<div class="kpi' + (k[2] ? " hi" : "") + '"><b>' + k[1] + "</b><span>" + k[0] + "</span></div>"; }).join(""); }
+  function toolCard(m, t) {
+    var s = m.subs[t], used = usedNow(m, t), st = s ? s.status : "none", lim = s ? (LIM[t][s.plan] || 0) : 0;
+    var hist = []; for (var i = 5; i >= 0; i--) { var dt = new Date(); dt.setMonth(dt.getMonth() - i); var k = dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0"), g = m.usage.filter(function (x) { return x.tool === t && x.ym === k; })[0]; hist.push(g ? g.used : 0); }
+    var mx = Math.max.apply(null, hist.concat([1])), left = s && s.period_end ? days(s.period_end) : null;
+    var opts = VAI.PRICE[t].plans.map(function (p) { return '<option value="' + p.id + '"' + (s && s.plan === p.id ? " selected" : "") + ">" + p.n + (p.p ? " " + p.p.toLocaleString() : "") + "</option>"; }).join("");
+    return '<div class="tc"><h4>' + TOOLS[t] + ' <span class="tag ' + st + '">' + ST[st] + "</span></h4>" +
+      (s ? '<div class="row"><span>方案</span><span>' + E(planOf(t, s.plan).n) + "・" + (s.billing === "year" ? "年繳" : "月繳") + (s.bundle ? "・組合" : "") + '</span></div><div class="row"><span>到期</span><span>' + d(s.period_end) + (left != null && st === "active" ? "（剩 " + left + " 天）" : "") + '</span></div><div class="row"><span>申請日</span><span>' + d(s.since) + "</span></div>" : '<p class="note">還沒申請這個工具。</p>') +
+      '<div class="row"><span>本月用量</span><span>' + used + " " + UNIT[t] + (lim ? "／" + lim : s ? "／不限" : "") + "</span></div>" + (lim ? '<div class="ub"><i style="width:' + Math.min(100, used / lim * 100) + '%"></i></div>' : "") +
+      '<div class="hist" title="近 6 個月用量">' + hist.map(function (h) { return '<i style="height:' + Math.max(4, h / mx * 100) + '%" title="' + h + '"></i>'; }).join("") + '</div><span class="note">近 6 個月用量</span>' +
+      '<div class="bar"><select data-pl="' + t + '" aria-label="方案">' + opts + '</select><select data-bl="' + t + '" aria-label="繳費"><option value="month"' + (s && s.billing === "year" ? "" : " selected") + '>月繳</option><option value="year"' + (s && s.billing === "year" ? " selected" : "") + '>年繳</option></select><button class="btn sm gh" type="button" data-save="' + t + '">改方案</button></div>' +
+      '<div class="bar"><button class="btn sm" type="button" data-on="' + t + '" data-m="1">收款，開通 1 個月</button><button class="btn sm" type="button" data-on="' + t + '" data-m="12">開通 12 個月</button>' + (s && s.status !== "cancelled" ? '<button class="btn sm gh" type="button" data-off="' + t + '">停用</button>' : "") + "</div></div>"; }
+  function draw() {
+    var M = data.members.filter(match); $("#cnt").textContent = "共 " + M.length + " 位" + (filt !== "all" || $("#q").value ? "（篩選中）" : "");
+    $("#list").innerHTML = M.length ? M.map(function (m) {
+      return '<details class="mem" data-email="' + E(m.email) + '"' + (m.email === openEmail ? " open" : "") + '><summary><span class="who"><b>' + E(m.email) + "</b><small>" + (m.name ? E(m.name) + "・" : "") + (m.provider === "google" ? "Google 登入" : "信箱登入") + "・最後來 " + ago(m.last_seen) + "</small></span>" +
+        ["design", "video"].map(function (t) { var s = m.subs[t], st = s ? s.status : "none"; return '<span class="tag ' + st + '">' + TOOLS[t] + "：" + (s ? planOf(t, s.plan).n + " " : "") + ST[st] + "</span>"; }).join("") + "</summary>" +
+        '<div class="mbody"><div class="tg">' + toolCard(m, "design") + toolCard(m, "video") + "</div>" +
+        '<div class="row"><span>註冊日</span><span>' + d(m.created_at) + "</span></div><div class=\"row\"><span>來過幾次</span><span>" + (m.visits || 0) + " 次</span></div>" +
+        (m.jobs.length ? '<div class="jl"><b style="color:var(--fg)">剪片紀錄</b>' + m.jobs.slice(0, 8).map(function (j) { return "<span>#" + j.id + "・" + E(j.style || "") + (j.swap ? "・AI 換人" : "") + "・" + { queued: "排隊中", working: "剪輯中", done: "完成", error: "有問題" }[j.status] + "・" + d(j.at) + "</span>"; }).join("") + '<a href="/ai-video#admin">到剪片頁處理 →</a></div>' : "") +
+        '<label class="f"><span>備註（付款方式、聯絡紀錄…只有你看得到）</span><textarea data-note>' + E(m.note || "") + '</textarea></label><div class="bar"><button class="btn sm gh" type="button" data-savenote>存備註</button></div></div></details>'; }).join("") : '<p class="note">' + (data.members.length ? "沒有符合的會員。" : "還沒有會員。客人在 AI 美編或 AI 剪片頁登入後就會出現在這裡。") + "</p>";
+    $$("#list .mem").forEach(function (el) { var em = el.dataset.email;
+      el.addEventListener("toggle", function () { if (el.open) { openEmail = em; $$("#list .mem").forEach(function (o) { if (o !== el) o.open = false; }); } else if (openEmail === em) openEmail = null; });
+      el.querySelectorAll("[data-on]").forEach(function (b) { b.onclick = function () { act("ai_tool_admin_set", { p_email: em, p_tool: b.dataset.on, p_status: "active", p_months: +b.dataset.m }, "已開通 " + b.dataset.m + " 個月"); }; });
+      el.querySelectorAll("[data-off]").forEach(function (b) { b.onclick = function () { if (b.dataset.sure) act("ai_tool_admin_set", { p_email: em, p_tool: b.dataset.off, p_status: "cancelled", p_months: 1 }, "已停用"); else { b.dataset.sure = 1; b.textContent = "再按一次確定停用"; } }; });
+      el.querySelectorAll("[data-save]").forEach(function (b) { b.onclick = function () { var t = b.dataset.save; act("ai_admin_plan", { p_email: em, p_tool: t, p_plan: el.querySelector('[data-pl="' + t + '"]').value, p_billing: el.querySelector('[data-bl="' + t + '"]').value }, "方案已改（狀態不變，要開通請按開通）"); }; });
+      el.querySelector("[data-savenote]").onclick = function () { act("ai_admin_note", { p_email: em, p_note: el.querySelector("[data-note]").value }, "備註已存"); }; }); }
+  async function act(fn, args, ok) { var m = $("#msg"); m.className = "msg"; m.textContent = "處理中…"; var r = await VAI.client().rpc(fn, args); if (r.error) { m.className = "msg err"; m.textContent = r.error.message; return; } m.className = "msg ok"; m.textContent = ok; await load(); }
+  async function load() { var r = await VAI.client().rpc("ai_admin_overview"); if (r.error) { $("#sub").textContent = r.error.message; return; } data = r.data; ym = data.ym; kpis(); draw(); $("#sub").textContent = "更新時間 " + new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }) + "・每 2 分鐘自動更新"; }
+  $$("[data-f]").forEach(function (b) { b.onclick = function () { filt = b.dataset.f; $$("[data-f]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); draw(); }; });
+  $("#q").oninput = function () { if (data) draw(); };
+  $("#csv").onclick = function () { var rows = [["信箱", "名字", "登入方式", "註冊日", "最後來", "美編方案", "美編狀態", "美編繳費", "美編到期", "美編本月用量", "剪片方案", "剪片狀態", "剪片繳費", "剪片到期", "剪片本月用量", "備註"]];
+    data.members.filter(match).forEach(function (m) { var r = [m.email, m.name || "", m.provider, d(m.created_at), d(m.last_seen)]; ["design", "video"].forEach(function (t) { var s = m.subs[t]; r.push(s ? planOf(t, s.plan).n : "", ST[s ? s.status : "none"], s ? (s.billing === "year" ? "年繳" : "月繳") : "", s ? d(s.period_end) : "", usedNow(m, t)); }); r.push(m.note || ""); rows.push(r); });
+    var csv = "﻿" + rows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(","); }).join("\n");
+    var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "AI工具會員_" + ym + ".csv"; a.click(); };
+  var timer = null;
+  VAI.onMe(function (me) {
+    var who = $("#who");
+    if (!me || !me.login) { who.innerHTML = ""; $("#dash").hidden = true; $("#sub").textContent = "請先用管理員帳號登入。"; $("#gate").innerHTML = '<div class="gate" id="gb"></div>'; VAI.authBox($("#gb"), "/ai-admin"); return; }
+    who.innerHTML = "<span>" + E(me.email) + '</span><button class="btn sm gh" type="button" id="out">登出</button>'; $("#out").onclick = async function () { await VAI.client().auth.signOut(); VAI.refresh(); };
+    if (!me.admin) { $("#dash").hidden = true; $("#gate").innerHTML = '<p class="msg err">這個帳號不是管理員，看不到後台。</p>'; $("#sub").textContent = ""; return; }
+    $("#gate").innerHTML = ""; $("#dash").hidden = false; load(); if (!timer) timer = setInterval(load, 120000); });
+})();
+</script>
+</body>
+</html>

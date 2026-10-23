@@ -29,7 +29,7 @@
   async function refresh() {
     var c = client(); if (!c) return null;
     var s = (await c.auth.getSession()).data.session;
-    if (!s) { me = { login: false }; } else { var r = await c.rpc("ai_tool_me"); me = r.error ? { login: true, err: r.error.message } : r.data; }
+    if (!s) { me = { login: false }; } else { c.rpc("ai_tool_touch").then(function () {}, function () {}); var r = await c.rpc("ai_tool_me"); me = r.error ? { login: true, err: r.error.message } : r.data; }
     listeners.forEach(function (f) { try { f(me); } catch (e) {} });
     return me;
   }
@@ -88,7 +88,7 @@
       var rows = (r.data || []).filter(function (x) { return x.tool === tool; });
       var jobs = [];
       if (tool === "video") { var j = await c.rpc("ai_video_admin_list"); jobs = j.data || []; }
-      el.innerHTML = '<div class="adm"><h3>管理員：' + PRICE[tool].name + " 會員開通</h3>" + (rows.length ? rows.map(function (x) {
+      el.innerHTML = '<div class="adm"><h3>管理員：' + PRICE[tool].name + ' 會員開通</h3><p class="note"><a href="/ai-admin">打開完整後台（全部會員、訂閱、用量）→</a></p>' + (rows.length ? rows.map(function (x) {
         var plan = PRICE[tool].plans.filter(function (p) { return p.id === x.plan; })[0];
         return '<details class="acc"><summary><b>' + E(x.email) + "</b><span>" + (plan ? plan.n : x.plan) + "・" + (x.billing === "year" ? "年繳" : "月繳") + "・" + { pending: "待開通", active: "使用中", cancelled: "已停用" }[x.status] + (x.period_end ? "・到 " + x.period_end : "") + '</span></summary><div class="bar"><button class="btn" data-a="' + E(x.email) + '" data-m="' + (x.billing === "year" ? 12 : 1) + '">收到款，開通' + (x.billing === "year" ? " 12 個月" : " 1 個月") + '</button><button class="btn gh" data-c="' + E(x.email) + '">停用</button></div></details>';
       }).join("") : '<p class="note">還沒有人申請。</p>') +
