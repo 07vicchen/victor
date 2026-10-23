@@ -32,6 +32,15 @@
 .flist div{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--line);background:#fff;padding:8px 12px;font-size:13.5px}
 .flist div span{color:var(--mid)}
 .pick2{display:flex;flex-wrap:wrap;gap:8px}
+[hidden]{display:none!important}
+.pickw{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:20px;align-items:start}
+.pickl{min-width:0;display:grid;gap:12px}
+.pk{margin:6px 0 0;font-size:15px}.pk .note{font-weight:400;margin-left:4px}
+.pvb{position:sticky;top:80px;display:grid;gap:6px;justify-items:center}
+#pv{width:190px;max-width:100%;aspect-ratio:9/16;border-radius:10px;background:#222}
+#pvCap{text-align:center;margin:0}
+.pvm{display:flex;gap:12px;align-items:end}#pv2{width:120px;aspect-ratio:9/16;border-radius:8px;background:#222}
+@media(max-width:640px){.pickw{grid-template-columns:1fr}.pvb{position:static;order:-1}#pv{width:160px}}
 .job{border:1px solid var(--line);background:#fff;padding:12px 14px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between}
 .job .s{font-weight:700}.job .s.queued{color:var(--gold2)}.job .s.working{color:#2457d6}.job .s.done{color:var(--ok)}.job .s.error{color:#b23b2e}
 .prog{height:4px;background:var(--line);width:100%}.prog i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
@@ -122,10 +131,13 @@
         </div>
         <div class="panel">
           <div class="ph"><b>2</b><div><h3 id="pickH">選剪法</h3><p id="pickP">不知道選哪個，就選「交給 AI 挑」。</p></div></div>
+          <div class="pickw"><div class="pickl">
           <div class="pick2" id="stPick"></div>
-          <div class="pick2" id="modPick" hidden></div>
-          <div class="bar" id="accRow" hidden><div class="custom"><input type="color" id="acc" value="#ff3b30" aria-label="重點字顏色"><span class="note">重點字顏色</span></div></div>
+          <h4 class="pk" id="modH">字幕樣式<span class="note">（不選就用剪法配好的那款）</span></h4>
+          <div class="pick2" id="modPick"></div>
+          <div class="bar" id="accRow"><div class="custom"><input type="color" id="acc" value="#ff3b30" aria-label="重點字顏色"><span class="note">重點字顏色</span></div></div>
           <p class="note" id="stNote"></p>
+          </div><div class="pvb"><canvas id="pv" width="270" height="480" aria-label="字幕預覽"></canvas><p class="note" id="pvCap"></p></div></div>
         </div>
         <div class="panel" id="swapPanel">
           <div class="ph"><b>＋</b><div><h3>AI 換人（選填，專業方案以上）</h3><p>把影片裡的人換成照片裡的人。加購價：15 秒內 499 元、30 秒內 899 元、60 秒內 1,599 元，或 3 支包 1,299 元（每支 15 秒內）。送出後我們會先用 LINE 跟你確認費用，付款後才開始換。</p></div></div>
@@ -144,6 +156,7 @@
           <div class="bar" id="musRow"><span class="note">配樂</span><button class="chip" type="button" data-mus="原創配樂" aria-pressed="true">原創配樂</button><button class="chip" type="button" data-mus="不要配樂" aria-pressed="false">不要配樂（發的時候用平台熱門歌）</button></div>
           <div id="voRow"><label class="note" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="voOn">這支要 AI 配音（旗艦方案每月 30 支）</label><label class="f" id="voBox" hidden><span>配音稿（照這個唸，AI 配好聲音放進影片）</span><textarea id="voText" rows="3" maxlength="1500"></textarea></label></div>
           <div class="bar"><label class="up">上傳 logo（選填）<input type="file" accept="image/*" id="vLogo" hidden></label><span class="note">或直接打字</span><input type="text" id="vLogoT" maxlength="20" placeholder="例如：維拓傳媒" style="padding:9px 12px;border:1px solid var(--line);font:inherit;min-width:0;flex:1;max-width:240px"><span class="note" id="vLogoMsg">有放的話會放在影片角落</span></div>
+          <div class="pvm" id="pvm" hidden><canvas id="pv2" width="270" height="480" aria-label="logo 預覽"></canvas><span class="note">打字或換 logo，這裡馬上就會變</span></div>
         </div>
         <div class="bar"><button class="btn" type="button" id="send">交給 AI 剪（用掉 1 支）</button><span class="msg" id="sendMsg"></span></div>
         <div class="prog" id="prog" hidden><i></i></div>

@@ -180,5 +180,5 @@
   function plan(job) { var ed = defEdit(job), out = ["#" + job.id + " 剪輯指示", "方向：" + (ed.direction || "（沒寫）"), "標題：" + (ed.title || "（沒有）") + "（" + (ed.title ? (ed.titleSec ? "前 " + ed.titleSec + " 秒" : "一直都在") : "") + "）", "常駐文字：" + (ed.sticky ? ed.sticky + "（" + { tl: "左上", tr: "右上", top: "上方中間", bottom: "下方" }[ed.stickyPos] + "，整支都在）" : "（沒有）"), "自動剪停頓：" + (ed.trimGaps ? "要" : "不要") + "　重點句放開頭：" + (ed.hook ? "要" : "不要"), "", "⭐＝重點　✂＝剪掉", ""];
     (job.lines || []).forEach(function (L) { out.push((L.star ? "⭐ " : L.cut ? "✂ " : "   ") + "素材" + ((L.src || 0) + 1) + " " + fmt(L.s) + "-" + fmt(L.e) + "　" + String(L.t).replace(/\|/g, " ")); });
     return out.join("\n"); }
-  window.SUBJOB = { startStt: startStt, openEditor: openEditor, render: render, srt: srt, plan: plan, timeline: timeline };
+  window.SUBJOB = { CUTMAP: CUTMAP, startStt: startStt, openEditor: openEditor, render: render, srt: srt, plan: plan, timeline: timeline };
 })();

@@ -51,9 +51,10 @@
   function boot() { var allowAll = plan !== "basic";
     $("#stPick").innerHTML = '<button class="chip" type="button" data-st="-1" aria-pressed="' + (pickSt === -1) + '">交給 AI 挑</button>' + VSTY.map(function (s, i) { var ok = allowAll || BASIC.indexOf(i) >= 0; return '<button class="chip" type="button" data-st="' + i + '" aria-pressed="' + (pickSt === i) + '"' + (ok ? "" : " disabled") + ">" + s[0] + "</button>"; }).join("");
     $("#stNote").textContent = allowAll ? "" : "入門方案可用 3 種剪法，升級專業就能用全部。";
-    $$("[data-st]").forEach(function (b) { b.onclick = function () { pickSt = +b.dataset.st; $$("[data-st]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
-    $("#modPick").innerHTML = MODS.map(function (m) { var ok = allowAll || BASIC_MODS.indexOf(m.id) >= 0; return '<button class="chip" type="button" data-mod="' + m.id + '" aria-pressed="' + (pickMod === m.id) + '"' + (ok ? "" : " disabled") + ">" + E(m.name) + "</button>"; }).join("");
-    $$("[data-mod]").forEach(function (b) { b.onclick = function () { pickMod = b.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); var m = MODS.filter(function (q) { return q.id === pickMod; })[0]; if (m && m.accent && m.accent !== "#ffffff") $("#acc").value = m.accent; }; });
+    $$("[data-st]").forEach(function (b) { b.onclick = function () { pickSt = +b.dataset.st; $$("[data-st]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); pvSync(); }; });
+    $("#modPick").innerHTML = '<button class="chip" type="button" data-mod="" data-auto="1" aria-pressed="' + (pickMod === "") + '">跟剪法搭配</button>' + MODS.map(function (m) { var ok = allowAll || BASIC_MODS.indexOf(m.id) >= 0; return '<button class="chip" type="button" data-mod="' + m.id + '" aria-pressed="' + (pickMod === m.id) + '"' + (ok ? "" : " disabled") + ">" + E(m.name) + "</button>"; }).join("");
+    $$("[data-mod]").forEach(function (b) { b.onclick = function () { pickMod = b.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); pvSync(); }; });
+    $("#acc").oninput = function () { accTouched = true; };
     var swapOk = plan !== "basic" || (window.__vaiAdmin); $("#swapLock").hidden = swapOk; $("#swapBody").hidden = !swapOk;
     setMode(mode);
     if (booted) return; booted = true;
@@ -62,18 +63,33 @@
     $("#swPh").onchange = function (e) { swPhotos = [].slice.call(e.target.files, 0, 3); $("#swPhMsg").textContent = swPhotos.length ? "已選 " + swPhotos.length + " 張：" + swPhotos.map(function (f) { return f.name; }).join("、") : "還沒選照片，不換人就不用選"; };
     $("#swProof").onchange = function (e) { swProof = e.target.files[0] || null; $("#swProofMsg").textContent = swProof ? "已選：" + swProof.name : "建議附上，萬一被檢舉才有證據"; };
     $("#vf").onchange = function (e) { var add = [].slice.call(e.target.files); add.forEach(function (f) { if (files.length < 5) files.push(f); }); e.target.value = ""; listFiles(); };
-    $("#vLogo").onchange = function (e) { vlogo = e.target.files[0] || null; $("#vLogoMsg").textContent = vlogo ? "已選 logo：" + vlogo.name : "有放的話會放在影片角落"; };
+    $("#vLogo").onchange = function (e) { vlogo = e.target.files[0] || null; $("#vLogoMsg").textContent = vlogo ? "已選 logo：" + vlogo.name : "有放的話會放在影片角落"; if (logoImg) URL.revokeObjectURL(logoImg.src); logoImg = null; if (vlogo) { logoImg = new Image(); logoImg.src = URL.createObjectURL(vlogo); } $("#pvm").hidden = !vlogo && !$("#vLogoT").value.trim(); pvSync(1); };
     $$("[data-mus]").forEach(function (b) { b.onclick = function () { $$("[data-mus]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
     $("#voOn").onchange = function () { $("#voBox").hidden = !this.checked; };
-    $("#vLogoT").oninput = function () { var t = this.value.trim(); $("#vLogoMsg").textContent = t ? "會把「" + t + "」放在影片右上角，確認字幕時可以改位置" : "有放的話會放在影片角落"; };
+    $("#vLogoT").oninput = function () { var t = this.value.trim(); $("#vLogoMsg").textContent = t ? "會把「" + t + "」放在影片右上角，確認字幕時可以改位置" : "有放的話會放在影片角落"; $("#pvm").hidden = !t && !vlogo; pvSync(1); };
     $("#send").onclick = send;
     VAI.client().from("ai_tool_glossary").select("words,sticky,sticky_pos").maybeSingle().then(function (r) { if (r && r.data) { savedSticky = r.data; if (!$("#vGloss").value) $("#vGloss").value = r.data.words || ""; } }, function () {});
     VAI.client().rpc("ai_render_cap").then(function (r) { if (r && !r.error) renderCap = r.data; }, function () {}); }
-  function setMode(m) { mode = m; $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
-    var subs = m === "subs"; $("#stPick").hidden = subs; $("#musRow").hidden = subs; $("#voRow").hidden = subs || (plan !== "max" && plan !== "ent" && !window.__vaiAdmin); $("#modPick").hidden = !subs; $("#accRow").hidden = !subs;
+  function setMode(m) { mode = m; if (m === "subs" && !pickMod) { var f = $$("[data-mod]").filter(function (x) { return x.dataset.mod && !x.disabled; })[0]; if (f) { pickMod = f.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === f)); }); } } $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
+    var subs = m === "subs"; $("#stPick").hidden = subs; $("#musRow").hidden = subs; $("#voRow").hidden = subs || (plan !== "max" && plan !== "ent" && !window.__vaiAdmin); $("#modH").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
     $("#pickH").textContent = subs ? "選字幕模組" : "選剪法"; $("#pickP").textContent = subs ? "影片不會被剪，只上字幕。上面「字幕專區」可以看每種的樣子。" : "不知道選哪個，就選「交給 AI 挑」。";
     $("#stNote").textContent = plan === "basic" ? (subs ? "入門方案可用 8 種字幕模組，升級專業就能用全部 23 種。" : "入門方案可用 3 種剪法，升級專業就能用全部。") : "";
-    $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; }
+    pvSync(); $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; }
+  // ===== 選了馬上預覽（用跟出片一樣的字幕程式畫） =====
+  var logoImg = null, accTouched = false, pvT0 = performance.now(), pvOn = false;
+  function curMod() { var id = pickMod; if (!id && mode !== "subs") id = pickSt >= 0 && window.SUBJOB ? SUBJOB.CUTMAP[VSTY[pickSt][0]] : "pop";
+    return MODS.filter(function (q) { return q.id === id; })[0] || MODS[0]; }
+  function pvSync(keep) { var c = $("#pv"); if (!c || !MODS.length) return; var m = curMod();
+    if (!accTouched && m.accent && m.accent !== "#ffffff") $("#acc").value = m.accent;
+    var cut = mode === "subs" ? "不剪，只上字幕" : (pickSt < 0 ? "交給 AI 挑剪法" : "剪法：" + VSTY[pickSt][0]);
+    $("#pvCap").innerHTML = E(cut) + "<br>字幕：<b>" + E(m.name) + "</b>" + (!pickMod && mode !== "subs" ? "（剪法配好的）" : "") + (mode !== "subs" && pickSt < 0 && !pickMod ? "<br>AI 會看影片再決定" : "");
+    if (!keep) pvT0 = performance.now(); if (!pvOn) { pvOn = true; requestAnimationFrame(pvLoop); } }
+  function pvLoop(now) { var c = $("#pv"); if (!c || $("#work").hidden) { pvOn = false; return; } var x = c.getContext("2d"), m = curMod(), t = ((now - pvT0) / 1000) % SUBFX.loop;
+    var base = mode !== "subs" && pickSt >= 0 ? VSTY[pickSt][3] : { bg: ["#4a4540", "#2a2622"], sub: "word" }; x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
+    var oo = Object.assign({}, base, { __mod: m, __acc: $("#acc").value }); frame(c, oo, RM ? 3 : t); pvLogo(x, c.width, c.height);
+    var c2 = $("#pv2"); if (c2 && !$("#pvm").hidden) { frame(c2, oo, RM ? 3 : t); pvLogo(c2.getContext("2d"), c2.width, c2.height); }
+    if (RM) { pvOn = false; return; } requestAnimationFrame(pvLoop); }
+  function pvLogo(x, W, H) { if (logoImg && logoImg.complete && logoImg.naturalWidth) { var k = Math.min(W * .2 / logoImg.naturalWidth, W * .2 / logoImg.naturalHeight); x.save(); x.globalAlpha = .9; x.drawImage(logoImg, W - logoImg.naturalWidth * k - W * .05, H * .04, logoImg.naturalWidth * k, logoImg.naturalHeight * k); x.restore(); return; } var tt = ($("#vLogoT") && $("#vLogoT").value || "").trim(); if (!tt) return; var u = W / 720, px = 28 * u; x.save(); x.font = "800 " + px + "px " + SUBFX.SANS; x.textAlign = "right"; x.textBaseline = "top"; x.lineWidth = 5 * u; x.strokeStyle = "rgba(0,0,0,.55)"; x.strokeText(tt, W - 30 * u, 40 * u); x.fillStyle = "#fff"; x.fillText(tt, W - 30 * u, 40 * u); x.restore(); }
   function listFiles() { $("#flist").innerHTML = files.map(function (f, i) { var big = f.size > 50 * 1048576; return "<div><b>" + E(f.name) + "</b><span" + (big ? ' style="color:#b23b2e"' : "") + ">" + (f.size / 1048576).toFixed(1) + " MB" + (big ? "（超過 50MB）" : "") + '</span><button class="chip" type="button" data-rm="' + i + '">移除</button></div>'; }).join("");
     $$("[data-rm]").forEach(function (b) { b.onclick = function () { files.splice(+b.dataset.rm, 1); listFiles(); }; }); }
   async function send() { var m = $("#sendMsg"), b = $("#send"), pg = $("#prog");
@@ -92,8 +108,8 @@
         sw = { photos: ph, proof: proof, consent: true, who: swWho }; }
       var md = MODS.filter(function (q) { return q.id === pickMod; })[0], st = mode === "subs" ? "只上字幕：" + (md ? md.name : "") : (pickSt < 0 ? "交給 AI 挑" : VSTY[pickSt][0]);
       var mus = ($$("[data-mus]").filter(function (x) { return x.getAttribute("aria-pressed") === "true"; })[0] || {}).dataset; mus = mus ? mus.mus : "原創配樂";
-      var note = $("#vNote").value + (mode === "subs" ? "（重點字顏色 " + $("#acc").value + "）" : "（配樂：" + mus + "）") + ($("#voOn").checked && $("#voText").value.trim() ? "【AI 配音稿】" + $("#voText").value.trim() : "");
-      var s = await c.rpc("ai_video_submit2", { p_files: up, p_style: st, p_note: note, p_logo: lp, p_mode: mode, p_module: mode === "subs" ? pickMod : null, p_swap: sw }); if (s.error) throw new Error(s.error.message);
+      var note = $("#vNote").value + "（重點字顏色 " + $("#acc").value + "）" + (mode === "subs" ? "" : "（配樂：" + mus + "）") + ($("#voOn").checked && $("#voText").value.trim() ? "【AI 配音稿】" + $("#voText").value.trim() : "");
+      var s = await c.rpc("ai_video_submit2", { p_files: up, p_style: st, p_note: note, p_logo: lp, p_mode: mode, p_module: pickMod || null, p_swap: sw }); if (s.error) throw new Error(s.error.message);
       var lt = $("#vLogoT").value.trim(); if (lt) { await c.rpc("ai_job_edit", { p_id: s.data, p_edit: { sticky: lt, stickyPos: "tr" } }); }
       var gl = $("#vGloss").value.trim(); VAI.client().rpc("ai_glossary_set", { p_words: gl }).then(function () {}, function () {});
       var newJob = { id: s.data, files: up, mode: mode, module: mode === "subs" ? pickMod : null, note: note, status: "stt", edit: lt ? { sticky: lt, stickyPos: "tr" } : null };
