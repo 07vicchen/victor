@@ -48,13 +48,14 @@
   // ===== 1. 聽寫（每支素材都打） =====
   async function startStt(job, glossary, onMsg) {
     onMsg = onMsg || function () {}; var files = job.files || []; if (!files.length) throw new Error("找不到影片");
+    var st0 = await VAI.client().rpc("ai_job_stt_start", { p_id: job.id }); if (st0.error) throw new Error(st0.error.message);
     var tok = await VAI.token(), all = [], needKey = false;
     for (var k = 0; k < files.length; k++) {
       onMsg("AI 正在聽第 " + (k + 1) + "／" + files.length + " 支、打字幕，大約 10～60 秒…");
       var url = await signed(files[k].path, 3600);
       var r = await fetch(VAI.API + "/api/stt", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + tok }, body: JSON.stringify({ url: url, glossary: glossary || "" }) });
       var j = await r.json().catch(function () { return { ok: false, why: "連線失敗" }; });
-      if (!j.ok) { if (j.why === "need_key") { needKey = true; break; } throw new Error(j.why || "聽寫失敗"); }
+      if (!j.ok) { if (j.why === "need_key") { needKey = true; break; } throw new Error(/[A-Za-z]{12,}/.test(j.why || "") ? "聽寫服務暫時有問題，我們已經收到通知，修好會請你再按一次「重新打字幕」" : (j.why || "聽寫失敗")); }
       (j.lines || []).forEach(function (L) { L.src = k; all.push(L); });
     }
     if (needKey) throw new Error("聽寫服務設定中，我們會盡快幫你把字幕打好，好了會在這裡顯示「待確認字幕」");
