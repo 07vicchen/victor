@@ -106,7 +106,12 @@
     $("#uncut").onclick = function () { prodUp = origImg; prod = origImg; cutImg = null; $("#uncut").hidden = true; $("#msg").textContent = "已還原背景"; lib(); };
     $("#logoF").onchange = function (e) { var f = e.target.files[0]; if (!f) return; var i = new Image(); i.onload = function () { logo = i; $("#logoPos").hidden = false; $("#logoMsg").textContent = "每張圖都會自動放上 logo"; lib(); }; i.src = URL.createObjectURL(f); };
     $$("[data-lp]").forEach(function (b) { b.onclick = function () { lpos = b.dataset.lp; $$("[data-lp]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); lib(); }; });
-    $("#logoX").onclick = function () { logo = null; $("#logoPos").hidden = true; $("#logoF").value = ""; $("#logoMsg").textContent = "沒有也可以"; lib(); };
+    $("#logoX").onclick = function () { logo = null; $("#logoPos").hidden = true; $("#logoF").value = ""; $("#logoT").value = ""; $("#logoMsg").textContent = "沒有也可以"; lib(); };
+    // 文字 logo：沒有 logo 圖的話，直接打店名也可以
+    $("#logoT").oninput = function () { var t = this.value.trim(); if (!t) { logo = null; $("#logoPos").hidden = true; $("#logoMsg").textContent = "沒有也可以"; lib(); return; }
+      var c = document.createElement("canvas"), g = c.getContext("2d"), fz = 64, fam = '"Noto Serif TC","Noto Sans TC",serif'; g.font = "900 " + fz + "px " + fam; c.width = Math.ceil(g.measureText(t).width) + 8; c.height = Math.ceil(fz * 1.3);
+      g = c.getContext("2d"); g.font = "900 " + fz + "px " + fam; g.textBaseline = "middle"; g.fillStyle = "#141414"; g.fillText(t, 4, c.height / 2 + 2);
+      logo = c; $("#logoF").value = ""; $("#logoPos").hidden = false; $("#logoMsg").textContent = "每張圖都會放上「" + t + "」"; lib(); };
     $$("[data-ind]").forEach(function (b) { b.onclick = function () { ind = b.dataset.ind; $$("[data-ind]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); lib(); }; });
     $$("[data-sty]").forEach(function (b) { b.onclick = function () { if (b.disabled) return; sty = b.dataset.sty; $$("[data-sty]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); lib(); }; });
     ["#pName", "#pPrice"].forEach(function (s) { $(s).addEventListener("change", lib); });
