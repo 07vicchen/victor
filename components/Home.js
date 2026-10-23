@@ -293,21 +293,21 @@ function CallDemo(p) {
     on ? h('button', { type: 'button', className: 'clbtn end', onClick: end }, '掛斷') : h('button', { type: 'button', className: 'clbtn', onClick: start }, n === CALL.length ? '再聽一次' : '撥打示範電話'),
     h('small', { className: 'clnote' }, '示範用手機內建語音；正式版用台灣腔真人感 AI 聲音，可以接預約、查訂單、回常見問題。'));
 }
-var DEMO_W = [null, 'logo', 'chat', 'call', 'pair', 'pick'];
+var DEMO_W = [null, 'office', 'logo', 'chat', 'call', 'pair', 'pick'];
 RENDER.demos = function (d) {
   var cards = d.cards || [];
   return h('section', { className: 'sec demos' }, h('div', { className: 'sec-inner' },
     h('div', { className: 'dgrid' }, cards.map(function (c, i) {
       var w = DEMO_W[i], body = null;
-      if (i === 0) body = h('div', { className: 'vreal sm' }, h('video', { src: c.video, poster: c.poster, controls: true, playsInline: true, preload: 'none' }));
+      if (i === 0 || w === 'office') body = h('div', { className: 'vreal sm' }, h('video', { src: c.video, poster: c.poster, controls: true, playsInline: true, preload: 'none' }));
       else if (w === 'logo') body = h(LogoAnim);
       else if (w === 'chat') body = h(ChatDemo, { shop: c.shop, hello: c.hello, qa: c.qa });
       else if (w === 'call') body = h(CallDemo, { shop: c.shop, lines: c.lines });
       else if (w === 'pair') body = h('div', { className: 'dpair' }, (c.images || []).map(function (u, k) { return h('img', { key: k, src: u, alt: '', loading: 'lazy' }); }));
       else if (w === 'pick') body = h('ul', { className: 'dpts' }, (c.points || []).map(function (t, k) { return h('li', { key: k }, t); }));
-      var lk = c.link ? h('a', { className: 'dlink', href: w === 'pair' ? '/works' : '/quote' }, c.link) : null;
+      var lk = c.link ? h('a', { className: 'dlink', href: w === 'pair' ? '/works' : w === 'office' ? '/office' : '/quote' }, c.link) : null;
       if (w === 'pick') return h('article', { key: i, className: 'dcard wide' }, h('div', { className: 'dwl' }, h('span', { className: 'dtag' }, c.tag), h('h3', null, c.title), h('p', null, c.desc), lk), body);
-      return h('article', { key: i, className: 'dcard' + (i === 0 ? ' tall' : '') }, h('span', { className: 'dtag' }, c.tag), h('h3', null, c.title), h('p', null, c.desc), body, lk);
+      return h('article', { key: i, className: 'dcard' + (i === 0 || w === 'office' ? ' tall' : '') }, h('span', { className: 'dtag' }, c.tag), h('h3', null, c.title), h('p', null, c.desc), body, lk);
     }))));
 };
 
@@ -316,7 +316,7 @@ var TAGS = { items: [{ text: 'AI 明星' }, { text: 'IP 孵化' }, { text: '老�
 var IPS = { items: [{ text: '王拓恩' }, { text: '貓探長' }, { text: '村山爺爺' }] };
 var DOORS = [
   { href: '/works', en: 'WORKS', title: '作品', desc: '我們經營的 IP，和它們的真實數字', image: M + 'tuoen.jpg' },
-  { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
+  { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'AI 辦公室、LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
   { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
   { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
   { href: '/ai-animation', en: 'AI ANIMATION', title: 'AI 動畫', desc: '老闆不用露臉，AI 角色幫你講；先免費看你的角色', image: M + 'tuoen.jpg' },
@@ -410,6 +410,7 @@ var site = {
       S('pagehead', '', { en: 'DEMO', title: '先玩玩看', desc: '每一項都是真的做得出來的東西。點、按、聽，喜歡哪個再去報價。' }),
       S('demos', '', { cards: [
         { tag: 'AI 廣告短片', title: '愛德華救店・早餐店篇', desc: '寫實真人＋真貓、配音對嘴全部 AI 做，34 秒。', video: M + 'edward.mp4', poster: M + 'edward_p.jpg', link: 'AI 動畫短影音 NT$6,000 起 →' },
+        { tag: 'AI 辦公室', title: '一個人，也能有一整間辦公室', desc: '員工全是 AI，照班表天天上班：每天早上一份早報，腳本、校稿、回留言都有人做，誰卡住馬上通知你。你只要看、按同意。我們自己的 IP 就是這樣在跑。', video: M + 'office.mp4', poster: M + 'office_p.jpg', link: '看 AI 辦公室能幫你做什麼 →' },
         { tag: 'LOGO 動畫', title: '片頭、轉場、IG 動態封面', desc: '5～10 秒，放在每支影片開頭，品牌一眼記住。', link: 'NT$3,000 起／支 →' },
         { tag: 'AI 文字客服', title: '半夜也有人回', desc: '點下面的問題試試看。可以接官網、LINE、IG 私訊。', shop: '早安小舖', hello: '嗨～我是早安小舖的 AI 小幫手，24 小時都在。想問什麼直接點下面 👇', qa: CHAT_Q, link: '守夜 建置 NT$12,800・月費 NT$1,980 起 →' },
         { tag: 'AI 語音電話客服', title: '電話響了，AI 先接', desc: '按撥打，聽一通預約電話怎麼接完。', shop: '好好牙醫診所', lines: CALL0, link: '建置 NT$100,000 起 →' },
