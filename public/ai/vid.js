@@ -15,12 +15,14 @@ var VSTY=[
 let LOGO=null;
 var LINES=["你知道為什麼","你的影片沒人看完嗎","因為前三秒","就讓人滑走了","剪掉停頓","重點放最前面","觀眾就會留下來"];
 
-function person(g,W,H,t,z){g.save();g.translate(W/2,H*.56);g.scale(z,z);g.translate(-W/2,-H*.56);
-  var bob=Math.sin(t*3)*4;g.fillStyle="#2c3a5c";g.beginPath();g.ellipse(W/2,H*.98+bob*.3,W*.42,H*.3,0,0,7);g.fill();
-  g.fillStyle="#c9a287";g.beginPath();g.ellipse(W/2,H*.5+bob,W*.17,H*.12,0,0,7);g.fill();
-  g.fillStyle="#2a211b";g.beginPath();g.ellipse(W/2,H*.43+bob,W*.18,H*.07,0,Math.PI,0);g.fill();
-  var m=Math.abs(Math.sin(t*12))*8;g.fillStyle="#7a3a33";g.beginPath();g.ellipse(W/2,H*.56+bob,W*.04,2+m*.6,0,0,7);g.fill();g.restore()}
-function bgGrad(g,W,H,c){var gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,c[0]);gr.addColorStop(1,c[1]);g.fillStyle=gr;g.fillRect(0,0,W,H)}
+function soft(g,x,y,rx,ry,c0,c1){var gr=g.createRadialGradient(x,y,0,x,y,1);gr.addColorStop(0,c0);gr.addColorStop(.72,c0);gr.addColorStop(1,c1);g.save();g.translate(x,y);g.scale(rx,ry);g.translate(-x,-y);g.fillStyle=gr;g.beginPath();g.arc(x,y,1,0,7);g.fill();g.restore()}
+// 示意畫面不畫人（卡通人像太醜），只留散景背景，重點看字幕
+function person(){}
+function bgGrad(g,W,H,c){var gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,c[0]);gr.addColorStop(1,c[1]);g.fillStyle=gr;g.fillRect(0,0,W,H);
+  var now=(typeof performance!=="undefined"?performance.now():0)/1000;
+  for(var i=0;i<14;i++){var x=W*((i*0.37+0.11)%1)+Math.sin(now*.2+i)*W*.02,y=H*((i*0.53+0.07)%0.95),r=W*(.05+((i*7)%5)*.018),a=.07+((i*3)%4)*.03;
+    var b=g.createRadialGradient(x,y,0,x,y,r);b.addColorStop(0,"rgba(255,226,180,"+a+")");b.addColorStop(.7,"rgba(255,226,180,"+(a*.7)+")");b.addColorStop(1,"rgba(255,226,180,0)");g.fillStyle=b;g.beginPath();g.arc(x,y,r,0,7);g.fill()}
+  var v=g.createRadialGradient(W/2,H*.45,W*.2,W/2,H*.5,H*.75);v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,"rgba(0,0,0,.45)");g.fillStyle=v;g.fillRect(0,0,W,H)}
 function wrapC(g,t,max){var o=[];let l="";for(var ch of t){if(g.measureText(l+ch).width>max&&l){o.push(l);l=ch}else l+=ch}if(l)o.push(l);return o}
 function sub(g,W,H,o,txt,k,t){var s=W/540;g.textAlign="center";g.textBaseline="middle";
   if(o.sub==="word"){var n=Math.max(1,Math.ceil(txt.length*Math.min(1,k*1.6))),show=txt.slice(0,n),last=show.slice(-2);g.font=`900 ${50*s}px ${F}`;g.lineWidth=10*s;g.strokeStyle="#000";g.strokeText(show,W/2,H*.72);g.fillStyle=o.tc;g.fillText(show.slice(0,-2),W/2-g.measureText(last).width/2,H*.72);g.fillStyle=o.hl;g.textAlign="left";g.fillText(last,W/2+g.measureText(show).width/2-g.measureText(last).width,H*.72);g.textAlign="center"}
