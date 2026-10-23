@@ -24,7 +24,8 @@
   function cur(st) { var L = st.lines, t = st.t; for (var i = 0; i < L.length; i++) if (t >= L[i].s && t < L[i].e) return i;
     for (var k = L.length - 1; k >= 0; k--) if (t >= L[k].e && t - L[k].e < .35) return k; return -1; }
   function prog(L, t) { return clamp((t - L.s) / Math.max(.2, L.e - L.s), 0, 1); }
-  function font(ctx, w, px, fam, txt, frac) { ctx.font = w + " " + Math.round(px) + "px " + (fam || SANS); if (txt) { var mw = ctx.canvas.width * (frac || .88); while (ctx.measureText(txt).width > mw && px > 10) { px *= .93; ctx.font = w + " " + Math.round(px) + "px " + (fam || SANS); } } return px; }
+  var SIZE = 0.9; // 字幕大小：小 0.75／中 0.9／大 1.1
+  function font(ctx, w, px, fam, txt, frac) { px = px * SIZE; ctx.font = w + " " + Math.round(px) + "px " + (fam || SANS); if (txt) { var mw = ctx.canvas.width * (frac || .88); while (ctx.measureText(txt).width > mw && px > 10) { px *= .93; ctx.font = w + " " + Math.round(px) + "px " + (fam || SANS); } } return px; }
   function wrap(ctx, text, maxW) { var out = [], line = ""; for (var i = 0; i < text.length; i++) { var c = text[i]; if (ctx.measureText(line + c).width > maxW && line) { out.push(line); line = c; } else line += c; } if (line) out.push(line); return out; }
   // 一行字逐字上色（重點字用 accent）
   function colorRun(ctx, L, x, y, base, acc, opt) { opt = opt || {}; var t = plain(L), m = marks(L), w = ctx.measureText(t).width, cx = opt.align === "left" ? x : x - w / 2, upto = opt.upto == null ? t.length : opt.upto;
@@ -45,7 +46,7 @@
     for (var k = first; k <= i; k++) { var L = st.lines[k], ps = parts(L), d = (L.e - L.s) / ps.length;
       ps.forEach(function (p, j) { var at = L.s + j * d; if (st.t >= at) rows.push({ t: p, at: at, hl: isHL(L, p), alt: j % 2 === 1 }); }); }
     var nx = st.lines[first + 2], out = nx ? clamp((st.t - (nx.s - .28)) / .28, 0, 1) : 0, tot = 0;
-    rows.forEach(function (r) { var px = Math.min(170 * u, 400 * u); ctx.font = "900 " + px + "px " + SANS; px = Math.min(170 * u, px * maxW / Math.max(1, ctx.measureText(r.t).width)); r.px = px; tot += px * 1.04; });
+    rows.forEach(function (r) { var px = Math.min(170 * u, 400 * u); ctx.font = "900 " + px + "px " + SANS; px = Math.min(170 * u, px * maxW / Math.max(1, ctx.measureText(r.t).width)); r.px = px * SIZE; tot += px * 1.04; });
     var sc = tot > H * .62 ? H * .62 / tot : 1, y = H * .46 - tot * sc / 2;
     ctx.save(); if (out > 0) { ctx.translate(x0, H * .5); ctx.rotate(-Math.PI / 2 * eo(out)); ctx.globalAlpha = 1 - out * .9; ctx.translate(-x0, -H * .5); }
     ctx.textBaseline = "top";
@@ -194,7 +195,7 @@
     var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) return; var L = st.lines[i], p = eb((st.t - L.s) / .2); font(ctx, 900, 54 * u, null, plain(st.lines[i])); ctx.textBaseline = "middle"; var t = plain(L), w = ctx.measureText(t).width, x = (W - w) / 2, y = H * .72;
     ctx.save(); ctx.translate(W / 2, y); ctx.scale(p, p); ctx.translate(-W / 2, -y); ctx.fillStyle = "rgba(0,0,0,.85)"; rrect(ctx, x - 24 * u, y - 44 * u, w + 48 * u, 88 * u, 16 * u); ctx.fill(); colorRun(ctx, L, x, y, "#fff", st.accent, { align: "left" }); ctx.restore(); }, { accent: "#FFD400" });
 
-  root.SUBFX = { list: M, SANS: SANS, SERIF: SERIF,
+  root.SUBFX = { size: function (k) { var o = SIZE; SIZE = +k > 0 ? +k : 0.9; return o; }, list: M, SANS: SANS, SERIF: SERIF,
     demo: [{ s: 0, e: 1.2, t: "這種字幕|怎麼做？", hl: ["字幕"] }, { s: 1.2, e: 2.2, t: "很多人問我", hl: [] }, { s: 2.2, e: 3.6, t: "是不是要|一格一格調", hl: ["一格一格"] }, { s: 3.6, e: 4.4, t: "不用！", hl: ["不用"] },
       { s: 4.4, e: 5.8, t: "上傳影片|選個模組", hl: ["模組"] }, { s: 5.8, e: 7.2, t: "剩下的|交給 AI", hl: ["AI"] }, { s: 7.2, e: 8.7, t: "三分鐘|字幕全上好", hl: ["三分鐘"] }],
     loop: 9.2 };

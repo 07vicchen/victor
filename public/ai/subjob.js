@@ -12,7 +12,11 @@
   function modOf(job) { var id = job.module || (job.mode !== "subs" ? CUTMAP[String(job.style || "").trim()] : "") || "pop";
     return (window.SUBFX && SUBFX.list.filter(function (q) { return q.id === id; })[0]) || (window.SUBFX && SUBFX.list[1]); }
   async function signed(path, sec) { var r = await VAI.client().storage.from("ai-videos").createSignedUrl(path, sec || 3600); if (r.error) throw new Error(r.error.message); return r.data.signedUrl; }
-  function defEdit(job) { var e = job.edit || {}; return { direction: e.direction || "", trimGaps: e.trimGaps !== false, hook: e.hook !== false, title: e.title || "", titleSec: e.titleSec == null ? 0 : +e.titleSec, sticky: e.sticky || "", stickyPos: e.stickyPos || "tl" }; }
+  function defEdit(job) { var e = job.edit || {}; return { direction: e.direction || "", trimGaps: e.trimGaps !== false, hook: e.hook !== false, title: e.title || "", titleSec: e.titleSec == null ? 0 : +e.titleSec, sticky: e.sticky || "", stickyPos: e.stickyPos || "tl", subSize: e.subSize ? +e.subSize : sizeOf(job), titleStyle: e.titleStyle || "auto" }; }
+  var SIZES = { "小": 0.75, "中": 0.9, "大": 1.1 };
+  function sizeOf(job) { var m = String(job.note || "").match(/字幕大小 ([小中大])/); return m ? SIZES[m[1]] : 0.9; }
+  var TSTY = [["auto", "自動配合字幕"], ["dark", "黑底白字"], ["white", "白底黑字"], ["yellow", "黃色大字"], ["color", "重點色底"], ["serif", "質感細字"]];
+  function tStyle(ed, mod) { var s = ed.titleStyle || "auto"; if (s !== "auto") return s; var id = mod && mod.id; return /fadeup|cinema|quote|minimal|serif|elegant/.test(id || "") ? "serif" : /pop|variety|karaoke|flip|stack/.test(id || "") ? "yellow" : "dark"; }
   // 常駐文字：整支影片一直在（店名、IG 帳號、優惠…）
   function drawSticky(x, W, H, ed) { var tt = String(ed.sticky || "").trim(); if (!tt) return; var u = W / 720, px = 28 * u, F = window.SUBFX ? SUBFX.SANS : "sans-serif";
     x.save(); x.font = "800 " + px + "px " + F; while (x.measureText(tt).width > W * .8 && px > 12) { px *= .93; x.font = "800 " + px + "px " + F; }
@@ -21,11 +25,19 @@
     x.fillStyle = "rgba(0,0,0,.55)"; x.beginPath(); if (x.roundRect) x.roundRect(bx, by, w, h, h / 2); else x.rect(bx, by, w, h); x.fill();
     x.fillStyle = "#fff"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(tt, bx + w / 2, by + h / 2 + u); x.restore(); }
   // 上方標題：titleSec＝顯示幾秒（0＝整支都在）
-  function drawTitle(x, W, H, t, ed) { var tt = String(ed.title || "").trim(); if (!tt || (ed.titleSec > 0 && t > ed.titleSec + .3)) return;
-    var u = W / 720, a = Math.min(1, t / .2) * (ed.titleSec > 0 ? Math.min(1, (ed.titleSec + .3 - t) / .3) : 1); x.save(); x.globalAlpha = Math.max(0, a);
-    var px = 46 * u; x.font = "900 " + px + "px " + (window.SUBFX ? SUBFX.SANS : "sans-serif"); while (x.measureText(tt).width > W * .86 && px > 16) { px *= .93; x.font = "900 " + px + "px " + (window.SUBFX ? SUBFX.SANS : "sans-serif"); }
-    var w = x.measureText(tt).width + 44 * u, h = px * 1.6, y = (ed.sticky && (ed.stickyPos === "tl" || ed.stickyPos === "tr" || ed.stickyPos === "top") ? 92 : 70) * u; x.fillStyle = "rgba(17,17,17,.88)"; x.beginPath(); if (x.roundRect) x.roundRect((W - w) / 2, y, w, h, 12 * u); else x.rect((W - w) / 2, y, w, h); x.fill();
-    x.fillStyle = "#fff"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(tt, W / 2, y + h / 2 + 2 * u); x.restore(); }
+  function drawTitle(x, W, H, t, ed, mod, acc) { var tt = String(ed.title || "").trim(); if (!tt || (ed.titleSec > 0 && t > ed.titleSec + .3)) return;
+    var u = W / 720, a = Math.min(1, t / .2) * (ed.titleSec > 0 ? Math.min(1, (ed.titleSec + .3 - t) / .3) : 1), sty = tStyle(ed, mod), S = window.SUBFX ? SUBFX.SANS : "sans-serif", SF = window.SUBFX ? SUBFX.SERIF : "serif";
+    x.save(); x.globalAlpha = Math.max(0, a); x.textAlign = "center"; x.textBaseline = "middle";
+    var fam = sty === "serif" ? SF : S, wt = sty === "serif" ? "700" : "900", px = (sty === "yellow" ? 58 : sty === "serif" ? 44 : 44) * u;
+    x.font = wt + " " + px + "px " + fam; while (x.measureText(tt).width > W * .86 && px > 16) { px *= .93; x.font = wt + " " + px + "px " + fam; }
+    var w = x.measureText(tt).width + 44 * u, h = px * 1.6, y = (ed.sticky && (ed.stickyPos === "tl" || ed.stickyPos === "tr" || ed.stickyPos === "top") ? 92 : 70) * u, cy = y + h / 2 + 2 * u;
+    function box(c, r) { x.fillStyle = c; x.beginPath(); if (x.roundRect) x.roundRect((W - w) / 2, y, w, h, r); else x.rect((W - w) / 2, y, w, h); x.fill(); }
+    if (sty === "white") { box("rgba(255,255,255,.95)", 10 * u); x.fillStyle = "#111"; x.fillText(tt, W / 2, cy); }
+    else if (sty === "color") { box(acc || "#FF3B30", 10 * u); x.fillStyle = "#fff"; x.fillText(tt, W / 2, cy); }
+    else if (sty === "yellow") { x.lineJoin = "round"; x.lineWidth = 10 * u; x.strokeStyle = "#111"; x.strokeText(tt, W / 2, cy); x.fillStyle = "#FFE14D"; x.fillText(tt, W / 2, cy); }
+    else if (sty === "serif") { x.shadowColor = "rgba(0,0,0,.6)"; x.shadowBlur = 14 * u; x.fillStyle = "#fff"; x.fillText(tt, W / 2, cy); x.shadowBlur = 0; x.fillStyle = "rgba(255,255,255,.8)"; var lw = Math.min(w * .5, 160 * u); x.fillRect(W / 2 - lw / 2, y + h + 4 * u, lw, 2 * u); }
+    else { box("rgba(17,17,17,.88)", 12 * u); x.fillStyle = "#fff"; x.fillText(tt, W / 2, cy); }
+    x.restore(); }
 
   // ===== 剪法：句子 → 片段和新的字幕時間 =====
   function timeline(lines, edit, durs) {
@@ -74,7 +86,7 @@
     var raf = 0, urls = {}, durs = [], curSrc = -1, pv = null, multi = (job.files || []).length > 1;
     box.innerHTML = '<div class="sed"><div class="sed-v"><div class="sed-stage"><video playsinline controls preload="metadata"></video><canvas width="540" height="960" aria-hidden="true"></canvas></div>' +
       '<div class="bar"><button class="btn sm" type="button" data-pv>▶ 預覽剪完的樣子</button><span class="note" data-len></span></div><p class="note">' + (job.mode !== "subs" ? "你選的剪法：" + E(job.style || "交給 AI 挑") + "。預覽是字幕的大概樣子，成品照這個剪法剪。" : (mod ? "字幕樣子：" + E(mod.name) + "。" : "")) + "按「預覽」會照你的剪法從頭播一次。</p></div>" +
-      '<div class="sed-l"><div class="bar"><label class="f" style="flex:1;min-width:180px"><span>上方標題（選填）</span><input type="text" data-title maxlength="40" placeholder="例如：釣蝦兩小時 一隻都沒有" value="' + E(edit.title) + '"></label><label class="f"><span>標題顯示</span><select data-tsec><option value="0"' + (edit.titleSec ? "" : " selected") + '>一直都在</option><option value="3"' + (edit.titleSec == 3 ? " selected" : "") + '>前 3 秒</option><option value="5"' + (edit.titleSec == 5 ? " selected" : "") + '>前 5 秒</option><option value="8"' + (edit.titleSec == 8 ? " selected" : "") + '>前 8 秒</option></select></label></div>' +
+      '<div class="sed-l"><div class="bar"><label class="f" style="flex:1;min-width:180px"><span>上方標題（選填）</span><input type="text" data-title maxlength="40" placeholder="例如：釣蝦兩小時 一隻都沒有" value="' + E(edit.title) + '"></label><label class="f"><span>標題顯示</span><select data-tsec><option value="0"' + (edit.titleSec ? "" : " selected") + '>一直都在</option><option value="3"' + (edit.titleSec == 3 ? " selected" : "") + '>前 3 秒</option><option value="5"' + (edit.titleSec == 5 ? " selected" : "") + '>前 5 秒</option><option value="8"' + (edit.titleSec == 8 ? " selected" : "") + '>前 8 秒</option></select></label><label class="f"><span>標題樣式</span><select data-tsty>' + TSTY.map(function (o) { return '<option value="' + o[0] + '"' + (edit.titleStyle === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + '</select></label><label class="f"><span>字幕大小</span><select data-size>' + [["0.75", "小"], ["0.9", "中"], ["1.1", "大"]].map(function (o) { return '<option value="' + o[0] + '"' + (Math.abs(edit.subSize - +o[0]) < .01 ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + '</select></label></div>' +
       '<div class="bar"><label class="f" style="flex:1;min-width:180px"><span>常駐文字（整支一直在，選填，會記住下次自動帶入）</span><input type="text" data-sticky maxlength="40" placeholder="例如：IG @niangniang・全館 8 折" value="' + E(edit.sticky) + '"></label><label class="f"><span>位置</span><select data-spos><option value="tl"' + (edit.stickyPos === "tl" ? " selected" : "") + '>左上</option><option value="tr"' + (edit.stickyPos === "tr" ? " selected" : "") + '>右上</option><option value="top"' + (edit.stickyPos === "top" ? " selected" : "") + '>上方中間</option><option value="bottom"' + (edit.stickyPos === "bottom" ? " selected" : "") + '>下方</option></select></label></div>' +
       '<label class="f"><span>這支想剪成怎樣（選填）</span><input type="text" data-dir maxlength="200" placeholder="例如：30 秒內、輕鬆搞笑、最後叫大家留言" value="' + E(edit.direction) + '"></label>' +
       '<div class="bar"><button class="btn sm gh" type="button" data-ai>AI 照這個方向幫我挑</button><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-gap' + (edit.trimGaps ? " checked" : "") + '>自動剪掉句子中間的停頓</label><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-hook' + (edit.hook ? " checked" : "") + '>⭐ 重點句放開頭當鉤子</label></div>' +
@@ -89,7 +101,7 @@
     function toText(t) { return String(t || "").replace(/\|/g, " "); }
     function fromText(t) { return String(t || "").trim().replace(/\s+/g, "|"); }
     function len() { var tl = timeline(clean(true), readEdit(), durs), orig = durs.reduce(function (a, b) { return a + b; }, 0); box.querySelector("[data-len]").textContent = "剪完約 " + tl.dur.toFixed(1) + " 秒" + (orig ? "（原本 " + orig.toFixed(1) + " 秒）" : ""); }
-    function readEdit() { return { direction: box.querySelector("[data-dir]").value.trim(), trimGaps: box.querySelector("[data-gap]").checked, hook: box.querySelector("[data-hook]").checked, title: box.querySelector("[data-title]").value.trim(), titleSec: +box.querySelector("[data-tsec]").value, sticky: box.querySelector("[data-sticky]").value.trim(), stickyPos: box.querySelector("[data-spos]").value }; }
+    function readEdit() { return { direction: box.querySelector("[data-dir]").value.trim(), trimGaps: box.querySelector("[data-gap]").checked, hook: box.querySelector("[data-hook]").checked, title: box.querySelector("[data-title]").value.trim(), titleSec: +box.querySelector("[data-tsec]").value, sticky: box.querySelector("[data-sticky]").value.trim(), stickyPos: box.querySelector("[data-spos]").value, titleStyle: box.querySelector("[data-tsty]").value, subSize: +box.querySelector("[data-size]").value }; }
     function draw() {
       var lastSrc = -1;
       rowsEl.innerHTML = lines.map(function (L, i) { var hd = ""; if (multi && (L.src || 0) !== lastSrc) { lastSrc = L.src || 0; hd = '<p class="note" style="margin:6px 0 0"><b>第 ' + (lastSrc + 1) + " 支素材</b></p>"; }
@@ -126,7 +138,7 @@
     // 即時字幕預覽：預覽中照剪完的時間軸，平常照原影片
     (function loop() { var x = cv.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, cv.width, cv.height);
       if (mod) { var t, ls; if (pv && pv.g) { t = pv.g.out + (vid.currentTime - pv.g.s); ls = pv.tl.lines; } else { t = vid.currentTime || 0; ls = clean(true).filter(function (L) { return !L.cut && L.src === Math.max(0, curSrc); }); }
-        x.save(); mod.draw(x, cv.width, cv.height, { t: t, lines: ls, accent: acc, bg: false }); x.restore(); var ed0 = readEdit(); drawTitle(x, cv.width, cv.height, pv && pv.g ? t : (vid.currentTime || 0), ed0); drawSticky(x, cv.width, cv.height, ed0); }
+        var ed0 = readEdit(), o0 = SUBFX.size(ed0.subSize); x.save(); mod.draw(x, cv.width, cv.height, { t: t, lines: ls, accent: acc, bg: false }); x.restore(); SUBFX.size(o0); drawTitle(x, cv.width, cv.height, pv && pv.g ? t : (vid.currentTime || 0), ed0, mod, acc); drawSticky(x, cv.width, cv.height, ed0); }
       raf = requestAnimationFrame(loop); })();
     return { close: function () { stopPv(); cancelAnimationFrame(raf); try { vid.pause(); } catch (e) {} } };
   }
@@ -156,7 +168,7 @@
       x.fillStyle = "#000"; x.fillRect(0, 0, W, H);
       if (fit < cover - .001) { x.save(); if (canBlur) x.filter = "blur(40px) brightness(.7)"; x.drawImage(v, (W - vw * cover) / 2, (H - vh * cover) / 2, vw * cover, vh * cover); x.restore(); }
       x.drawImage(v, (W - vw * fit) / 2, (H - vh * fit) / 2, vw * fit, vh * fit);
-      var t = g.out + Math.max(0, v.currentTime - g.s); x.save(); mod.draw(x, W, H, { t: t, lines: tl.lines, accent: acc, bg: false }); x.restore(); drawTitle(x, W, H, t, ED); drawSticky(x, W, H, ED);
+      var t = g.out + Math.max(0, v.currentTime - g.s); var o1 = SUBFX.size(ED.subSize); x.save(); mod.draw(x, W, H, { t: t, lines: tl.lines, accent: acc, bg: false }); x.restore(); SUBFX.size(o1); drawTitle(x, W, H, t, ED, mod, acc); drawSticky(x, W, H, ED);
       onProg(Math.min(.99, t / (tl.dur || 1))); }
     var done = new Promise(function (ok) { rec.onstop = ok; });
     if (ac && ac.state === "suspended") await ac.resume();
@@ -177,7 +189,7 @@
   function srt(lines) { function ts(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.floor(t % 60), ms = Math.round((t - Math.floor(t)) * 1000); return [h, m, s].map(function (n) { return String(n).padStart(2, "0"); }).join(":") + "," + String(ms).padStart(3, "0"); }
     return (lines || []).filter(function (L) { return !L.cut; }).map(function (L, i) { return (i + 1) + "\n" + ts(L.s) + " --> " + ts(L.e) + "\n" + String(L.t).replace(/\|/g, " ") + "\n"; }).join("\n"); }
   // 給剪輯團隊看的剪輯指示
-  function plan(job) { var ed = defEdit(job), out = ["#" + job.id + " 剪輯指示", "方向：" + (ed.direction || "（沒寫）"), "標題：" + (ed.title || "（沒有）") + "（" + (ed.title ? (ed.titleSec ? "前 " + ed.titleSec + " 秒" : "一直都在") : "") + "）", "常駐文字：" + (ed.sticky ? ed.sticky + "（" + { tl: "左上", tr: "右上", top: "上方中間", bottom: "下方" }[ed.stickyPos] + "，整支都在）" : "（沒有）"), "自動剪停頓：" + (ed.trimGaps ? "要" : "不要") + "　重點句放開頭：" + (ed.hook ? "要" : "不要"), "", "⭐＝重點　✂＝剪掉", ""];
+  function plan(job) { var ed = defEdit(job), out = ["#" + job.id + " 剪輯指示", "方向：" + (ed.direction || "（沒寫）"), "字幕大小：" + ({ 0.75: "小", 0.9: "中", 1.1: "大" }[ed.subSize] || ed.subSize) + "，標題樣式：" + (TSTY.filter(function (o) { return o[0] === ed.titleStyle; })[0] || ["", "自動"])[1], "標題：" + (ed.title || "（沒有）") + "（" + (ed.title ? (ed.titleSec ? "前 " + ed.titleSec + " 秒" : "一直都在") : "") + "）", "常駐文字：" + (ed.sticky ? ed.sticky + "（" + { tl: "左上", tr: "右上", top: "上方中間", bottom: "下方" }[ed.stickyPos] + "，整支都在）" : "（沒有）"), "自動剪停頓：" + (ed.trimGaps ? "要" : "不要") + "　重點句放開頭：" + (ed.hook ? "要" : "不要"), "", "⭐＝重點　✂＝剪掉", ""];
     (job.lines || []).forEach(function (L) { out.push((L.star ? "⭐ " : L.cut ? "✂ " : "   ") + "素材" + ((L.src || 0) + 1) + " " + fmt(L.s) + "-" + fmt(L.e) + "　" + String(L.t).replace(/\|/g, " ")); });
     return out.join("\n"); }
   window.SUBJOB = { CUTMAP: CUTMAP, startStt: startStt, openEditor: openEditor, render: render, srt: srt, plan: plan, timeline: timeline };
