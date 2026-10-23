@@ -43,6 +43,7 @@
 .sed-rows{display:flex;flex-direction:column;gap:6px;max-height:520px;overflow:auto}
 .sed-r{display:grid;grid-template-columns:auto minmax(0,1fr) 110px auto;gap:6px;align-items:center}
 .sed-r input{padding:8px;border:1px solid var(--line);font:inherit;min-width:0}
+.sed-b{display:flex;gap:4px}.sed-r.cut input{text-decoration:line-through;opacity:.45}.sed-r.star input[data-t]{border-color:var(--gold);background:#fffaf0}
 .jobw{display:flex;flex-direction:column}
 @media (max-width:760px){.sed{grid-template-columns:1fr}.sed-stage{max-width:260px;margin:0 auto}.sed-r{grid-template-columns:auto minmax(0,1fr) auto}.sed-r input[data-h]{grid-column:2/3}}
 @media (max-width:1000px){.styles{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -84,7 +85,7 @@
   </section>
 
   <section class="sect" id="subs">
-    <div class="sh"><small>SUBTITLE STUDIO</small><h2>字幕專區：剪好了，只要上字幕</h2><p>影片自己剪好了？丟進來選一個字幕模組，AI 幫你聽寫、對好時間、上好字幕，不動你的剪輯。現在有 23 種，每月持續新增。</p></div>
+    <div class="sh"><small>SUBTITLE STUDIO</small><h2>字幕專區：剪好了，只要上字幕</h2><p>丟進來選一個字幕模組，AI 幫你聽寫、對好時間、上好字幕。確認字幕時，不要的句子按 ✂ 就剪掉、最抓人的按 ⭐ 放開頭，停頓自動剪掉，等於自己也能剪片。現在有 23 種，每月持續新增。</p></div>
     <div class="styles" id="mods"></div>
   </section>
 

@@ -1,88 +1,152 @@
-/* AI 剪片／字幕專區：聽寫 → 客人確認字幕 → 出片
-   - 聽寫：victormoney /api/stt（ElevenLabs 聽寫＋Claude 校對）
-   - 確認：每句可以改字、改重點字、刪句、加句，旁邊即時預覽字幕樣子
-   - 出片（只上字幕）：在客人的瀏覽器裡把字幕畫到影片上錄成新影片，上傳後就能下載 */
+/* AI 剪片／字幕專區：聽寫 → 客人確認字幕、刪句、標重點、寫方向 → 預覽剪完的樣子 → 出片
+   - 聽寫：victormoney /api/stt（ElevenLabs 聽寫＋Claude 校對），每支素材都打字幕
+   - 剪法：刪掉的句子剪掉；可自動剪掉句子間的停頓；標 ⭐ 的句子複製一份放開頭當鉤子
+   - 出片（只上字幕）：在客人的瀏覽器照剪法播一次、錄一次，字幕畫上去，上傳後就能下載 */
 (function () {
   "use strict";
-  var E = function (s) { return VAI.E(s); };
+  var E = function (s) { return VAI.E(s); }, PAD = 0.12;
   function fmt(t) { t = Math.max(0, t || 0); var m = Math.floor(t / 60), s = t - m * 60; return m + ":" + (s < 10 ? "0" : "") + s.toFixed(1); }
   function accentOf(job) { var m = String(job.note || "").match(/#[0-9a-fA-F]{6}/); return m ? m[0] : ""; }
   function modOf(job) { return (window.SUBFX && SUBFX.list.filter(function (q) { return q.id === job.module; })[0]) || (window.SUBFX && SUBFX.list[1]); }
   async function signed(path, sec) { var r = await VAI.client().storage.from("ai-videos").createSignedUrl(path, sec || 3600); if (r.error) throw new Error(r.error.message); return r.data.signedUrl; }
+  function defEdit(job) { var e = job.edit || {}; return { direction: e.direction || "", trimGaps: e.trimGaps !== false, hook: e.hook !== false }; }
 
-  // ===== 1. 聽寫 =====
+  // ===== 剪法：句子 → 片段和新的字幕時間 =====
+  function timeline(lines, edit, durs) {
+    var by = {}; lines.forEach(function (L) { var k = L.src || 0; (by[k] = by[k] || []).push(L); });
+    var segs = [];
+    Object.keys(by).map(Number).sort(function (a, b) { return a - b; }).forEach(function (src) {
+      var arr = by[src].slice().sort(function (a, b) { return a.s - b.s; }), D = durs[src] || (arr.length ? arr[arr.length - 1].e + 1 : 0), part = [];
+      if (edit.trimGaps) arr.forEach(function (L) { if (!L.cut) part.push([Math.max(0, L.s - PAD), Math.min(D, L.e + PAD)]); });
+      else { var cur = 0; arr.forEach(function (L) { if (L.cut) { if (L.s > cur) part.push([cur, L.s]); cur = Math.max(cur, L.e); } }); if (D > cur) part.push([cur, D]); }
+      part.sort(function (a, b) { return a[0] - b[0]; });
+      var m = []; part.forEach(function (p) { if (m.length && p[0] - m[m.length - 1][1] < 0.25) m[m.length - 1][1] = Math.max(m[m.length - 1][1], p[1]); else m.push(p.slice()); });
+      m.forEach(function (p) { if (p[1] - p[0] > 0.05) segs.push({ src: src, s: p[0], e: p[1] }); });
+    });
+    if (edit.hook) { var hk = lines.filter(function (L) { return L.star && !L.cut; }).slice(0, 2).map(function (L) { return { src: L.src || 0, s: Math.max(0, L.s - PAD), e: L.e + PAD, hook: true }; }); segs = hk.concat(segs); }
+    var out = 0, outLines = [];
+    segs.forEach(function (g) { g.out = out;
+      lines.forEach(function (L) { if (L.cut || (L.src || 0) !== g.src || L.e <= g.s || L.s >= g.e) return; outLines.push({ s: out + Math.max(L.s, g.s) - g.s, e: out + Math.min(L.e, g.e) - g.s, t: L.t, hl: L.hl || [] }); });
+      out += g.e - g.s; });
+    return { segs: segs, lines: outLines, dur: out };
+  }
+  function durations(job) { return Promise.all((job.files || []).map(function (f) { return signed(f.path, 3600).then(function (u) { return new Promise(function (ok) { var v = document.createElement("video"); v.preload = "metadata"; v.onloadedmetadata = function () { ok(v.duration || 0); }; v.onerror = function () { ok(0); }; v.src = u; }); }, function () { return 0; }); })); }
+
+  // ===== 1. 聽寫（每支素材都打） =====
   async function startStt(job, glossary, onMsg) {
-    onMsg = onMsg || function () {};
-    var f = (job.files || [])[0]; if (!f) throw new Error("找不到影片");
-    onMsg("AI 正在聽影片、打字幕，大約 10～60 秒…");
-    var url = await signed(f.path, 3600), tok = await VAI.token();
-    var r = await fetch(VAI.API + "/api/stt", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + tok }, body: JSON.stringify({ url: url, glossary: glossary || "" }) });
-    var j = await r.json().catch(function () { return { ok: false, why: "連線失敗" }; });
-    if (!j.ok) { if (j.why === "need_key") throw new Error("聽寫服務設定中，我們會盡快幫你把字幕打好，好了會在這裡顯示「待確認字幕」"); throw new Error(j.why || "聽寫失敗"); }
-    var s = await VAI.client().rpc("ai_job_lines", { p_id: job.id, p_lines: j.lines || [], p_action: "stt" }); if (s.error) throw new Error(s.error.message);
-    onMsg(j.lines && j.lines.length ? "字幕打好了，請確認一下有沒有錯字。" : "影片裡沒有聽到講話，可以自己加字幕。");
-    return j.lines || [];
+    onMsg = onMsg || function () {}; var files = job.files || []; if (!files.length) throw new Error("找不到影片");
+    var tok = await VAI.token(), all = [], needKey = false;
+    for (var k = 0; k < files.length; k++) {
+      onMsg("AI 正在聽第 " + (k + 1) + "／" + files.length + " 支、打字幕，大約 10～60 秒…");
+      var url = await signed(files[k].path, 3600);
+      var r = await fetch(VAI.API + "/api/stt", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + tok }, body: JSON.stringify({ url: url, glossary: glossary || "" }) });
+      var j = await r.json().catch(function () { return { ok: false, why: "連線失敗" }; });
+      if (!j.ok) { if (j.why === "need_key") { needKey = true; break; } throw new Error(j.why || "聽寫失敗"); }
+      (j.lines || []).forEach(function (L) { L.src = k; all.push(L); });
+    }
+    if (needKey) throw new Error("聽寫服務設定中，我們會盡快幫你把字幕打好，好了會在這裡顯示「待確認字幕」");
+    var s = await VAI.client().rpc("ai_job_lines", { p_id: job.id, p_lines: all, p_action: "stt" }); if (s.error) throw new Error(s.error.message);
+    onMsg(all.length ? "字幕打好了，請確認一下，順便決定要剪掉哪些句子。" : "影片裡沒有聽到講話，可以自己加字幕。");
+    return all;
   }
 
-  // ===== 2. 字幕確認 =====
+  // ===== 2. 確認字幕＋剪法 =====
   function openEditor(box, job, opt) {
-    opt = opt || {}; var lines = JSON.parse(JSON.stringify(job.lines || [])), mod = modOf(job), acc = accentOf(job) || (mod && mod.accent) || "#FF3B30", raf = 0, vid, cv;
-    box.innerHTML = '<div class="sed"><div class="sed-v"><div class="sed-stage"><video playsinline controls preload="metadata"></video><canvas width="540" height="960" aria-hidden="true"></canvas></div><p class="note">右邊改字，這裡會即時顯示字幕的樣子' + (mod ? "（" + E(mod.name) + "）" : "") + "。</p></div>" +
-      '<div class="sed-l"><div class="bar"><b>確認字幕</b><span class="note">改好按最下面的確認。用空格把一句切成幾塊，大字會照這樣分行。</span></div><div class="sed-rows"></div>' +
+    opt = opt || {}; var lines = JSON.parse(JSON.stringify(job.lines || [])), edit = defEdit(job), mod = modOf(job), acc = accentOf(job) || (mod && mod.accent) || "#FF3B30";
+    var raf = 0, urls = {}, durs = [], curSrc = -1, pv = null, multi = (job.files || []).length > 1;
+    box.innerHTML = '<div class="sed"><div class="sed-v"><div class="sed-stage"><video playsinline controls preload="metadata"></video><canvas width="540" height="960" aria-hidden="true"></canvas></div>' +
+      '<div class="bar"><button class="btn sm" type="button" data-pv>▶ 預覽剪完的樣子</button><span class="note" data-len></span></div><p class="note">' + (mod ? "字幕樣子：" + E(mod.name) + "。" : "") + "按「預覽」會照你的剪法從頭播一次。</p></div>" +
+      '<div class="sed-l"><label class="f"><span>這支想剪成怎樣（選填）</span><input type="text" data-dir maxlength="200" placeholder="例如：30 秒內、輕鬆搞笑、最後叫大家留言" value="' + E(edit.direction) + '"></label>' +
+      '<div class="bar"><button class="btn sm gh" type="button" data-ai>AI 照這個方向幫我挑</button><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-gap' + (edit.trimGaps ? " checked" : "") + '>自動剪掉句子中間的停頓</label><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-hook' + (edit.hook ? " checked" : "") + '>⭐ 重點句放開頭當鉤子</label></div>' +
+      '<p class="note">每句可以改字、填重點字。按 ✂ 剪掉這句，按 ⭐ 標成重點。用空格把一句切成幾塊，大字會照這樣分行。</p><div class="sed-rows"></div>' +
       '<div class="bar"><button class="btn sm gh" type="button" data-add>＋在目前播放的時間加一句</button></div>' +
-      '<div class="bar"><button class="btn sm gh" type="button" data-save>先存起來</button><button class="btn" type="button" data-ok>' + (job.mode === "subs" ? "字幕沒問題，開始出片" : "字幕沒問題，送去剪輯") + '</button></div><p class="msg" data-msg></p></div></div>';
-    vid = box.querySelector("video"); cv = box.querySelector("canvas");
-    signed(job.files[0].path, 7200).then(function (u) { vid.src = u; }).catch(function (e) { say(e.message); });
-    var rowsEl = box.querySelector(".sed-rows"), msg = box.querySelector("[data-msg]");
+      '<div class="bar"><button class="btn sm gh" type="button" data-save>先存起來</button><button class="btn" type="button" data-ok>' + (job.mode === "subs" ? "沒問題，開始出片" : "沒問題，送去剪輯") + '</button></div><p class="msg" data-msg></p></div></div>';
+    var vid = box.querySelector("video"), cv = box.querySelector("canvas"), rowsEl = box.querySelector(".sed-rows"), msg = box.querySelector("[data-msg]");
     function say(t, ok) { msg.textContent = t; msg.className = "msg" + (ok ? " ok" : t ? " err" : ""); }
+    async function useSrc(k) { if (curSrc === k) return; curSrc = k; if (!urls[k]) urls[k] = await signed(job.files[k].path, 7200); vid.src = urls[k]; await new Promise(function (ok) { if (vid.readyState >= 1) ok(); else vid.onloadedmetadata = function () { ok(); }; }); }
+    useSrc(0).catch(function (e) { say(e.message); });
+    durations(job).then(function (d) { durs = d; len(); });
     function toText(t) { return String(t || "").replace(/\|/g, " "); }
     function fromText(t) { return String(t || "").trim().replace(/\s+/g, "|"); }
+    function len() { var tl = timeline(clean(true), readEdit(), durs), orig = durs.reduce(function (a, b) { return a + b; }, 0); box.querySelector("[data-len]").textContent = "剪完約 " + tl.dur.toFixed(1) + " 秒" + (orig ? "（原本 " + orig.toFixed(1) + " 秒）" : ""); }
+    function readEdit() { return { direction: box.querySelector("[data-dir]").value.trim(), trimGaps: box.querySelector("[data-gap]").checked, hook: box.querySelector("[data-hook]").checked }; }
     function draw() {
-      rowsEl.innerHTML = lines.map(function (L, i) { return '<div class="sed-r" data-i="' + i + '"><button class="chip" type="button" data-play="' + i + '" title="從這句開始播">▶ ' + fmt(L.s) + '</button><input type="text" data-t="' + i + '" value="' + E(toText(L.t)) + '" aria-label="第 ' + (i + 1) + ' 句字幕" maxlength="40"><input type="text" data-h="' + i + '" value="' + E((L.hl || []).join(" ")) + '" placeholder="重點字" aria-label="第 ' + (i + 1) + ' 句重點字" maxlength="20"><button class="chip" type="button" data-del="' + i + '" title="刪掉這句">刪</button></div>'; }).join("") || '<p class="note">還沒有字幕，按下面「加一句」自己加。</p>';
+      var lastSrc = -1;
+      rowsEl.innerHTML = lines.map(function (L, i) { var hd = ""; if (multi && (L.src || 0) !== lastSrc) { lastSrc = L.src || 0; hd = '<p class="note" style="margin:6px 0 0"><b>第 ' + (lastSrc + 1) + " 支素材</b></p>"; }
+        return hd + '<div class="sed-r' + (L.cut ? " cut" : "") + (L.star ? " star" : "") + '"><button class="chip" type="button" data-play="' + i + '" title="從這句開始播">▶ ' + fmt(L.s) + '</button><input type="text" data-t="' + i + '" value="' + E(toText(L.t)) + '" aria-label="第 ' + (i + 1) + ' 句字幕" maxlength="40"><input type="text" data-h="' + i + '" value="' + E((L.hl || []).join(" ")) + '" placeholder="重點字" aria-label="第 ' + (i + 1) + ' 句重點字" maxlength="20"><span class="sed-b"><button class="chip" type="button" data-star="' + i + '" aria-pressed="' + !!L.star + '" title="標成重點">⭐</button><button class="chip" type="button" data-cut="' + i + '" aria-pressed="' + !!L.cut + '" title="剪掉這句">✂</button></span></div>'; }).join("") || '<p class="note">還沒有字幕，按下面「加一句」自己加。</p>';
       rowsEl.querySelectorAll("[data-t]").forEach(function (inp) { inp.oninput = function () { lines[+inp.dataset.t].t = fromText(inp.value); }; });
       rowsEl.querySelectorAll("[data-h]").forEach(function (inp) { inp.oninput = function () { lines[+inp.dataset.h].hl = inp.value.trim() ? inp.value.trim().split(/\s+/) : []; }; });
-      rowsEl.querySelectorAll("[data-play]").forEach(function (b) { b.onclick = function () { vid.currentTime = lines[+b.dataset.play].s; vid.play(); }; });
-      rowsEl.querySelectorAll("[data-del]").forEach(function (b) { b.onclick = function () { lines.splice(+b.dataset.del, 1); draw(); }; }); }
+      rowsEl.querySelectorAll("[data-play]").forEach(function (b) { b.onclick = async function () { stopPv(); var L = lines[+b.dataset.play]; await useSrc(L.src || 0); vid.currentTime = L.s; vid.play(); }; });
+      rowsEl.querySelectorAll("[data-cut]").forEach(function (b) { b.onclick = function () { var L = lines[+b.dataset.cut]; L.cut = !L.cut; if (L.cut) L.star = false; draw(); len(); }; });
+      rowsEl.querySelectorAll("[data-star]").forEach(function (b) { b.onclick = function () { var L = lines[+b.dataset.star]; L.star = !L.star; if (L.star) L.cut = false; draw(); len(); }; });
+      len(); }
     draw();
-    box.querySelector("[data-add]").onclick = function () { var t = vid.currentTime || 0, k = 0; while (k < lines.length && lines[k].s < t) k++; var e = lines[k] ? Math.min(lines[k].s, t + 2) : t + 2; lines.splice(k, 0, { s: Math.round(t * 100) / 100, e: Math.round(Math.max(t + .5, e) * 100) / 100, t: "", hl: [] }); draw(); var inp = rowsEl.querySelector('[data-t="' + k + '"]'); if (inp) inp.focus(); };
-    function clean() { return lines.filter(function (L) { return L.t.replace(/\|/g, "").trim(); }).map(function (L) { var p = L.t.replace(/\|/g, ""); return { s: L.s, e: L.e, t: L.t, hl: (L.hl || []).filter(function (h) { return p.indexOf(h) >= 0; }) }; }); }
-    box.querySelector("[data-save]").onclick = async function () { var r = await VAI.client().rpc("ai_job_lines", { p_id: job.id, p_lines: clean(), p_action: "save" }); r.error ? say(r.error.message) : say("存好了，之後回來可以繼續改。", true); };
-    box.querySelector("[data-ok]").onclick = async function () { var b = this; b.disabled = true; say("");
-      var r = await VAI.client().rpc("ai_job_lines", { p_id: job.id, p_lines: clean(), p_action: "confirm" });
+    box.querySelector("[data-gap]").onchange = len; box.querySelector("[data-hook]").onchange = len;
+    box.querySelector("[data-add]").onclick = function () { var t = vid.currentTime || 0, src = Math.max(0, curSrc), k = 0; while (k < lines.length && ((lines[k].src || 0) < src || ((lines[k].src || 0) === src && lines[k].s < t))) k++; var nx = lines[k] && (lines[k].src || 0) === src ? lines[k].s : t + 2; lines.splice(k, 0, { s: Math.round(t * 100) / 100, e: Math.round(Math.max(t + .5, Math.min(nx, t + 2)) * 100) / 100, t: "", hl: [], src: src }); draw(); var inp = rowsEl.querySelector('[data-t="' + k + '"]'); if (inp) inp.focus(); };
+    box.querySelector("[data-ai]").onclick = async function () { var b = this; b.disabled = true; say("AI 正在照你的方向挑句子…", true);
+      try { var tok = await VAI.token(), r = await fetch(VAI.API + "/api/plan", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + tok }, body: JSON.stringify({ direction: readEdit().direction, lines: lines.map(function (L) { return { s: L.s, e: L.e, t: L.t }; }) }) }), j = await r.json();
+        if (!j.ok) throw new Error(j.why || "AI 忙線中");
+        lines.forEach(function (L, i) { L.cut = j.cut.indexOf(i) >= 0; L.star = j.star.indexOf(i) >= 0; }); draw(); say("AI 挑好了" + (j.why ? "：" + j.why : "") + "。不滿意可以自己再按 ✂ ⭐ 調整。", true);
+      } catch (e) { say(e.message); } b.disabled = false; };
+    function clean(keepCut) { return lines.filter(function (L) { return L.t.replace(/\|/g, "").trim() && (keepCut || true); }).map(function (L) { var p = L.t.replace(/\|/g, ""), o = { s: L.s, e: L.e, t: L.t, hl: (L.hl || []).filter(function (h) { return p.indexOf(h) >= 0; }), src: L.src || 0 }; if (L.cut) o.cut = true; if (L.star) o.star = true; return o; }); }
+    // 預覽剪完的樣子
+    function stopPv() { if (pv) { pv.stop = true; pv = null; vid.pause(); box.querySelector("[data-pv]").textContent = "▶ 預覽剪完的樣子"; } }
+    box.querySelector("[data-pv]").onclick = async function () { if (pv) return stopPv(); var tl = timeline(clean(true), readEdit(), durs); if (!tl.segs.length) return say("全部剪光了，至少留一句");
+      pv = { tl: tl, stop: false }; var me = pv; this.textContent = "■ 停止預覽";
+      for (var i = 0; i < tl.segs.length && !me.stop; i++) { var g = tl.segs[i]; me.g = g; await useSrc(g.src); vid.currentTime = g.s; await new Promise(function (ok) { vid.onseeked = function () { vid.onseeked = null; ok(); }; }); if (me.stop) break; await vid.play();
+        await new Promise(function (ok) { (function chk() { if (me.stop || vid.currentTime >= g.e || vid.ended) return ok(); requestAnimationFrame(chk); })(); }); }
+      if (!me.stop) stopPv(); };
+    box.querySelector("[data-save]").onclick = async function () { var c = VAI.client(), r = await c.rpc("ai_job_lines", { p_id: job.id, p_lines: clean(true), p_action: "save" }); if (!r.error) r = await c.rpc("ai_job_edit", { p_id: job.id, p_edit: readEdit() }); r.error ? say(r.error.message) : say("存好了，之後回來可以繼續改。", true); };
+    box.querySelector("[data-ok]").onclick = async function () { var b = this, c = VAI.client(); b.disabled = true; say(""); stopPv();
+      var L2 = clean(true), ed = readEdit(); if (!L2.some(function (L) { return !L.cut; }) && L2.length) { b.disabled = false; return say("全部剪光了，至少留一句"); }
+      var r = await c.rpc("ai_job_edit", { p_id: job.id, p_edit: ed }); if (!r.error) r = await c.rpc("ai_job_lines", { p_id: job.id, p_lines: L2, p_action: "confirm" });
       if (r.error) { b.disabled = false; return say(r.error.message); }
-      cancelAnimationFrame(raf); vid.pause(); job.lines = clean(); job.status = job.mode === "subs" ? "rendering" : "queued";
+      cancelAnimationFrame(raf); vid.pause(); job.lines = L2; job.edit = ed; job.status = job.mode === "subs" ? "rendering" : "queued";
       if (opt.onConfirm) opt.onConfirm(job); };
-    // 即時預覽
-    (function loop() { var x = cv.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, cv.width, cv.height); if (mod) { x.save(); mod.draw(x, cv.width, cv.height, { t: vid.currentTime || 0, lines: clean(), accent: acc, bg: false }); x.restore(); } raf = requestAnimationFrame(loop); })();
-    return { close: function () { cancelAnimationFrame(raf); try { vid.pause(); } catch (e) {} } };
+    // 即時字幕預覽：預覽中照剪完的時間軸，平常照原影片
+    (function loop() { var x = cv.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, cv.width, cv.height);
+      if (mod) { var t, ls; if (pv && pv.g) { t = pv.g.out + (vid.currentTime - pv.g.s); ls = pv.tl.lines; } else { t = vid.currentTime || 0; ls = clean(true).filter(function (L) { return !L.cut && L.src === Math.max(0, curSrc); }); }
+        x.save(); mod.draw(x, cv.width, cv.height, { t: t, lines: ls, accent: acc, bg: false }); x.restore(); }
+      raf = requestAnimationFrame(loop); })();
+    return { close: function () { stopPv(); cancelAnimationFrame(raf); try { vid.pause(); } catch (e) {} } };
   }
 
-  // ===== 3. 出片（只上字幕）=====
+  // ===== 3. 出片（只上字幕）：照剪法播一次、錄一次 =====
   function pickMime() { var c = ["video/mp4;codecs=avc1.640028,mp4a.40.2", "video/mp4;codecs=avc1,mp4a", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"]; for (var i = 0; i < c.length; i++) if (window.MediaRecorder && MediaRecorder.isTypeSupported(c[i])) return c[i]; return ""; }
   async function render(job, onProg) {
     onProg = onProg || function () {};
-    var mod = modOf(job), acc = accentOf(job) || mod.accent, lines = job.lines || [], mime = pickMime();
+    var mod = modOf(job), acc = accentOf(job) || mod.accent, mime = pickMime();
     if (!mime) throw new Error("這個瀏覽器不能出片，請改用電腦或手機的 Chrome、Safari");
     var W = 1080, H = 1920, cv = document.createElement("canvas"); cv.width = W; cv.height = H; var x = cv.getContext("2d");
-    var v = document.createElement("video"); v.crossOrigin = "anonymous"; v.playsInline = true; v.preload = "auto"; v.src = await signed(job.files[0].path, 7200);
-    await new Promise(function (ok, no) { v.onloadedmetadata = ok; v.onerror = function () { no(new Error("影片讀不到，請重新整理再試一次")); }; });
-    var stream = cv.captureStream(30), ac = null;
-    try { ac = new (window.AudioContext || window.webkitAudioContext)(); var src = ac.createMediaElementSource(v), dst = ac.createMediaStreamDestination(); src.connect(dst); dst.stream.getAudioTracks().forEach(function (t) { stream.addTrack(t); }); } catch (e) { v.muted = true; }
-    var rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 10000000, audioBitsPerSecond: 160000 }), chunks = [];
+    var vids = [], durs = [], ac = null, dst = null;
+    try { ac = new (window.AudioContext || window.webkitAudioContext)(); dst = ac.createMediaStreamDestination(); } catch (e) {}
+    for (var k = 0; k < (job.files || []).length; k++) {
+      var v = document.createElement("video"); v.crossOrigin = "anonymous"; v.playsInline = true; v.preload = "auto"; v.src = await signed(job.files[k].path, 7200);
+      await new Promise(function (ok, no) { v.onloadedmetadata = ok; v.onerror = function () { no(new Error("影片讀不到，請重新整理再試一次")); }; });
+      if (ac) { try { ac.createMediaElementSource(v).connect(dst); } catch (e) { v.muted = true; } } else v.muted = true;
+      vids.push(v); durs.push(v.duration || 0);
+    }
+    var tl = (job.lines && job.lines.length) ? timeline(job.lines, defEdit(job), durs) : { segs: vids.map(function (v, i) { return { src: i, s: 0, e: durs[i] }; }), lines: [], dur: 0 };
+    if (!job.lines || !job.lines.length) { var o = 0; tl.segs.forEach(function (g) { g.out = o; o += g.e - g.s; }); tl.dur = o; }
+    var stream = cv.captureStream(30); if (dst) dst.stream.getAudioTracks().forEach(function (t) { stream.addTrack(t); });
+    var rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 10000000, audioBitsPerSecond: 160000 }), chunks = [], started = false;
     rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
-    var vw = v.videoWidth, vh = v.videoHeight, fit = Math.min(W / vw, H / vh), cover = Math.max(W / vw, H / vh), canBlur = "filter" in x;
-    function frame() {
+    var canBlur = "filter" in x;
+    function frame(v, g) { var vw = v.videoWidth, vh = v.videoHeight, fit = Math.min(W / vw, H / vh), cover = Math.max(W / vw, H / vh);
       x.fillStyle = "#000"; x.fillRect(0, 0, W, H);
       if (fit < cover - .001) { x.save(); if (canBlur) x.filter = "blur(40px) brightness(.7)"; x.drawImage(v, (W - vw * cover) / 2, (H - vh * cover) / 2, vw * cover, vh * cover); x.restore(); }
       x.drawImage(v, (W - vw * fit) / 2, (H - vh * fit) / 2, vw * fit, vh * fit);
-      x.save(); mod.draw(x, W, H, { t: v.currentTime, lines: lines, accent: acc, bg: false }); x.restore();
-      onProg(Math.min(.99, v.currentTime / (v.duration || 1)));
-    }
+      var t = g.out + Math.max(0, v.currentTime - g.s); x.save(); mod.draw(x, W, H, { t: t, lines: tl.lines, accent: acc, bg: false }); x.restore();
+      onProg(Math.min(.99, t / (tl.dur || 1))); }
     var done = new Promise(function (ok) { rec.onstop = ok; });
-    frame(); rec.start(1000); if (ac && ac.state === "suspended") await ac.resume();
-    await v.play();
-    await new Promise(function (ok) { var tick = function () { frame(); if (v.ended || v.currentTime >= v.duration - .01) return ok(); if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(tick); else requestAnimationFrame(tick); }; v.onended = function () { frame(); ok(); }; tick(); });
-    rec.stop(); await done; try { ac && ac.close(); } catch (e) {}
+    if (ac && ac.state === "suspended") await ac.resume();
+    for (var i = 0; i < tl.segs.length; i++) { var g = tl.segs[i], vv = vids[g.src];
+      vv.currentTime = g.s; await new Promise(function (ok) { vv.onseeked = function () { vv.onseeked = null; ok(); }; });
+      frame(vv, g); if (!started) { rec.start(1000); started = true; } else rec.resume();
+      await vv.play();
+      await new Promise(function (ok) { var tick = function () { frame(vv, g); if (vv.ended || vv.currentTime >= g.e) return ok(); if (vv.requestVideoFrameCallback) vv.requestVideoFrameCallback(tick); else requestAnimationFrame(tick); }; tick(); });
+      vv.pause(); rec.pause(); }
+    rec.resume(); rec.stop(); await done; try { ac && ac.close(); } catch (e) {}
     var type = mime.split(";")[0], blob = new Blob(chunks, { type: type }), ext = type === "video/mp4" ? "mp4" : "webm";
     onProg(1, "上傳成品中…");
     var c = VAI.client(), uid = (await c.auth.getUser()).data.user.id, path = uid + "/results/sub_" + job.id + "_" + Date.now() + "." + ext;
@@ -91,6 +155,10 @@
     return { blob: blob, ext: ext, path: path };
   }
   function srt(lines) { function ts(t) { var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.floor(t % 60), ms = Math.round((t - Math.floor(t)) * 1000); return [h, m, s].map(function (n) { return String(n).padStart(2, "0"); }).join(":") + "," + String(ms).padStart(3, "0"); }
-    return (lines || []).map(function (L, i) { return (i + 1) + "\n" + ts(L.s) + " --> " + ts(L.e) + "\n" + String(L.t).replace(/\|/g, " ") + "\n"; }).join("\n"); }
-  window.SUBJOB = { startStt: startStt, openEditor: openEditor, render: render, srt: srt };
+    return (lines || []).filter(function (L) { return !L.cut; }).map(function (L, i) { return (i + 1) + "\n" + ts(L.s) + " --> " + ts(L.e) + "\n" + String(L.t).replace(/\|/g, " ") + "\n"; }).join("\n"); }
+  // 給剪輯團隊看的剪輯指示
+  function plan(job) { var ed = defEdit(job), out = ["#" + job.id + " 剪輯指示", "方向：" + (ed.direction || "（沒寫）"), "自動剪停頓：" + (ed.trimGaps ? "要" : "不要") + "　重點句放開頭：" + (ed.hook ? "要" : "不要"), "", "⭐＝重點　✂＝剪掉", ""];
+    (job.lines || []).forEach(function (L) { out.push((L.star ? "⭐ " : L.cut ? "✂ " : "   ") + "素材" + ((L.src || 0) + 1) + " " + fmt(L.s) + "-" + fmt(L.e) + "　" + String(L.t).replace(/\|/g, " ")); });
+    return out.join("\n"); }
+  window.SUBJOB = { startStt: startStt, openEditor: openEditor, render: render, srt: srt, plan: plan, timeline: timeline };
 })();

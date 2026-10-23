@@ -76,7 +76,6 @@
   async function send() { var m = $("#sendMsg"), b = $("#send"), pg = $("#prog");
     if (!files.length) { m.className = "msg err"; m.textContent = "先選至少一支影片"; return; }
     if (files.some(function (f) { return f.size > 50 * 1048576; })) { m.className = "msg err"; m.textContent = "有影片超過 50MB，請先剪短一點，或用 1080p 重新匯出"; return; }
-    if (mode === "subs" && files.length > 1) { m.className = "msg err"; m.textContent = "只上字幕一次放 1 支影片就好"; return; }
     if (mode === "subs" && !pickMod) { m.className = "msg err"; m.textContent = "先選一個字幕模組"; return; }
     if (swPhotos.length && !$("#swOk").checked) { m.className = "msg err"; m.textContent = "要換人的話，請先勾選下面的同意聲明"; return; }
     b.disabled = true; pg.hidden = false; m.className = "msg"; var c = VAI.client(), uid = (await c.auth.getUser()).data.user.id, stamp = Date.now(), up = [];
@@ -121,7 +120,7 @@
   function openEd(id) { var j = JOBS.filter(function (x) { return x.id === id; })[0]; if (!j) return; if (editor) editor.close(); $$("[data-ed]").forEach(function (d) { d.innerHTML = ""; }); openJob = id;
     var holder = document.querySelector('[data-ed="' + id + '"]'); editor = SUBJOB.openEditor(holder, j, { onConfirm: function (job) { openJob = null; if (job.mode === "subs") renderRun(job); else { busy[job.id] = "收到！我們開始剪，剪好會顯示「完成」。"; jobs(); } } });
     holder.scrollIntoView({ behavior: "smooth", block: "start" }); }
-  async function jobs() { var c = VAI.client(), r = await c.from("ai_video_jobs").select("id,style,status,result,created_at,files,mode,module,note,lines,renders").order("id", { ascending: false }).limit(50);
+  async function jobs() { var c = VAI.client(), r = await c.from("ai_video_jobs").select("id,style,status,result,created_at,files,mode,module,note,lines,renders,edit").order("id", { ascending: false }).limit(50);
     if (r.error) { $("#jobs").innerHTML = '<p class="msg err">' + E(r.error.message) + "</p>"; return; }
     var editing = editor && openJob && JOBS.some(function (x) { return x.id === openJob && (x.status === "review" || x.status === "rendering" || x.status === "done"); }) && !busy[openJob];
     JOBS = r.data; if (editing && document.querySelector('[data-ed="' + openJob + '"] .sed')) return; draw(); }
