@@ -42,7 +42,7 @@
 <body>
 <div class="wrap">
   <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>AI TOOLS</small></div></a>
-    <div class="tabs"><a href="/ai-tools">AI 工具</a><a href="/ai-design">AI 美編</a><a href="/ai-video" aria-current="page">AI 剪片</a></div>
+    <div class="tabs"><a href="/ai-tools">AI 工具</a><a href="/ai-design">AI 美編</a><a href="/ai-video" aria-current="page">AI 剪片</a><a href="#subs">字幕專區</a></div>
     <div class="who" id="who"><a class="btn sm" href="#member">登入會員</a></div></nav>
 
   <section class="hero" id="top">
@@ -73,6 +73,21 @@
     <div class="styles" id="styles"></div>
   </section>
 
+  <section class="sect" id="subs">
+    <div class="sh"><small>SUBTITLE STUDIO</small><h2>字幕專區：剪好了，只要上字幕</h2><p>影片自己剪好了？丟進來選一個字幕模組，AI 幫你聽寫、對好時間、上好字幕，不動你的剪輯。現在有 24 種，每月持續新增。</p></div>
+    <div class="styles" id="mods"></div>
+  </section>
+
+  <section class="sect" id="swap">
+    <div class="sh"><small>AI FACE SWAP</small><h2>AI 換人：換成你自己，或朋友授權的臉</h2><p>上傳 1～3 張正面照，影片裡的人就換成照片裡的人，動作、表情、講話都跟原本一樣。專業方案以上可以用。</p></div>
+    <div class="feats">
+      <div class="feat"><span class="ic">01</span><b>只能用有授權的照片</b><span>你本人，或朋友同意給你用的照片。明星、網紅、沒同意的人一律不行。</span></div>
+      <div class="feat"><span class="ic">02</span><b>每次都留同意紀錄</b><span>送出前要勾同意聲明，朋友的話可以附上他同意的對話截圖，系統會存起來。</span></div>
+      <div class="feat"><span class="ic">03</span><b>成品標示 AI 生成</b><span>照平台規定在角落標示，帳號不會因為這個被檢舉。</span></div>
+      <div class="feat"><span class="ic">04</span><b>照片 30 天後刪除</b><span>換人用的照片做完 30 天自動刪掉，不留你的臉部資料。</span></div>
+    </div>
+  </section>
+
   <section class="sect" id="plans">
     <div class="sh"><small>PLANS</small><h2>方案：月租 999 起</h2><p>按月付費，隨時升級。年繳付 10 個月用 12 個月。沒用完的支數不累積到下個月。</p></div>
     <div class="bar" style="margin-bottom:14px"><span class="note">付款方式</span><button class="chip" type="button" data-bill="month" aria-pressed="true">月繳</button><button class="chip" type="button" data-bill="year" aria-pressed="false">年繳（送 2 個月）</button></div>
@@ -87,15 +102,28 @@
     <div id="work" hidden>
       <div class="col">
         <div class="usage" id="usage"></div>
+        <div class="bar"><span class="note">要做什麼</span><button class="chip" type="button" data-mode="cut" aria-pressed="true">完整剪片</button><button class="chip" type="button" data-mode="subs" aria-pressed="false">只上字幕</button></div>
         <div class="panel">
           <div class="ph"><b>1</b><div><h3>上傳素材</h3><p>最多 5 支，每支 500MB 以內。請用 1080p 拍就好，不用 4K（平台最高只播 1080p）。</p></div></div>
           <div class="drop"><input type="file" id="vf" accept="video/*,.mp4,.mov,.m4v" multiple aria-label="選擇影片"><b>點這裡選影片，或拖進來</b><span class="note">mp4、mov 都可以，橫的直的都行</span></div>
           <div class="flist" id="flist"></div>
         </div>
         <div class="panel">
-          <div class="ph"><b>2</b><div><h3>選剪法</h3><p>不知道選哪個，就選「交給 AI 挑」。</p></div></div>
+          <div class="ph"><b>2</b><div><h3 id="pickH">選剪法</h3><p id="pickP">不知道選哪個，就選「交給 AI 挑」。</p></div></div>
           <div class="pick2" id="stPick"></div>
+          <div class="pick2" id="modPick" hidden></div>
+          <div class="bar" id="accRow" hidden><div class="custom"><input type="color" id="acc" value="#ff3b30" aria-label="重點字顏色"><span class="note">重點字顏色</span></div></div>
           <p class="note" id="stNote"></p>
+        </div>
+        <div class="panel" id="swapPanel">
+          <div class="ph"><b>＋</b><div><h3>AI 換人（選填，專業方案以上）</h3><p>把影片裡的人換成照片裡的人。每支加購 199 元起，做完跟你報價確認才扣。</p></div></div>
+          <div id="swapLock" class="note" hidden>入門方案沒有這個功能，升級專業方案就能用。</div>
+          <div id="swapBody">
+            <div class="bar"><span class="note">照片是誰</span><button class="chip" type="button" data-who="本人" aria-pressed="true">我本人</button><button class="chip" type="button" data-who="朋友授權" aria-pressed="false">朋友（有授權）</button></div>
+            <div class="bar"><label class="up">上傳正面照（1～3 張）<input type="file" accept="image/*" id="swPh" multiple hidden></label><span class="note" id="swPhMsg">還沒選照片，不換人就不用選</span></div>
+            <div class="bar" id="proofRow" hidden><label class="up">上傳朋友同意的對話截圖<input type="file" accept="image/*" id="swProof" hidden></label><span class="note" id="swProofMsg">建議附上，萬一被檢舉才有證據</span></div>
+            <label class="note" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="swOk" style="margin-top:4px"><span>我確認照片是我本人，或已取得照片中本人同意使用，並了解成品會標示「AI 生成」。</span></label>
+          </div>
         </div>
         <div class="panel">
           <div class="ph"><b>3</b><div><h3>特別交代和 logo（選填）</h3><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
@@ -116,6 +144,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>var F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif',N='"Roboto","Noto Sans TC",sans-serif';</script>
 <script src="/ai/vid.js"></script>
+<script src="/ai/subfx.js"></script>
 <script src="/ai/core.js"></script>
 <script src="/ai/video.js"></script>
 </body>
