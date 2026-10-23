@@ -6,7 +6,7 @@
   var DESC = [["口播、老闆講話", "字一次跳 2～4 個，停頓全剪，重點字換色"], ["知識、教學", "上大標題、中畫面、下字幕，換重點跳章節卡"], ["故事、短劇", "先放最精彩那句再倒回去講，電影黑邊"], ["Podcast、多人聊天", "誰講話就變誰的泡泡，左右對話"], ["美業、保養", "柔光、細字，看起來貴"], ["命理、星座", "深色字卡，關鍵字金色大字"], ["療癒、心靈", "筆記卡一字一字寫，重點螢光筆劃過"], ["搞笑、日常", "1.1 倍速，重點大字放大"], ["賣衣服、推產品", "卡拉 OK 字幕，價格大字跳出、限時標籤"], ["科技、時事", "新聞快報條、LIVE、跑馬燈"]];
   var BASIC = [0, 1, 8];
   var bill = "month", files = [], vlogo = null, pickSt = -1, plan = "basic", mode = "cut", pickMod = "", swWho = "本人", swPhotos = [], swProof = null;
-  var renderCap = 2, openJob = null, editor = null, busy = {};
+  var savedSticky = null, renderCap = 2, openJob = null, editor = null, busy = {};
   var MODS = window.SUBFX ? SUBFX.list : [], BASIC_MODS = ["pop", "karaoke", "invert", "minimal", "cinema", "marker", "fadeup", "stack"];
   // ===== 字幕模組示範 =====
   if (MODS.length) {
@@ -64,7 +64,7 @@
     $("#vf").onchange = function (e) { var add = [].slice.call(e.target.files); add.forEach(function (f) { if (files.length < 5) files.push(f); }); e.target.value = ""; listFiles(); };
     $("#vLogo").onchange = function (e) { vlogo = e.target.files[0] || null; $("#vLogoMsg").textContent = vlogo ? "已選 logo：" + vlogo.name : "有放的話會放在影片角落"; };
     $("#send").onclick = send;
-    VAI.client().from("ai_tool_glossary").select("words").maybeSingle().then(function (r) { if (r && r.data && !$("#vGloss").value) $("#vGloss").value = r.data.words || ""; }, function () {});
+    VAI.client().from("ai_tool_glossary").select("words,sticky,sticky_pos").maybeSingle().then(function (r) { if (r && r.data) { savedSticky = r.data; if (!$("#vGloss").value) $("#vGloss").value = r.data.words || ""; } }, function () {});
     VAI.client().rpc("ai_render_cap").then(function (r) { if (r && !r.error) renderCap = r.data; }, function () {}); }
   function setMode(m) { mode = m; $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
     var subs = m === "subs"; $("#stPick").hidden = subs; $("#modPick").hidden = !subs; $("#accRow").hidden = !subs;
@@ -118,7 +118,7 @@
     if (openJob) { var oj = JOBS.filter(function (x) { return x.id === openJob; })[0]; if (oj && oj.status === "review") openEd(openJob); }
   }
   function openEd(id) { var j = JOBS.filter(function (x) { return x.id === id; })[0]; if (!j) return; if (editor) editor.close(); $$("[data-ed]").forEach(function (d) { d.innerHTML = ""; }); openJob = id;
-    var holder = document.querySelector('[data-ed="' + id + '"]'); editor = SUBJOB.openEditor(holder, j, { onConfirm: function (job) { openJob = null; if (job.mode === "subs") renderRun(job); else { busy[job.id] = "收到！我們開始剪，剪好會顯示「完成」。"; jobs(); } } });
+    var holder = document.querySelector('[data-ed="' + id + '"]'); editor = SUBJOB.openEditor(holder, j, { sticky: savedSticky, onConfirm: function (job) { openJob = null; if (job.mode === "subs") renderRun(job); else { busy[job.id] = "收到！我們開始剪，剪好會顯示「完成」。"; jobs(); } } });
     holder.scrollIntoView({ behavior: "smooth", block: "start" }); }
   async function jobs() { var c = VAI.client(), r = await c.from("ai_video_jobs").select("id,style,status,result,created_at,files,mode,module,note,lines,renders,edit").order("id", { ascending: false }).limit(50);
     if (r.error) { $("#jobs").innerHTML = '<p class="msg err">' + E(r.error.message) + "</p>"; return; }
