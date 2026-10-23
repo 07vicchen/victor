@@ -92,7 +92,7 @@ nav.top{display:flex;align-items:center;gap:14px;padding-block:18px;border-botto
 .tile:hover{transform:translateY(-3px);box-shadow:0 14px 30px #2b22101a}
 .tile.sel{border-color:var(--fg)}
 .tile canvas{width:100%;height:auto;aspect-ratio:1/1;max-width:100%;display:block}
-.tile .tier{position:absolute;top:8px;left:8px;font:700 11px var(--num);padding:2px 8px;background:#fff;color:var(--gold2);border:1px solid var(--line2)}
+.tile .tier{display:inline-block;margin-left:8px;font:700 11px var(--num);padding:1px 7px;color:var(--gold2);border:1px solid var(--line2);vertical-align:middle}
 .tile .cap{padding:10px 12px}
 .tile .cap b{font:700 14px var(--body)}
 .tile .pick{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);font-weight:700;font-size:13.5px;cursor:pointer}

@@ -7,12 +7,12 @@
   var GEN = [["白底封面", 1, cover1], ["賣點大標", 1, cover2], ["細節放大", 1, detail], ["尺寸規格表", 1, sizes], ["顏色一覽", 1, colors], ["情境圖（付費生圖）", 3, scene], ["模特兒手拿（付費生圖）", 3, model], ["使用前後對比", 2, beforeAfter], ["檔期活動圖", 1, event]];
   var TIER = { basic: 1, pro: 2, max: 3, ent: 3 }, TIERN = { 1: "入門", 2: "專業", 3: "旗艦" };
   var logo = null, lpos = "br", ind = "cloth", plan = 3, bill = "month", ai = null, cutImg = null, origImg = null, photos = [];
-  var sel = { cloth: [0, 1, 2, 4, 5, 9, 12], gen: [0, 1, 2, 3, 4, 8] };
+  var sel = { cloth: [0, 1, 2, 4, 5, 9, 12], gen: [0, 1, 2, 3, 4, 8], beauty: [0, 1, 2, 3, 4, 7], tech: [0, 1, 2, 3, 4, 8], food: [0, 1, 2, 3, 4, 8] };
   function stampLogo(g) { if (!logo) return; var m = Math.min(170 / iw(logo), 110 / ih(logo)), w = iw(logo) * m, h = ih(logo) * m, pad = 18, bw = w + pad * 2, bh = h + pad * 2, x = lpos === "bl" ? 36 : S - 36 - bw, y = lpos === "tr" ? 36 : S - 36 - bh;
     g.save(); g.globalAlpha = .92; g.fillStyle = "#fff"; rr(g, x, y, bw, bh, 18); g.fill(); g.globalAlpha = 1; g.drawImage(logo, x + pad, y + pad, w, h); g.restore(); }
   function render(t, img) { var g = BIG.getContext("2d"); g.save(); g.clearRect(0, 0, S, S); t[2](g, img); g.restore(); stampLogo(g); return BIG; }
   function paint(cv, t, img) { var g = cv.getContext("2d"); g.clearRect(0, 0, cv.width, cv.height); g.drawImage(render(t, img), 0, 0, cv.width, cv.height); }
-  var list = function () { return ind === "cloth" ? CLOTH : GEN; };
+  var list = function () { if (ind === "cloth") return CLOTH; var lb = (IND[ind] || IND.gen).lab; return GEN.map(function (t) { var n = t[2] === sizes ? lb.sizes : t[2] === colors ? lb.colors : t[2] === beforeAfter ? lb.ba : t[0]; return [n, t[1], t[2]]; }); };
   var imgFor = function () { return ind === "cloth" ? shirtImg() : prod; };
   // 用到的文字資料：AI 寫好就用 AI 的
   function syncData() { var n = $("#pName") ? $("#pName").value.trim() : ""; var pr = $("#pPrice") ? $("#pPrice").value : "";
@@ -68,7 +68,7 @@
   function setCol(c) { col = c; $("#pick").value = c; $$("[data-c]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.c === c)); }); lib(); }
   function lib() { syncData(); var L = list(), s = sel[ind], ok = function (i) { return L[i][1] <= plan; };
     $("#sum").innerHTML = "你的方案可用到「" + TIERN[plan] + "」模組・已選 <b>" + s.filter(ok).length + "</b> 張";
-    $("#lib").innerHTML = L.map(function (t, i) { var lk = t[1] > plan, on = s.indexOf(i) >= 0 && !lk; return '<div class="tile' + (on ? " sel" : "") + '"><span class="tier">' + TIERN[t[1]] + '</span><canvas width="300" height="300" aria-label="' + t[0] + '"></canvas>' + (lk ? '<div class="lock"><div><b>' + TIERN[t[1]] + "</b>升級方案才能用</div></div>" : "") + '<div class="cap"><b>' + String(i + 1).padStart(2, "0") + " " + t[0] + '</b></div><label class="pick"><input type="checkbox" data-i="' + i + '"' + (on ? " checked" : "") + (lk ? " disabled" : "") + "> 放進這組</label></div>"; }).join("");
+    $("#lib").innerHTML = L.map(function (t, i) { var lk = t[1] > plan, on = s.indexOf(i) >= 0 && !lk; return '<div class="tile' + (on ? " sel" : "") + '"><canvas width="300" height="300" aria-label="' + t[0] + '"></canvas>' + (lk ? '<div class="lock"><div><b>' + TIERN[t[1]] + "</b>升級方案才能用</div></div>" : "") + '<div class="cap"><b>' + String(i + 1).padStart(2, "0") + " " + t[0] + '</b><span class="tier">' + TIERN[t[1]] + '</span></div><label class="pick"><input type="checkbox" data-i="' + i + '"' + (on ? " checked" : "") + (lk ? " disabled" : "") + "> 放進這組</label></div>"; }).join("");
     var img = imgFor(); $$("#lib canvas").forEach(function (c, i) { paint(c, L[i], img); });
     $$("#lib [data-i]").forEach(function (c) { c.onchange = function () { var i = +c.dataset.i, a = sel[ind], k = a.indexOf(i); if (c.checked && k < 0) a.push(i); if (!c.checked && k >= 0) a.splice(k, 1); lib(); }; });
     $("#styRow").hidden = ind !== "cloth"; var sl = plan < 3; $$("[data-sty]").forEach(function (b) { b.disabled = sl && b.dataset.sty !== "s"; }); $("#styNote").textContent = sl ? "韓系、街頭是旗艦方案的風格" : "";
@@ -77,7 +77,7 @@
   function chosen() { var L = list(); return sel[ind].slice().sort(function (a, b) { return a - b; }).filter(function (i) { return L[i][1] <= plan; }); }
   function phone() { var L = list(), ids = chosen(), img = imgFor(); $("#track").innerHTML = ids.map(function () { return '<canvas width="540" height="540"></canvas>'; }).join("");
     $$("#track canvas").forEach(function (c, k) { paint(c, L[ids[k]], img); }); slide = Math.min(slide, Math.max(0, ids.length - 1)); move();
-    var d = ind === "cloth" ? CP : P; $("#pvPr").innerHTML = "<small>$</small>" + d.price; $("#pvT").textContent = (ai && ai.title) || ($("#pName").value.trim()) || (ind === "cloth" ? "涼感棉寬版短T 男女可穿 不透膚 S～XL" : "不鏽鋼真空保溫瓶 500ml 24H 保冰"); }
+    var d = ind === "cloth" ? CP : P; $("#pvPr").innerHTML = "<small>$</small>" + d.price; $("#pvT").textContent = (ai && ai.title) || ($("#pName").value.trim()) || (ind === "cloth" ? "涼感棉寬版短T 男女可穿 不透膚 S～XL" : ind !== "gen" && IND[ind] ? IND[ind].title : "不鏽鋼真空保溫瓶 500ml 24H 保冰"); }
   function move() { var n = $$("#track canvas").length; $("#track").style.transform = "translateX(" + (-slide * 100) + "%)"; $("#cnt").textContent = n ? (slide + 1) + "/" + n : "0"; }
 
   // 去背：從四邊往內找跟背景顏色接近的區域，適合單色背景
@@ -112,7 +112,7 @@
       var c = document.createElement("canvas"), g = c.getContext("2d"), fz = 64, fam = '"Noto Serif TC","Noto Sans TC",serif'; g.font = "900 " + fz + "px " + fam; c.width = Math.ceil(g.measureText(t).width) + 8; c.height = Math.ceil(fz * 1.3);
       g = c.getContext("2d"); g.font = "900 " + fz + "px " + fam; g.textBaseline = "middle"; g.fillStyle = "#141414"; g.fillText(t, 4, c.height / 2 + 2);
       logo = c; $("#logoF").value = ""; $("#logoPos").hidden = false; $("#logoMsg").textContent = "每張圖都會放上「" + t + "」"; lib(); };
-    $$("[data-ind]").forEach(function (b) { b.onclick = function () { ind = b.dataset.ind; $$("[data-ind]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); lib(); }; });
+    $$("[data-ind]").forEach(function (b) { b.onclick = function () { ind = b.dataset.ind; $$("[data-ind]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); if (ind !== "cloth") { useInd(ind); if (!prodUp) prod = sampleFor(ind); } lib(); }; });
     $$("[data-sty]").forEach(function (b) { b.onclick = function () { if (b.disabled) return; sty = b.dataset.sty; $$("[data-sty]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); lib(); }; });
     ["#pName", "#pPrice"].forEach(function (s) { $(s).addEventListener("change", lib); });
     $("#genAI").onclick = genAI;

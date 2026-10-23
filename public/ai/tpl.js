@@ -34,7 +34,7 @@ function cover2(g,img){g.fillStyle=light(col,.88);g.fillRect(0,0,S,S);g.fillStyl
   g.font=`900 92px ${F}`;g.fillStyle="#1b1b1b";g.textBaseline="top";const lines=wrap(g,P.head,430);lines.slice(0,3).forEach((l,i)=>g.fillText(l,70,180+i*110));
   let y=200+Math.min(3,lines.length)*110+20;P.badges.forEach(b=>{pill(g,"✓ "+b,70,y,col,"#fff",36);y+=88})}
 function detail(g,img){g.fillStyle="#f4f4f2";g.fillRect(0,0,S,S);const [x,y,w,h]=fit(g,img,60,80,520,920,"contain");
-  const spots=[[.5,.12,"單手按壓開蓋"],[.5,.55,"霧面防滑塗層"],[.5,.88,"加厚防摔底座"]];
+  const sp=P.spots||["單手按壓開蓋","霧面防滑塗層","加厚防摔底座"],spots=[[.5,.12,sp[0]],[.5,.55,sp[1]],[.5,.88,sp[2]]];
   spots.forEach(([fx,fy,label],i)=>{const sx=x+w*fx,sy=y+h*fy,cx=800,cy=200+i*330,R=130;
     g.strokeStyle=col;g.lineWidth=4;g.setLineDash([10,8]);g.beginPath();g.moveTo(sx,sy);g.lineTo(cx-R,cy);g.stroke();g.setLineDash([]);
     g.fillStyle=col;g.beginPath();g.arc(sx,sy,10,0,7);g.fill();
@@ -44,15 +44,15 @@ function detail(g,img){g.fillStyle="#f4f4f2";g.fillRect(0,0,S,S);const [x,y,w,h]
     g.strokeStyle=col;g.lineWidth=8;g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
     pill(g,label,cx-R-20,cy+R-20,"#1b1b1b","#fff",28)})}
 function sizes(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);g.fillStyle=col;g.fillRect(0,0,S,150);
-  txt(g,"尺寸規格表",60,78,`900 60px ${F}`,"#fff");txt(g,"SIZE GUIDE",S-60,82,`700 30px ${N}`,"#ffffffaa","right");
+  txt(g,P.sizeTitle||"尺寸規格表",60,78,`900 60px ${F}`,"#fff");txt(g,P.sizeEn||"SIZE GUIDE",S-60,82,`700 30px ${N}`,"#ffffffaa","right");
   fit(g,img,60,200,280,560,"contain");
   const x0=380,y0=210,cw=[160,160,160,160],rh=112;
   P.sizes.forEach((row,r)=>{row.forEach((cell,c)=>{const x=x0+cw.slice(0,c).reduce((a,b)=>a+b,0),y=y0+r*rh;
     g.fillStyle=r===0?light(col,.85):(r%2?"#fafafa":"#fff");g.fillRect(x,y,cw[c],rh);g.strokeStyle="#e4e4e4";g.lineWidth=2;g.strokeRect(x,y,cw[c],rh);
     txt(g,cell,x+cw[c]/2,y+rh/2,`${r===0||c===0?900:500} ${c===0?32:36}px ${F}`,r===0?col:"#222","center")})});
   g.fillStyle="#f6f6f4";rr(g,60,830,S-120,180,16);g.fill();
-  txt(g,"・手工測量，誤差 ±1cm",100,885,`500 32px ${F}`,"#444");txt(g,"・不同螢幕顯示顏色可能略有差異",100,950,`500 32px ${F}`,"#444")}
-function colors(g,img){g.fillStyle="#fafafa";g.fillRect(0,0,S,S);txt(g,"顏色一覽",60,90,`900 60px ${F}`,"#1b1b1b");txt(g,`共 ${P.colors.length} 色`,S-60,95,`700 34px ${F}`,col,"right");
+  const sn=P.sizeNotes||["手工測量，誤差 ±1cm","不同螢幕顯示顏色可能略有差異"];txt(g,"・"+sn[0],100,885,`500 32px ${F}`,"#444");txt(g,"・"+sn[1],100,950,`500 32px ${F}`,"#444")}
+function colors(g,img){g.fillStyle="#fafafa";g.fillRect(0,0,S,S);txt(g,P.colorTitle||"顏色一覽",60,90,`900 60px ${F}`,"#1b1b1b");txt(g,`共 ${P.colors.length} ${P.colorUnit||"色"}`,S-60,95,`700 34px ${F}`,col,"right");
   const n=P.colors.length,w=(S-120)/n;
   P.colors.forEach(([name,hue],i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,170,w-16,760,18);g.fill();
     g.save();g.filter=hue===1?"brightness(1.9) saturate(0.2)":hue?`sepia(1) saturate(4) hue-rotate(${hue-40}deg) brightness(1.15)`:"none";fit(g,img,x+20,210,w-40,620,"contain");g.restore();
@@ -76,8 +76,8 @@ function beforeAfter(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);
   g.save();g.beginPath();g.rect(0,0,S/2,S);g.clip();g.fillStyle="#d8d6d2";g.fillRect(0,0,S/2,S);g.filter="grayscale(1) brightness(.75) contrast(.8)";fit(g,img,40,150,S/2-80,760,"contain");g.restore();
   g.save();g.beginPath();g.rect(S/2,0,S/2,S);g.clip();g.fillStyle=light(col,.85);g.fillRect(S/2,0,S/2,S);fit(g,img,S/2+40,150,S/2-80,760,"contain");g.restore();
   g.fillStyle="#fff";g.fillRect(S/2-4,0,8,S);g.beginPath();g.arc(S/2,S/2,46,0,7);g.fill();txt(g,"VS",S/2,S/2+2,`900 34px ${N}`,col,"center");
-  pill(g,"使用前",40,40,"#1b1b1b","#fff",34);pill(g,"使用後",S/2+40,40,col,"#fff",34);
-  txt(g,"一般杯 3 小時就退冰",S/4,S-80,`700 36px ${F}`,"#333","center");txt(g,"保冰一整天",S*3/4,S-80,`900 40px ${F}`,col,"center")}
+  pill(g,(P.ba||[])[0]||"使用前",40,40,"#1b1b1b","#fff",34);pill(g,(P.ba||[])[1]||"使用後",S/2+40,40,col,"#fff",34);
+  txt(g,(P.ba||[])[2]||"一般杯 3 小時就退冰",S/4,S-80,`700 36px ${F}`,"#333","center");txt(g,(P.ba||[])[3]||"保冰一整天",S*3/4,S-80,`900 40px ${F}`,col,"center")}
 function event(g,img){const bg=g.createLinearGradient(0,0,0,S);bg.addColorStop(0,"#1b1b1b");bg.addColorStop(1,col);g.fillStyle=bg;g.fillRect(0,0,S,S);
   for(let i=0;i<14;i++){g.fillStyle=i%2?"#ffffff14":"#ffffff08";g.beginPath();g.moveTo(540,540);g.arc(540,540,900,i*Math.PI/7,(i+.5)*Math.PI/7);g.fill()}
   txt(g,"11.11",540,170,`900 190px ${N}`,"#fff","center");txt(g,"年度最狂  限時 3 天",540,300,`900 56px ${F}`,"#ffe6a8","center");
@@ -191,3 +191,37 @@ var CLOTH=[
  ["新舊款對比",2,c_compare],["退換貨說明",2,c_return],["多件組合價",2,c_bundle],["換季上新",2,c_season],["成分吊牌",2,c_label],["品牌故事",2,c_story],["平拍穿搭",2,c_flatlay],
  ["韓系封面",3,c_kor],["街頭風封面",3,c_street],["質感黑金封面",3,c_lux],["布紋大特寫",3,c_closeup],["倒數限時搶購",3,c_count],["AI 模特兒穿搭（付費生圖）",3,c_ai_model],["AI 街拍情境（付費生圖）",3,c_ai_scene]];
 var GEN_TIER=[1,1,1,1,1,3,3,2,1];
+
+// ---------- 各行業示範資料（沒上傳商品照時用） ----------
+var IND={
+ gen:{n:"一般商品",name:"不鏽鋼真空保溫瓶 500ml",title:"不鏽鋼真空保溫瓶 500ml 24H保冰 316不鏽鋼 單手開蓋",head:"冰塊放一天都還在",badges:["24H 保冰","316 不鏽鋼","單手開蓋"],price:590,orig:890,
+  sizes:[["容量","350ml","500ml","750ml"],["高度","19cm","23cm","27cm"],["口徑","6.5cm","6.5cm","7cm"],["重量","280g","330g","410g"]],colors:[["霧黑",0],["奶白",1],["湖水綠",160],["蜜桃粉",330],["海軍藍",210]],
+  spots:["單手按壓開蓋","霧面防滑塗層","加厚防摔底座"],sizeTitle:"尺寸規格表",sizeEn:"SIZE GUIDE",sizeNotes:["手工測量，誤差 ±1cm","不同螢幕顯示顏色可能略有差異"],colorTitle:"顏色一覽",colorUnit:"色",ba:["使用前","使用後","一般杯 3 小時就退冰","保冰一整天"],
+  lab:{sizes:"尺寸規格表",colors:"顏色一覽",ba:"使用前後對比"}},
+ beauty:{n:"美妝",name:"玻尿酸保濕精華 30ml",title:"玻尿酸保濕精華液 30ml 三重玻尿酸 敏感肌可用 台灣製",head:"乾到脫皮的臉，一晚喝飽水",badges:["三重玻尿酸","無香精酒精","敏感肌可用"],price:680,orig:980,
+  sizes:[["項目","30ml","50ml","補充瓶"],["用量","約1個月","約2個月","約4個月"],["膚質","全膚質","全膚質","全膚質"],["保存","開封12個月","開封12個月","開封12個月"]],colors:[["清爽型",0],["滋潤型",30],["夜間修護",280],["舒緩型",150]],
+  spots:["精準滴管好控量","深色遮光瓶身","按壓密封瓶口"],sizeTitle:"容量與使用",sizeEn:"DETAILS",sizeNotes:["使用前請先在耳後小範圍測試","避免陽光直射，置於陰涼處"],colorTitle:"系列一覽",colorUnit:"款",ba:["使用前","使用 7 天","上妝卡粉、脫皮","水潤透亮"],
+  lab:{sizes:"容量使用表",colors:"系列一覽",ba:"使用前後對比"}},
+ tech:{n:"3C",name:"降噪藍牙耳機 Pro",title:"降噪藍牙耳機 Pro 主動降噪 續航30小時 IPX5防水 Type-C快充",head:"捷運上也只聽得到音樂",badges:["主動降噪","續航 30 小時","IPX5 防水"],price:1290,orig:1990,
+  sizes:[["規格","單耳","充電盒","總計"],["續航","8 小時","22 小時","30 小時"],["充電","Type-C","10 分鐘","聽 2 小時"],["重量","4.8g","42g","51.6g"]],colors:[["石墨黑",0],["珍珠白",1],["薄荷綠",160],["夜空藍",210]],
+  spots:["觸控切歌接聽","主動降噪麥克風","Type-C 快充孔"],sizeTitle:"規格一覽",sizeEn:"SPECS",sizeNotes:["保固 1 年，台灣在地維修","續航依音量與使用情境略有不同"],colorTitle:"顏色一覽",colorUnit:"色",ba:["舊款","新款","吵雜聽不清楚","降噪後只剩音樂"],
+  lab:{sizes:"規格表",colors:"顏色一覽",ba:"新舊款對比"}},
+ food:{n:"食品",name:"手工堅果燕麥脆片 300g",title:"手工堅果燕麥脆片 300g 無添加精緻糖 高纖 早餐 下午茶",head:"早餐沒時間，也能吃得好",badges:["無添加精緻糖","高纖好飽足","台灣手工烘焙"],price:320,orig:420,
+  sizes:[["營養標示","每份40g","每100g","—"],["熱量","182 大卡","455 大卡","—"],["蛋白質","5.2g","13g","—"],["膳食纖維","3.6g","9g","—"]],colors:[["原味",0],["可可",20],["抹茶",90],["莓果",330]],
+  spots:["整顆堅果看得到","低溫慢烤酥脆","夾鏈袋好保存"],sizeTitle:"營養標示",sizeEn:"NUTRITION",sizeNotes:["開封後請夾緊，建議 2 週內吃完","本產品含堅果，過敏者請留意"],colorTitle:"口味一覽",colorUnit:"種口味",ba:["一般穀片","我們的","甜膩、吃完很快餓","不甜、飽到中午"],
+  lab:{sizes:"營養標示表",colors:"口味一覽",ba:"跟一般的比"}}
+};
+function useInd(k){const d=IND[k]||IND.gen;["name","head","badges","price","orig","sizes","colors","spots","sizeTitle","sizeEn","sizeNotes","colorTitle","colorUnit","ba"].forEach(f=>{P[f]=JSON.parse(JSON.stringify(d[f]))})}
+function sampleFor(k){if(k==="gen"||!IND[k])return sampleProduct();const c=document.createElement("canvas");c.width=600;c.height=1000;const g=c.getContext("2d");
+ if(k==="beauty"){const gl=g.createLinearGradient(170,0,430,0);gl.addColorStop(0,"#6b3f2a");gl.addColorStop(.4,"#b07a55");gl.addColorStop(.55,"#c99a74");gl.addColorStop(1,"#5a3322");rr(g,170,420,260,520,50);g.fillStyle=gl;g.fill();
+  g.fillStyle="#ffffff2a";rr(g,200,460,22,440,11);g.fill();g.fillStyle="#f5efe6";rr(g,210,580,180,220,10);g.fill();g.fillStyle="#6b3f2a";g.font="700 30px sans-serif";g.textAlign="center";g.fillText("HYALURONIC",300,650);g.font="500 22px sans-serif";g.fillText("SERUM 30ml",300,700);
+  const cap=g.createLinearGradient(220,0,380,0);cap.addColorStop(0,"#c9a36a");cap.addColorStop(.5,"#f1dcae");cap.addColorStop(1,"#a8834c");rr(g,220,330,160,100,14);g.fillStyle=cap;g.fill();
+  g.fillStyle="#1f1f1f";rr(g,245,120,110,220,55);g.fill();g.fillStyle="#3a3a3a";rr(g,262,140,24,170,12);g.fill()}
+ else if(k==="tech"){const cs=g.createLinearGradient(100,0,500,0);cs.addColorStop(0,"#1a1b1f");cs.addColorStop(.5,"#3b3e46");cs.addColorStop(1,"#121316");rr(g,100,520,400,300,120);g.fillStyle=cs;g.fill();
+  g.strokeStyle="#55585f";g.lineWidth=4;g.beginPath();g.moveTo(110,640);g.lineTo(490,640);g.stroke();g.fillStyle="#7CF29C";g.beginPath();g.arc(300,720,9,0,7);g.fill();
+  [[200,300,-.25],[400,300,.25]].forEach(([x,y,r])=>{g.save();g.translate(x,y);g.rotate(r);const b=g.createLinearGradient(-60,0,60,0);b.addColorStop(0,"#202227");b.addColorStop(.5,"#4a4d55");b.addColorStop(1,"#17181b");g.fillStyle=b;g.beginPath();g.ellipse(0,0,70,85,0,0,7);g.fill();rr(g,-22,40,44,170,22);g.fill();g.fillStyle="#ffffff22";g.beginPath();g.ellipse(-20,-25,18,26,0,0,7);g.fill();g.restore()})}
+ else {const jar=g.createLinearGradient(130,0,470,0);jar.addColorStop(0,"#d9c9a8");jar.addColorStop(.5,"#f4ead6");jar.addColorStop(1,"#c9b691");rr(g,130,300,340,640,40);g.fillStyle=jar;g.fill();
+  for(let i=0;i<70;i++){const x=160+((i*73)%280),y=360+((i*131)%540);g.fillStyle=["#b9853f","#8a5a2b","#d9a85b","#6e4423"][i%4];g.beginPath();g.ellipse(x,y,14,9,i,0,7);g.fill()}
+  g.fillStyle="#fffaf0";rr(g,170,520,260,220,16);g.fill();g.fillStyle="#7a4a20";g.font="800 34px sans-serif";g.textAlign="center";g.fillText("GRANOLA",300,600);g.font="500 24px sans-serif";g.fillText("堅果燕麥脆片",300,650);g.fillText("300g",300,695);
+  const lid=g.createLinearGradient(140,0,460,0);lid.addColorStop(0,"#5a3a1c");lid.addColorStop(.5,"#8a5e33");lid.addColorStop(1,"#4a2f16");rr(g,140,230,320,90,18);g.fillStyle=lid;g.fill()}
+ return c}
