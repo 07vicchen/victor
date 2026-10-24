@@ -10,7 +10,10 @@
   var sel = { cloth: [0, 1, 2, 4, 5, 9, 12], gen: [0, 1, 9, 2, 3, 10, 11, 14, 16], beauty: [0, 1, 9, 10, 11, 12, 3, 16, 17], tech: [0, 1, 9, 2, 11, 12, 3, 14, 15], food: [0, 1, 10, 9, 2, 3, 11, 12, 16] };
   function stampLogo(g) { if (!logo) return; var m = Math.min(170 / iw(logo), 110 / ih(logo)), w = iw(logo) * m, h = ih(logo) * m, pad = 18, bw = w + pad * 2, bh = h + pad * 2, x = lpos === "bl" ? 36 : S - 36 - bw, y = lpos === "tr" ? 36 : S - 36 - bh;
     g.save(); g.globalAlpha = .92; g.fillStyle = "#fff"; rr(g, x, y, bw, bh, 18); g.fill(); g.globalAlpha = 1; g.drawImage(logo, x + pad, y + pad, w, h); g.restore(); }
-  function render(t, img) { var g = BIG.getContext("2d"); g.save(); g.clearRect(0, 0, S, S); t[2](g, img); g.restore(); stampLogo(g); return BIG; }
+  function render(t, img) { var g = BIG.getContext("2d"); g.save(); g.clearRect(0, 0, S, S); t[2](g, img); g.restore(); stampLogo(g); if (TRIAL) trialMark(g, S); return BIG; }
+  // Vic 10/24：免費試用的圖加浮水印
+  var TRIAL = false;
+  function trialMark(g, W) { g.save(); g.globalAlpha = .22; g.fillStyle = "#000"; g.font = "900 " + Math.round(W * .055) + "px \"Noto Sans TC\",sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.translate(W / 2, W / 2); g.rotate(-Math.PI / 7); for (var k = -2; k <= 2; k++) g.fillText("維拓 AI 免費試用", 0, k * W * .2); g.restore(); g.save(); g.globalAlpha = .85; g.fillStyle = "rgba(0,0,0,.55)"; var h = Math.round(W * .045); g.fillRect(0, W - h, W, h); g.fillStyle = "#fff"; g.font = "700 " + Math.round(h * .5) + "px \"Noto Sans TC\",sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("維拓 AI 美編・免費試用版｜victormedia.com.tw/ai-tools", W / 2, W - h / 2); g.restore(); }
   function paint(cv, t, img) { var g = cv.getContext("2d"); g.clearRect(0, 0, cv.width, cv.height); g.drawImage(render(t, img), 0, 0, cv.width, cv.height); }
   var list = function () { if (ind === "cloth") return CLOTH; var lb = (IND[ind] || IND.gen).lab; return GEN.map(function (t) { var n = t[2] === sizes ? lb.sizes : t[2] === colors ? lb.colors : t[2] === beforeAfter ? lb.ba : t[0]; return [n, t[1], t[2]]; }).concat(XTPL(ind)); };
   var imgFor = function () { return ind === "cloth" ? shirtImg() : prod; };
@@ -45,7 +48,8 @@
     $("#out").onclick = async function () { await VAI.client().auth.signOut(); VAI.refresh(); };
     var d = me.design || {};
     if (me.admin) $("#memSub").textContent = "管理員帳號：全部功能免費使用。";
-    if (d.status === "active") { box.innerHTML = ""; plan = TIER[d.plan] || 1; work.hidden = false; usage(d); boot(); }
+    TRIAL = d.status === "trial";
+    if (d.status === "active" || TRIAL) { box.innerHTML = TRIAL ? '<div class="state trial"><h3>免費試用中：還可以做 ' + ((d.left || {}).design || 0) + ' 件商品</h3><p class="note">試用可以用全部入門模組，做好的圖會有「免費試用」浮水印。每件商品要先按「AI 寫文案」（用掉 1 件），才能存整組圖。滿意的話開通方案，浮水印就拿掉。</p><a class="btn sm" href="#plans" onclick="document.documentElement.classList.add(\'vai-all\')">看方案</a></div>' : ""; plan = TIER[d.plan] || 1; work.hidden = false; usage(d); boot(); }
     else {
       work.hidden = true;
       var p = d.plan && VAI.PRICE.design.plans.filter(function (x) { return x.id === d.plan; })[0];
@@ -57,7 +61,7 @@
     if (me.admin) VAI.adminPanel($("#admin"), "design");
   };
   function usage(d) { var lim = d.limit >= 1000000 ? "不限" : d.limit, pct = d.limit >= 1000000 ? 4 : Math.min(100, d.used / d.limit * 100);
-    $("#usage").innerHTML = '<span>本月已做 <b>' + d.used + "</b> 件／" + lim + (d.free ? "（管理員免費）" : "") + '</span><span class="bar2"><i style="width:' + pct + '%"></i></span><span class="note">方案：' + E((VAI.PRICE.design.plans.filter(function (x) { return x.id === d.plan; })[0] || {}).n || "") + (d.period_end ? "，到 " + d.period_end : "") + "</span>"; }
+    $("#usage").innerHTML = '<span>' + (d.status === "trial" ? "免費試用已做" : "本月已做") + ' <b>' + d.used + "</b> 件／" + lim + (d.free ? "（管理員免費）" : "") + '</span><span class="bar2"><i style="width:' + pct + '%"></i></span><span class="note">方案：' + E((VAI.PRICE.design.plans.filter(function (x) { return x.id === d.plan; })[0] || {}).n || "") + (d.period_end ? "，到 " + d.period_end : "") + "</span>"; }
 
   // ===== 工作區 =====
   var booted = false;
@@ -130,7 +134,7 @@
     $$("[data-alt]").forEach(function (b) { b.onclick = function () { var i = +b.dataset.alt, x = ai.titleAlt[i]; ai.titleAlt[i] = $("#aT").value; ai.title = x; showAI(); phone(); }; });
     $("#aT").oninput = function (e) { ai.title = e.target.value; phone(); };
     $$("[data-cp]").forEach(function (b) { b.onclick = function () { var v = b.dataset.cp === "t" ? $("#aT").value : $("#aD").value; (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject()).then(function () { b.textContent = "已複製"; setTimeout(function () { b.textContent = "複製"; }, 1400); }, function () { var el = b.dataset.cp === "t" ? $("#aT") : $("#aD"); el.select(); }); }; }); }
-  async function dlAll() { var m = $("#dlMsg"), ids = chosen(), L = list(), img = imgFor(); if (!ids.length) { m.textContent = "先勾選至少一張"; return; } if (!window.JSZip) { m.textContent = "打包工具沒載入，重新整理再試"; return; }
+  async function dlAll() { var m = $("#dlMsg"), ids = chosen(), L = list(), img = imgFor(); if (!ids.length) { m.textContent = "先勾選至少一張"; return; } if (TRIAL && !ai) { m.textContent = "免費試用要先按「AI 寫文案」（用掉 1 件），才能存這件商品的整組圖"; return; } if (!window.JSZip) { m.textContent = "打包工具沒載入，重新整理再試"; return; }
     m.textContent = "打包中…"; var z = new JSZip();
     for (var k = 0; k < ids.length; k++) { var cv = render(L[ids[k]], img); var b = await new Promise(function (r) { cv.toBlob(r, "image/jpeg", .92); }); z.file(String(k + 1).padStart(2, "0") + "_" + L[ids[k]][0].replace(/[（）\s／]/g, "") + ".jpg", b); }
     if (ai) z.file("商品文案.txt", "商品名稱：\n" + ($("#aT") ? $("#aT").value : ai.title) + "\n\n商品描述：\n" + ($("#aD") ? $("#aD").value : ai.desc));

@@ -145,7 +145,8 @@
 
   // ===== 3. 出片（只上字幕）：照剪法播一次、錄一次 =====
   function pickMime() { var c = ["video/mp4;codecs=avc1.640028,mp4a.40.2", "video/mp4;codecs=avc1,mp4a", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"]; for (var i = 0; i < c.length; i++) if (window.MediaRecorder && MediaRecorder.isTypeSupported(c[i])) return c[i]; return ""; }
-  async function render(job, onProg) {
+  function trialMark(x, W, H) { x.save(); var h = 56; x.fillStyle = "rgba(0,0,0,.55)"; x.fillRect(0, H - h - 150, W, h); x.fillStyle = "#fff"; x.font = "700 28px \"Noto Sans TC\",sans-serif"; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("維拓 AI 剪片・免費試用版", W / 2, H - 150 - h / 2); x.restore(); }
+async function render(job, onProg) {
     onProg = onProg || function () {};
     var mod = modOf(job), acc = accentOf(job) || mod.accent, mime = pickMime();
     if (!mime) throw new Error("這個瀏覽器不能出片，請改用電腦或手機的 Chrome、Safari");
@@ -168,7 +169,7 @@
       x.fillStyle = "#000"; x.fillRect(0, 0, W, H);
       if (fit < cover - .001) { x.save(); if (canBlur) x.filter = "blur(40px) brightness(.7)"; x.drawImage(v, (W - vw * cover) / 2, (H - vh * cover) / 2, vw * cover, vh * cover); x.restore(); }
       x.drawImage(v, (W - vw * fit) / 2, (H - vh * fit) / 2, vw * fit, vh * fit);
-      var t = g.out + Math.max(0, v.currentTime - g.s); var o1 = SUBFX.size(ED.subSize); x.save(); mod.draw(x, W, H, { t: t, lines: tl.lines, accent: acc, bg: false }); x.restore(); SUBFX.size(o1); drawTitle(x, W, H, t, ED, mod, acc); drawSticky(x, W, H, ED);
+      var t = g.out + Math.max(0, v.currentTime - g.s); var o1 = SUBFX.size(ED.subSize); x.save(); mod.draw(x, W, H, { t: t, lines: tl.lines, accent: acc, bg: false }); x.restore(); SUBFX.size(o1); drawTitle(x, W, H, t, ED, mod, acc); drawSticky(x, W, H, ED); if (job.trial) trialMark(x, W, H);
       onProg(Math.min(.99, t / (tl.dur || 1))); }
     var done = new Promise(function (ok) { rec.onstop = ok; });
     if (ac && ac.state === "suspended") await ac.resume();

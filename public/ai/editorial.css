@@ -220,3 +220,7 @@ html.vai-in:not(.vai-all) .wrap{gap:28px}
 .vai-bar span{font:700 14px var(--body);color:var(--gold2)}
 .vai-bar button{border:1px solid var(--fg);background:#fff;color:var(--fg);font:500 13.5px var(--body);padding:6px 14px;cursor:pointer}
 .vai-bar button:hover{background:var(--fg);color:#fff}
+/* 免費試用＋3 天保存（Vic 10/24） */
+.state.trial{border:1px solid var(--gold);background:linear-gradient(170deg,var(--goldSoft),var(--paper) 60%);padding:16px 18px;margin-bottom:14px}
+.state.trial h3{margin:0 0 6px;font:900 18px var(--serif);color:var(--gold2)}
+.keep{font-size:12.5px;color:var(--mid)}.keep.soon{color:#b23b2e;font-weight:700}
