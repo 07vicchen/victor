@@ -20,20 +20,69 @@ const iw=i=>i.naturalWidth||i.width,ih=i=>i.naturalHeight||i.height;
 function fit(g,img,x,y,w,h,mode){const r=mode==="cover"?Math.max(w/iw(img),h/ih(img)):Math.min(w/iw(img),h/ih(img)),W=iw(img)*r,H=ih(img)*r;g.drawImage(img,x+(w-W)/2,y+(h-H)/2,W,H);return [x+(w-W)/2,y+(h-H)/2,W,H]}
 function shadow(g,cx,y,w){const gr=g.createRadialGradient(cx,y,0,cx,y,w/2);gr.addColorStop(0,"#00000033");gr.addColorStop(1,"#00000000");g.save();g.scale(1,.18);g.fillStyle=gr;g.beginPath();g.arc(cx,y/.18,w/2,0,7);g.fill();g.restore()}
 function txt(g,t,x,y,font,color,align){g.font=font;g.fillStyle=color;g.textAlign=align||"left";g.textBaseline="middle";g.fillText(t,x,y);g.textAlign="left"}
-function pill(g,t,x,y,bg,fg,size){g.font=`700 ${size}px ${F}`;const w=g.measureText(t).width+size*1.3;rr(g,x,y,w,size*1.8,size*.9);g.fillStyle=bg;g.fill();txt(g,t,x+size*.65,y+size*.92,`700 ${size}px ${F}`,fg);return w}
+function pill(g,t,x,y,bg,fg,size){g.font=`700 ${size}px ${F}`;const w=g.measureText(t).width+size*1.3;rr(g,x,y,w,size*1.8,size*.9);g.fillStyle=bg;g.fill();if(fg==="#fff"&&/^#|^rgb/.test(bg)&&bg.length<=8&&lum(bg)>.72)fg="#1b1b1b";txt(g,t,x+size*.65,y+size*.92,`700 ${size}px ${F}`,fg);return w}
 const light=(hex,a)=>{const n=parseInt(hex.slice(1),16),r=n>>16,g2=n>>8&255,b=n&255,m=v=>Math.round(v+(255-v)*a);return `rgb(${m(r)},${m(g2)},${m(b)})`};
+
+// ====== 10/25 Vic：行業 × 風格 主題系統（每個行業、每種風格要真的長得不一樣） ======
+// 行業決定：主色、背景底紋、圓角、圖示形狀、標題小裝飾；風格決定：底色深淺、字體、標題排法、卡片樣式
+var IDS={
+ gen:{accent:"#2b7a78",motif:"geo",r:16,icon:"circle",bg:"#f5f8f7",bg2:"#e7efed",deco:"none"},
+ beauty:{accent:"#c47a86",motif:"blob",r:32,icon:"circle",bg:"#fcf5f4",bg2:"#f5e6e5",deco:"spark"},
+ tech:{accent:"#2563eb",motif:"grid",r:6,icon:"square",bg:"#f2f5fa",bg2:"#e3e9f3",deco:"code"},
+ food:{accent:"#d2691e",motif:"paper",r:24,icon:"badge",bg:"#fbf5ea",bg2:"#f2e5cd",deco:"wave"},
+ cloth:{accent:"#c8963e",motif:"none",r:14,icon:"circle",bg:"#ffffff",bg2:"#f3f3f1",deco:"none"}};
+var STS={
+ s:{name:"簡約",dark:0,tf:F,tw:900,ef:'"Roboto",sans-serif',ew:700,ei:0,eu:1,hdr:"rule",card:"line",dr:0},
+ k:{name:"韓系",dark:0,bg:"#f6efe7",bg2:"#ece0d2",card:"#fffaf4",line:"#e6d6c3",ink:"#4a3a2e",sub:"#8d7866",tf:'"Noto Serif TC",serif',tw:900,ef:'"Playfair Display",Georgia,serif',ew:500,ei:1,eu:0,hdr:"serif",card:"soft",dr:14},
+ st:{name:"街頭",dark:1,bg:"#111214",bg2:"#1d1e22",card:"#202126",line:"#36383f",ink:"#f4f4f1",sub:"#a4a6ad",tf:F,tw:900,ef:'"Bebas Neue",Impact,"Arial Black",sans-serif',ew:400,ei:0,eu:1,hdr:"tape",card:"solid",dr:-99}};
+function IKEY(){return window.IND_NOW||"gen"}
+function TH(){const i=IDS[IKEY()]||IDS.gen,st=STS[typeof sty!=="undefined"?sty:"s"]||STS.s,d=st.dark;
+ return {i:i,s:st,dark:d,bg:st.bg?(IKEY()==="cloth"||st.dark?st.bg:mix(st.bg,i.bg,.35)):i.bg,bg2:st.bg2?(st.dark?st.bg2:mix(st.bg2,i.bg2,.35)):i.bg2,
+  card:st.card==="line"?"#ffffff":(st.cardC||(d?"#202126":"#fffaf4")),line:st.line||(d?"#36383f":mix("#e4e6ea",i.bg2,.5)),ink:st.ink||(IKEY()==="tech"?"#101828":"#1b1b1b"),sub:st.sub||(IKEY()==="tech"?"#5b6474":"#666a70"),
+  r:Math.max(4,i.r+st.dr),tf:st.tf,tw:st.tw,ef:IKEY()==="tech"&&!st.dark?'"Space Grotesk","Roboto",sans-serif':st.ef,ew:IKEY()==="tech"&&!st.dark?700:st.ew,ei:st.ei,eu:st.eu,hdr:st.hdr,cardS:st.card,icon:i.icon,motif:i.motif,deco:i.deco}}
+function hx(c){if(c[0]==="#"){let h=c.slice(1);if(h.length===3)h=h.split("").map(x=>x+x).join("");const n=parseInt(h.slice(0,6),16);return [n>>16,n>>8&255,n&255]}const m=c.match(/\d+/g)||[0,0,0];return m.slice(0,3).map(Number)}
+function mix(a,b,k){const A=hx(a),B=hx(b);return `rgb(${A.map((v,i)=>Math.round(v*(1-k)+B[i]*k)).join(",")})`}
+function lum(c){const [r,g2,b]=hx(c);return (r*.299+g2*.587+b*.114)/255}
+// 主色混背景（深色風格不會變成一片粉白）
+function tint(k){return mix(col,TH().bg,k)}
+// 背景＋行業底紋
+function bgPaint(g){const t=TH();g.fillStyle=t.bg;g.fillRect(0,0,S,S);motif(g,t)}
+function motif(g,t){const a=t.dark?.10:.07;g.save();
+ if(t.motif==="blob"){[[S-120,150,300],[90,S-60,260]].forEach(([x,y,r])=>{const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,mix(col,t.bg,t.dark?.6:.55));gr.addColorStop(1,t.bg);g.globalAlpha=t.dark?.35:.6;g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,7);g.fill()});
+  g.globalAlpha=t.dark?.5:.7;g.fillStyle=mix(col,t.bg,.3);[[S-70,330,7],[S-150,380,4],[140,S-250,5]].forEach(([x,y,r])=>{g.beginPath();g.arc(x,y,r,0,7);g.fill()})}
+ else if(t.motif==="grid"){g.strokeStyle=t.dark?"#ffffff":"#1d3a7a";g.globalAlpha=a*.7;g.lineWidth=1;for(let x=0;x<=S;x+=54){g.beginPath();g.moveTo(x+.5,0);g.lineTo(x+.5,S);g.stroke()}for(let y=0;y<=S;y+=54){g.beginPath();g.moveTo(0,y+.5);g.lineTo(S,y+.5);g.stroke()}
+  g.globalAlpha=1;g.strokeStyle=col;g.lineWidth=5;[[24,24,1,1],[S-24,24,-1,1],[24,S-24,1,-1],[S-24,S-24,-1,-1]].forEach(([x,y,dx,dy])=>{g.beginPath();g.moveTo(x,y+dy*46);g.lineTo(x,y);g.lineTo(x+dx*46,y);g.stroke()})}
+ else if(t.motif==="paper"){let sd=7;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;g.fillStyle=t.dark?"#ffffff":"#8a5a2b";for(let i=0;i<900;i++){g.globalAlpha=rnd()*(t.dark?.08:.10);g.fillRect(rnd()*S,rnd()*S,1.6,1.6)}
+  g.globalAlpha=t.dark?.45:.55;g.strokeStyle=col;g.lineWidth=3;g.setLineDash([14,10]);rr(g,22,22,S-44,S-44,t.r+10);g.stroke();g.setLineDash([])}
+ else if(t.motif==="geo"){g.globalAlpha=t.dark?.22:.16;g.strokeStyle=col;g.lineWidth=3;for(let k=0;k<7;k++){g.beginPath();g.moveTo(S-260+k*40,S);g.lineTo(S,S-260+k*40);g.stroke()}
+  g.fillStyle=col;for(let x=0;x<5;x++)for(let y=0;y<3;y++){g.beginPath();g.arc(S-210+x*30,52+y*30,3.2,0,7);g.fill()}}
+ g.restore();
+ if(t.hdr==="serif"&&IKEY()!=="cloth"){g.save();g.strokeStyle=t.line;g.lineWidth=2;rr(g,30,30,S-60,S-60,t.r+18);g.stroke();g.restore()}}
+// 卡片（風格決定長相）
+function card(g,x,y,w,h,r){const t=TH();r=Math.min(r==null?t.r:r,t.r+8);g.save();
+ if(t.cardS==="soft"){g.shadowColor="rgba(90,60,30,.12)";g.shadowBlur=28;g.shadowOffsetY=10;g.fillStyle=t.card;rr(g,x,y,w,h,r);g.fill()}
+ else if(t.cardS==="solid"){g.fillStyle=t.card;rr(g,x,y,w,h,r);g.fill();g.fillStyle=col;g.fillRect(x,y,6,h)}
+ else{g.fillStyle=t.card;rr(g,x,y,w,h,r);g.fill();g.strokeStyle=t.line;g.lineWidth=2;g.stroke()}
+ g.restore()}
+function card2(g,x,y,w,h,r){const t=TH();g.fillStyle=t.bg2;rr(g,x,y,w,h,Math.min(r==null?t.r:r,t.r+8));g.fill()}
+// 小圖示（行業決定形狀）
+function icon(g,x,y,r,ch){const t=TH();g.save();g.fillStyle=tint(t.dark?.55:.82);
+ if(t.icon==="square"){rr(g,x-r,y-r,2*r,2*r,Math.max(6,r*.25));g.fill();g.strokeStyle=col;g.lineWidth=2;g.stroke()}
+ else if(t.icon==="badge"){g.beginPath();for(let k=0;k<24;k++){const a=k*Math.PI/12,rr2=k%2?r*.9:r*1.04;g.lineTo(x+Math.cos(a)*rr2,y+Math.sin(a)*rr2)}g.closePath();g.fill()}
+ else{g.beginPath();g.arc(x,y,r,0,7);g.fill()}
+ g.restore();txt(g,ch,x,y+2,`900 ${Math.round(r*.86)}px ${F}`,t.dark?mix(col,"#ffffff",.35):col,"center")}
 
 // ---------- 九種版型 ----------
 function cover1(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);shadow(g,540,960,560);fit(g,img,140,90,800,880,"contain");
   pill(g,"台灣現貨",40,40,col,"#fff",34);
   g.fillStyle=col;g.beginPath();g.moveTo(S-260,0);g.lineTo(S,0);g.lineTo(S,260);g.closePath();g.fill();
   g.save();g.translate(S-95,95);g.rotate(Math.PI/4);txt(g,"免運",0,0,`900 46px ${F}`,"#fff","center");g.restore()}
-function cover2(g,img){g.fillStyle=light(col,.88);g.fillRect(0,0,S,S);g.fillStyle=light(col,.75);g.beginPath();g.arc(760,560,380,0,7);g.fill();
+function cover2(g,img){g.fillStyle=tint(.88);g.fillRect(0,0,S,S);g.fillStyle=tint(.75);g.beginPath();g.arc(760,560,380,0,7);g.fill();
   shadow(g,760,990,460);fit(g,img,480,120,560,880,"contain");
   txt(g,"NEW",70,130,`900 40px ${N}`,col);
-  g.font=`900 92px ${F}`;g.fillStyle="#1b1b1b";g.textBaseline="top";const lines=wrap(g,P.head,430);lines.slice(0,3).forEach((l,i)=>g.fillText(l,70,180+i*110));
+  g.font=`900 92px ${F}`;g.fillStyle=TH().ink;g.textBaseline="top";const lines=wrap(g,P.head,430);lines.slice(0,3).forEach((l,i)=>g.fillText(l,70,180+i*110));
   let y=200+Math.min(3,lines.length)*110+20;P.badges.forEach(b=>{pill(g,"✓ "+b,70,y,col,"#fff",36);y+=88})}
-function detail(g,img){g.fillStyle="#f4f4f2";g.fillRect(0,0,S,S);const [x,y,w,h]=fit(g,img,60,80,520,920,"contain");
+function detail(g,img){bgPaint(g);const [x,y,w,h]=fit(g,img,60,80,520,920,"contain");
   const sp=P.spots||["單手按壓開蓋","霧面防滑塗層","加厚防摔底座"],spots=[[.5,.12,sp[0]],[.5,.55,sp[1]],[.5,.88,sp[2]]];
   spots.forEach(([fx,fy,label],i)=>{const sx=x+w*fx,sy=y+h*fy,cx=800,cy=200+i*330,R=130;
     g.strokeStyle=col;g.lineWidth=4;g.setLineDash([10,8]);g.beginPath();g.moveTo(sx,sy);g.lineTo(cx-R,cy);g.stroke();g.setLineDash([]);
@@ -42,16 +91,16 @@ function detail(g,img){g.fillStyle="#f4f4f2";g.fillRect(0,0,S,S);const [x,y,w,h]
     const z=2.4,sw=iw(img)/w,sh=ih(img)/h,srcW=2*R/z*sw,srcH=2*R/z*sh,srcX=(sx-x)*sw-srcW/2,srcY=(sy-y)*sh-srcH/2;
     g.drawImage(img,srcX,srcY,srcW,srcH,cx-R,cy-R,2*R,2*R);g.restore();
     g.strokeStyle=col;g.lineWidth=8;g.beginPath();g.arc(cx,cy,R,0,7);g.stroke();
-    pill(g,label,cx-R-20,cy+R-20,"#1b1b1b","#fff",28)})}
-function sizes(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);g.fillStyle=col;g.fillRect(0,0,S,150);
+    pill(g,label,cx-R-20,cy+R-20,TH().ink,"#fff",28)})}
+function sizes(g,img){bgPaint(g);g.fillStyle=col;g.fillRect(0,0,S,150);
   txt(g,P.sizeTitle||"尺寸規格表",60,78,`900 60px ${F}`,"#fff");txt(g,P.sizeEn||"SIZE GUIDE",S-60,82,`700 30px ${N}`,"#ffffffaa","right");
   fit(g,img,60,200,280,560,"contain");
   const x0=380,y0=210,cw=[160,160,160,160],rh=112;
   P.sizes.forEach((row,r)=>{row.forEach((cell,c)=>{const x=x0+cw.slice(0,c).reduce((a,b)=>a+b,0),y=y0+r*rh;
-    g.fillStyle=r===0?light(col,.85):(r%2?"#fafafa":"#fff");g.fillRect(x,y,cw[c],rh);g.strokeStyle="#e4e4e4";g.lineWidth=2;g.strokeRect(x,y,cw[c],rh);
-    txt(g,cell,x+cw[c]/2,y+rh/2,`${r===0||c===0?900:500} ${c===0?32:36}px ${F}`,r===0?col:"#222","center")})});
-  g.fillStyle="#f6f6f4";rr(g,60,830,S-120,180,16);g.fill();
-  const sn=P.sizeNotes||["手工測量，誤差 ±1cm","不同螢幕顯示顏色可能略有差異"];txt(g,"・"+sn[0],100,885,`500 32px ${F}`,"#444");txt(g,"・"+sn[1],100,950,`500 32px ${F}`,"#444")}
+    g.fillStyle=r===0?tint(.85):(r%2?TH().bg2:TH().card);g.fillRect(x,y,cw[c],rh);g.strokeStyle=TH().line;g.lineWidth=2;g.strokeRect(x,y,cw[c],rh);
+    txt(g,cell,x+cw[c]/2,y+rh/2,`${r===0||c===0?900:500} ${c===0?32:36}px ${F}`,r===0?col:TH().ink,"center")})});
+  card2(g,60,830,S-120,180,16);
+  const sn=P.sizeNotes||["手工測量，誤差 ±1cm","不同螢幕顯示顏色可能略有差異"];txt(g,"・"+sn[0],100,885,`500 32px ${F}`,TH().sub);txt(g,"・"+sn[1],100,950,`500 32px ${F}`,TH().sub)}
 function ucNote(g){txt(g,"顏色示意，實際以商品為準",S-60,S-40,`500 26px ${F}`,"#8a8a8a","right")}
 // 10/25 Vic：顏色圖只用實拍照，不用程式染色；沒拍的顏色畫布料色卡
 function ucImg(u,i){return u.img||(u.main&&typeof prodUp!=="undefined"&&prodUp)||null}
@@ -64,13 +113,13 @@ function swatchCard(g,hex,x,y,w,h){g.save();rr(g,x,y,w,h,14);g.clip();g.fillStyl
 function ucOn(){return !!(window.USERCOLORS&&USERCOLORS.length)}
 function ucName(u){return u.n||(window.UCNAME?UCNAME(u.hex):"")}
 function ucDraw(g,title){const L=USERCOLORS,n=L.length,w=(S-120)/n;txt(g,`共 ${n} 色`,S-60,95,`700 34px ${F}`,col,"right");
-  L.forEach((u,i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,230,w-16,640,18);g.fill();const im=ucImg(u,i);if(im)fit(g,im,x+20,250,w-40,600,"contain");else swatchCard(g,u.hex,x+28,260,w-56,580)
+  L.forEach((u,i)=>{const x=60+i*w;g.fillStyle=i%2?TH().bg2:mix(TH().bg2,TH().ink,.04);rr(g,x+8,230,w-16,640,18);g.fill();const im=ucImg(u,i);if(im)fit(g,im,x+20,250,w-40,600,"contain");else swatchCard(g,u.hex,x+28,260,w-56,580)
     g.fillStyle=u.hex;g.beginPath();g.arc(x+w/2,920,24,0,7);g.fill();g.strokeStyle="#00000030";g.lineWidth=2;g.stroke();txt(g,ucName(u),x+w/2,990,`700 ${n>4?28:34}px ${F}`,"#1b1b1b","center")});ucNote(g)}
-function colors(g,img){g.fillStyle="#fafafa";g.fillRect(0,0,S,S);txt(g,P.colorTitle||"顏色一覽",60,90,`900 60px ${F}`,"#1b1b1b");if(ucOn()){ucDraw(g);return}txt(g,`共 ${P.colors.length} ${P.colorUnit||"色"}`,S-60,95,`700 34px ${F}`,col,"right");
+function colors(g,img){bgPaint(g);txt(g,P.colorTitle||"顏色一覽",60,90,`900 60px ${F}`,TH().ink);if(ucOn()){ucDraw(g);return}txt(g,`共 ${P.colors.length} ${P.colorUnit||"色"}`,S-60,95,`700 34px ${F}`,col,"right");
   const n=P.colors.length,w=(S-120)/n;
-  P.colors.forEach(([name,hue],i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,170,w-16,760,18);g.fill();
+  P.colors.forEach(([name,hue],i)=>{const x=60+i*w;g.fillStyle=i%2?TH().bg2:mix(TH().bg2,TH().ink,.04);rr(g,x+8,170,w-16,760,18);g.fill();
     g.save();g.filter=hue===1?"brightness(1.9) saturate(0.2)":hue?`sepia(1) saturate(4) hue-rotate(${hue-40}deg) brightness(1.15)`:"none";fit(g,img,x+20,210,w-40,620,"contain");g.restore();
-    txt(g,name,x+w/2,880,`700 32px ${F}`,"#222","center")});
+    txt(g,name,x+w/2,880,`700 32px ${F}`,TH().ink,"center")});
   g.fillStyle=col;g.fillRect(60,970,S-120,8)}
 function scene(g,img){const wall=g.createLinearGradient(0,0,0,700);wall.addColorStop(0,"#e9e2d6");wall.addColorStop(1,"#d9cfbf");g.fillStyle=wall;g.fillRect(0,0,S,700);
   g.fillStyle="#fff8";g.fillRect(620,80,340,420);g.strokeStyle="#c9bda8";g.lineWidth=10;g.strokeRect(620,80,340,420);g.beginPath();g.moveTo(790,80);g.lineTo(790,500);g.moveTo(620,290);g.lineTo(960,290);g.stroke();
@@ -86,12 +135,12 @@ function model(g,img){const bg=g.createLinearGradient(0,0,S,S);bg.addColorStop(0
   g.fillStyle="#fff";rr(g,60,S-210,S-120,150,18);g.fill();
   txt(g,"AI 模特兒試穿／手拿",100,S-160,`900 44px ${F}`,"#1b1b1b");txt(g,"正式版用付費生圖產生真人感模特兒，這裡是示意",100,S-100,`500 28px ${F}`,"#666");
   pill(g,"付費功能",40,40,"#1b1b1bcc","#fff",30)}
-function beforeAfter(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);
+function beforeAfter(g,img){bgPaint(g);
   g.save();g.beginPath();g.rect(0,0,S/2,S);g.clip();g.fillStyle="#d8d6d2";g.fillRect(0,0,S/2,S);g.filter="grayscale(1) brightness(.75) contrast(.8)";fit(g,img,40,150,S/2-80,760,"contain");g.restore();
-  g.save();g.beginPath();g.rect(S/2,0,S/2,S);g.clip();g.fillStyle=light(col,.85);g.fillRect(S/2,0,S/2,S);fit(g,img,S/2+40,150,S/2-80,760,"contain");g.restore();
+  g.save();g.beginPath();g.rect(S/2,0,S/2,S);g.clip();g.fillStyle=tint(.85);g.fillRect(S/2,0,S/2,S);fit(g,img,S/2+40,150,S/2-80,760,"contain");g.restore();
   g.fillStyle="#fff";g.fillRect(S/2-4,0,8,S);g.beginPath();g.arc(S/2,S/2,46,0,7);g.fill();txt(g,"VS",S/2,S/2+2,`900 34px ${N}`,col,"center");
-  pill(g,(P.ba||[])[0]||"使用前",40,40,"#1b1b1b","#fff",34);pill(g,(P.ba||[])[1]||"使用後",S/2+40,40,col,"#fff",34);
-  txt(g,(P.ba||[])[2]||"一般杯 3 小時就退冰",S/4,S-80,`700 36px ${F}`,"#333","center");txt(g,(P.ba||[])[3]||"保冰一整天",S*3/4,S-80,`900 40px ${F}`,col,"center")}
+  pill(g,(P.ba||[])[0]||"使用前",40,40,TH().ink,"#fff",34);pill(g,(P.ba||[])[1]||"使用後",S/2+40,40,col,"#fff",34);
+  txt(g,(P.ba||[])[2]||"一般杯 3 小時就退冰",S/4,S-80,`700 36px ${F}`,TH().sub,"center");txt(g,(P.ba||[])[3]||"保冰一整天",S*3/4,S-80,`900 40px ${F}`,col,"center")}
 function event(g,img){const bg=g.createLinearGradient(0,0,0,S);bg.addColorStop(0,"#1b1b1b");bg.addColorStop(1,col);g.fillStyle=bg;g.fillRect(0,0,S,S);
   for(let i=0;i<14;i++){g.fillStyle=i%2?"#ffffff14":"#ffffff08";g.beginPath();g.moveTo(540,540);g.arc(540,540,900,i*Math.PI/7,(i+.5)*Math.PI/7);g.fill()}
   txt(g,"11.11",540,170,`900 190px ${N}`,"#fff","center");txt(g,"年度最狂  限時 3 天",540,300,`900 56px ${F}`,"#ffe6a8","center");
@@ -121,9 +170,9 @@ function shirt(color){if(shirtCache[color])return shirtCache[color];var c=docume
   g.strokeStyle="#00000030";g.lineWidth=10;g.beginPath();g.moveTo(255,64);g.quadraticCurveTo(350,140,445,64);g.stroke();
   shirtCache[color]=c;return c}
 var shirtImg=()=>prodUp||shirt(CP.colors[0][1]==="#f2f1ed"?"#e9e7e1":CP.colors[0][1]);
-function Z(){return STY[sty]}
-function bgFill(g){var z=Z();g.fillStyle=z.bg;g.fillRect(0,0,S,S)}
-function hdA(g,t,x,y,size,color,align){var z=Z();txt(g,t,x,y,`${z.w} ${size}px ${F}`,color||z.ink,align)}
+function Z(){const t=TH();return {name:(STS[sty]||STS.s).name,bg:t.bg,panel:t.bg2,ink:t.ink,mute:t.sub,w:t.tw,tf:t.tf}}
+function bgFill(g){bgPaint(g)}
+function hdA(g,t,x,y,size,color,align){var z=Z();txt(g,t,x,y,`${z.w} ${size}px ${z.tf||F}`,color||z.ink,align)}
 function bars(g,label,v,x,y,w){var z=Z();txt(g,label,x,y,`700 34px ${F}`,z.ink);for(let i=0;i<5;i++){rr(g,x+210+i*(w-210)/5,y-16,(w-210)/5-10,32,8);g.fillStyle=i<v?col:z.panel;g.fill()}}
 function tableAt(g,rows,x,y,w,rh){var z=Z(),cw=w/rows[0].length;rows.forEach((r,ri)=>r.forEach((c,ci)=>{g.fillStyle=ri===0?col:(ri%2?z.panel:z.bg);g.fillRect(x+ci*cw,y+ri*rh,cw,rh);g.strokeStyle=z.mute+"55";g.lineWidth=2;g.strokeRect(x+ci*cw,y+ri*rh,cw,rh);
   txt(g,c,x+ci*cw+cw/2,y+ri*rh+rh/2,`${ri===0||ci===0?800:500} ${ri===0?34:32}px ${F}`,ri===0?"#fff":z.ink,"center")}))}
@@ -243,69 +292,76 @@ function sampleFor(k){if(k==="gen"||!IND[k])return sampleProduct();const c=docum
  return c}
 
 // ---------- 各行業專屬版型（資料驅動，用客人上傳的商品照，不用付費生圖） ----------
-function hd(g,t,en,bg){if(typeof en==="number")return hdA(g,t,en,bg,arguments[4],arguments[5],arguments[6]);g.fillStyle=bg||"#fff";g.fillRect(0,0,S,S);txt(g,t,60,96,`900 64px ${F}`,"#1b1b1b");if(en)txt(g,en,62,158,`700 26px ${N}`,col);g.fillStyle=col;g.fillRect(60,190,90,8)}
+function hd(g,t,en,bg){if(typeof en==="number")return hdA(g,t,en,bg,arguments[4],arguments[5],arguments[6]);const T=TH();bgPaint(g);
+ const E=en?(T.eu?String(en).toUpperCase():String(en).toLowerCase().replace(/(^|\s)\S/g,m=>m.toUpperCase())):"";
+ if(T.hdr==="serif"){const cx=S/2-40;if(E)txt(g,E,cx,92,`${T.ei?"italic ":""}${T.ew} 36px ${T.ef}`,col,"center");txt(g,t,cx,156,`${T.tw} 60px ${T.tf}`,T.ink,"center");g.strokeStyle=col;g.lineWidth=2;g.beginPath();g.moveTo(cx-120,206);g.lineTo(cx-20,206);g.moveTo(cx+20,206);g.lineTo(cx+120,206);g.stroke();g.fillStyle=col;g.beginPath();g.arc(cx,206,5,0,7);g.fill()}
+ else if(T.hdr==="tape"){g.font=`900 66px ${T.tf}`;const tw=Math.min(S-120,g.measureText(t).width+60);g.save();g.translate(52,62);g.rotate(-.035);g.fillStyle=col;g.fillRect(0,0,tw,112);g.restore();txt(g,t,76,120,`900 66px ${T.tf}`,lum(col)>.62?"#111":"#fff");if(E)txt(g,E,78,212,`${T.ew} 46px ${T.ef}`,T.ink)}
+ else{txt(g,t,60,96,`${T.tw} 64px ${T.tf}`,T.ink);if(E)txt(g,(T.deco==="code"?"// ":"")+E,62,158,`${T.ew} 26px ${T.ef}`,col);g.fillStyle=col;g.fillRect(60,190,90,8)}
+ if(T.deco==="spark"){g.fillStyle=col;star(g,T.hdr==="tape"?S-80:T.hdr==="serif"?S/2-200:40,T.hdr==="serif"?92:60,14)}
+ if(T.deco==="wave"&&T.hdr!=="tape"){g.strokeStyle=col;g.lineWidth=5;g.beginPath();for(let x=0;x<=200;x+=4)g.lineTo(T.hdr==="serif"?S/2-140+x:160+x,(T.hdr==="serif"?228:194)+Math.sin(x/12)*5);g.stroke()}}
+function star(g,x,y,r){g.beginPath();for(let k=0;k<8;k++){const a=k*Math.PI/4-Math.PI/2,q=k%2?r*.32:r;g.lineTo(x+Math.cos(a)*q,y+Math.sin(a)*q)}g.closePath();g.fill()}
 function para(g,t,x,y,max,font,color,lh){g.font=font;const ls=wrap(g,t,max);ls.forEach((l,i)=>txt(g,l,x,y+i*lh,font,color));return ls.length}
 function chk(g,x,y,r,ok){g.fillStyle=ok?col:"#c9c9c9";g.beginPath();g.arc(x,y,r,0,7);g.fill();g.strokeStyle="#fff";g.lineWidth=r*.22;g.lineCap="round";g.beginPath();if(ok){g.moveTo(x-r*.42,y);g.lineTo(x-r*.1,y+r*.32);g.lineTo(x+r*.45,y-r*.32)}else{g.moveTo(x-r*.35,y-r*.35);g.lineTo(x+r*.35,y+r*.35);g.moveTo(x+r*.35,y-r*.35);g.lineTo(x-r*.35,y+r*.35)}g.stroke();g.lineCap="butt"}
 // 1 功能／成分格子
-function tGrid(g,img,d){hd(g,d.t,d.en,"#fbfaf7");fit(g,img,S-300,40,240,300,"contain");
+function tGrid(g,img,d){hd(g,d.t,d.en);fit(g,img,S-300,40,240,300,"contain");
   const it=d.items,cols=2,cw=(S-150)/cols,rows=Math.ceil(Math.min(6,it.length)/cols),ch=Math.min(300,(S-400-(rows-1)*24)/rows);it.slice(0,6).forEach(([ic,lab,ds],i)=>{const x=60+(i%cols)*(cw+30),y=360+Math.floor(i/cols)*(ch+24);
-    g.fillStyle="#fff";rr(g,x,y,cw,ch,18);g.fill();g.strokeStyle="#ece7dd";g.lineWidth=2;g.stroke();
-    g.fillStyle=light(col,.82);g.beginPath();g.arc(x+70,y+ch/2,46,0,7);g.fill();txt(g,ic,x+70,y+ch/2+2,`900 40px ${F}`,col,"center");
-    txt(g,lab,x+140,y+ch/2-28,`900 38px ${F}`,"#1b1b1b");para(g,ds,x+140,y+ch/2+28,cw-170,`500 26px ${F}`,"#666",36)})}
+    card(g,x,y,cw,ch,18);g.strokeStyle=TH().line;g.lineWidth=2;g.stroke();
+    icon(g,x+70,y+ch/2,46,ic);
+    txt(g,lab,x+140,y+ch/2-28,`900 38px ${F}`,TH().ink);para(g,ds,x+140,y+ch/2+28,cw-170,`500 26px ${F}`,TH().sub,36)})}
 // 2 步驟
-function tSteps(g,img,d){hd(g,d.t,d.en);g.fillStyle=light(col,.9);g.fillRect(0,230,400,S-230);fit(g,img,40,280,320,700,"contain");
-  const st=d.steps,gap=(S-300)/st.length;g.strokeStyle=light(col,.6);g.lineWidth=4;g.beginPath();g.moveTo(490,300);g.lineTo(490,300+gap*(st.length-1));g.stroke();
+function tSteps(g,img,d){hd(g,d.t,d.en);g.fillStyle=tint(.9);g.fillRect(0,230,400,S-230);fit(g,img,40,280,320,700,"contain");
+  const st=d.steps,gap=(S-300)/st.length;g.strokeStyle=tint(.6);g.lineWidth=4;g.beginPath();g.moveTo(490,300);g.lineTo(490,300+gap*(st.length-1));g.stroke();
   st.forEach(([lab,ds],i)=>{const y=300+i*gap;g.fillStyle=col;g.beginPath();g.arc(490,y,40,0,7);g.fill();txt(g,String(i+1),490,y+2,`900 40px ${N}`,"#fff","center");
-    txt(g,lab,560,y-14,`900 40px ${F}`,"#1b1b1b");para(g,ds,560,y+36,S-620,`500 27px ${F}`,"#666",36)})}
+    txt(g,lab,560,y-14,`900 40px ${F}`,TH().ink);para(g,ds,560,y+36,S-620,`500 27px ${F}`,TH().sub,36)})}
 // 3 包裝內容物
-function tBox(g,img,d){hd(g,d.t,d.en,"#f7f6f3");g.fillStyle="#fff";rr(g,60,240,S-120,500,24);g.fill();shadow(g,S/2,700,420);fit(g,img,S/2-210,270,420,440,"contain");
-  const it=d.items,w=(S-120-(it.length-1)*16)/it.length;it.forEach((t,i)=>{const x=60+i*(w+16);g.fillStyle="#fff";rr(g,x,780,w,220,18);g.fill();chk(g,x+w/2,840,30,true);para(g,t,x+20,910,w-40,`700 28px ${F}`,"#333",36)})}
+function tBox(g,img,d){hd(g,d.t,d.en);card(g,60,240,S-120,500,24);shadow(g,S/2,700,420);fit(g,img,S/2-210,270,420,440,"contain");
+  const it=d.items,w=(S-120-(it.length-1)*16)/it.length;it.forEach((t,i)=>{const x=60+i*(w+16);card(g,x,780,w,220,18);chk(g,x+w/2,840,30,true);para(g,t,x+20,910,w-40,`700 28px ${F}`,TH().sub,36)})}
 // 4 尺寸對照（跟信用卡比）
 function tScale(g,img,d){hd(g,d.t,d.en);const [x,y,w,h]=fit(g,img,140,260,420,700,"contain");
-  g.strokeStyle="#1b1b1b";g.lineWidth=3;g.beginPath();g.moveTo(x-40,y);g.lineTo(x-40,y+h);g.moveTo(x-55,y);g.lineTo(x-25,y);g.moveTo(x-55,y+h);g.lineTo(x-25,y+h);g.stroke();
-  g.save();g.translate(x-75,y+h/2);g.rotate(-Math.PI/2);txt(g,d.h,0,0,`900 34px ${N}`,"#1b1b1b","center");g.restore();
-  g.beginPath();g.moveTo(x,y+h+40);g.lineTo(x+w,y+h+40);g.stroke();txt(g,d.w,x+w/2,y+h+80,`900 34px ${N}`,"#1b1b1b","center");
-  const cx=640,cy=640,cw=300,chh=190;g.fillStyle=light(col,.8);rr(g,cx,cy,cw,chh,16);g.fill();g.fillStyle=light(col,.6);rr(g,cx+30,cy+50,60,44,8);g.fill();txt(g,"8.5 × 5.4 cm",cx+cw/2,cy+chh+44,`700 28px ${N}`,"#666","center");txt(g,"一張信用卡",cx+cw/2,cy-36,`700 30px ${F}`,"#666","center");
-  g.fillStyle="#f6f4ef";rr(g,620,300,400,240,18);g.fill();para(g,d.note,650,350,340,`700 32px ${F}`,"#1b1b1b",46)}
+  g.strokeStyle=TH().ink;g.lineWidth=3;g.beginPath();g.moveTo(x-40,y);g.lineTo(x-40,y+h);g.moveTo(x-55,y);g.lineTo(x-25,y);g.moveTo(x-55,y+h);g.lineTo(x-25,y+h);g.stroke();
+  g.save();g.translate(x-75,y+h/2);g.rotate(-Math.PI/2);txt(g,d.h,0,0,`900 34px ${N}`,TH().ink,"center");g.restore();
+  g.beginPath();g.moveTo(x,y+h+40);g.lineTo(x+w,y+h+40);g.stroke();txt(g,d.w,x+w/2,y+h+80,`900 34px ${N}`,TH().ink,"center");
+  const cx=640,cy=640,cw=300,chh=190;g.fillStyle=tint(.8);rr(g,cx,cy,cw,chh,16);g.fill();g.fillStyle=tint(.6);rr(g,cx+30,cy+50,60,44,8);g.fill();txt(g,"8.5 × 5.4 cm",cx+cw/2,cy+chh+44,`700 28px ${N}`,TH().sub,"center");txt(g,"一張信用卡",cx+cw/2,cy-36,`700 30px ${F}`,TH().sub,"center");
+  card2(g,620,300,400,240,18);para(g,d.note,650,350,340,`700 32px ${F}`,TH().ink,46)}
 // 5 比較表
 function tCompare(g,img,d){hd(g,d.t,d.en);fit(g,img,S-260,30,200,260,"contain");
   const x0=60,y0=260,cw=[380,280,280],rh=(S-320)/(d.rows.length+1);
-  [["",d.cols[0],d.cols[1]]].concat(d.rows).forEach((r,i)=>{let x=x0;r.forEach((c,j)=>{const y=y0+i*rh;g.fillStyle=j===1?(i?light(col,.9):col):(i%2?"#fafafa":"#fff");g.fillRect(x,y,cw[j],rh);g.strokeStyle="#ececec";g.lineWidth=2;g.strokeRect(x,y,cw[j],rh);
-    if(i===0)txt(g,c,x+cw[j]/2,y+rh/2,`900 34px ${F}`,j===1?"#fff":"#888","center");else if(j===0)txt(g,c,x+30,y+rh/2,`700 32px ${F}`,"#333");
-    else if(c==="✓"||c==="✕")chk(g,x+cw[j]/2,y+rh/2,26,c==="✓");else txt(g,c,x+cw[j]/2,y+rh/2,`${j===1?900:500} 30px ${F}`,j===1?col:"#888","center");x+=cw[j]})})}
+  [["",d.cols[0],d.cols[1]]].concat(d.rows).forEach((r,i)=>{let x=x0;r.forEach((c,j)=>{const y=y0+i*rh;g.fillStyle=j===1?(i?tint(.9):col):(i%2?TH().bg2:TH().card);g.fillRect(x,y,cw[j],rh);g.strokeStyle=TH().line;g.lineWidth=2;g.strokeRect(x,y,cw[j],rh);
+    if(i===0)txt(g,c,x+cw[j]/2,y+rh/2,`900 34px ${F}`,j===1?"#fff":TH().sub,"center");else if(j===0)txt(g,c,x+30,y+rh/2,`700 32px ${F}`,TH().sub);
+    else if(c==="✓"||c==="✕")chk(g,x+cw[j]/2,y+rh/2,26,c==="✓");else txt(g,c,x+cw[j]/2,y+rh/2,`${j===1?900:500} 30px ${F}`,j===1?col:TH().sub,"center");x+=cw[j]})})}
 // 6 常見問題
-function tFaq(g,img,d){hd(g,d.t,d.en,"#fbfaf7");fit(g,img,S-250,30,190,250,"contain");let y=260;
-  d.qa.slice(0,4).forEach(([q,a])=>{g.fillStyle="#fff";rr(g,60,y,S-120,170,18);g.fill();g.fillStyle=col;g.beginPath();g.arc(115,y+52,30,0,7);g.fill();txt(g,"Q",115,y+54,`900 32px ${N}`,"#fff","center");
-    txt(g,q,165,y+52,`900 32px ${F}`,"#1b1b1b");para(g,a,165,y+108,S-260,`500 27px ${F}`,"#666",36);y+=190})}
+function tFaq(g,img,d){hd(g,d.t,d.en);fit(g,img,S-250,30,190,250,"contain");let y=260;
+  d.qa.slice(0,4).forEach(([q,a])=>{card(g,60,y,S-120,170,18);g.fillStyle=col;g.beginPath();g.arc(115,y+52,30,0,7);g.fill();txt(g,"Q",115,y+54,`900 32px ${N}`,"#fff","center");
+    txt(g,q,165,y+52,`900 32px ${F}`,TH().ink);para(g,a,165,y+108,S-260,`500 27px ${F}`,TH().sub,36);y+=190})}
 // 7 好評框（示意，客人換成自己的真實評價）
-function tReview(g,img,d){hd(g,d.t,d.en,light(col,.9));fit(g,img,S-260,30,200,260,"contain");
-  d.rv.slice(0,3).forEach(([n,t],i)=>{const y=280+i*240;g.fillStyle="#fff";rr(g,60,y,S-120,210,20);g.fill();g.fillStyle=light(col,.75);g.beginPath();g.arc(130,y+70,40,0,7);g.fill();txt(g,n.slice(0,1),130,y+72,`900 34px ${F}`,col,"center");
-    txt(g,n,190,y+52,`700 30px ${F}`,"#333");txt(g,"★★★★★",190,y+94,`900 28px ${F}`,"#f2b01e");para(g,t,100,y+150,S-220,`500 29px ${F}`,"#444",38)});
+function tReview(g,img,d){hd(g,d.t,d.en);fit(g,img,S-260,30,200,260,"contain");
+  d.rv.slice(0,3).forEach(([n,t],i)=>{const y=280+i*240;card(g,60,y,S-120,210,20);g.fillStyle=tint(.75);g.beginPath();g.arc(130,y+70,40,0,7);g.fill();txt(g,n.slice(0,1),130,y+72,`900 34px ${F}`,col,"center");
+    txt(g,n,190,y+52,`700 30px ${F}`,TH().sub);txt(g,"★★★★★",190,y+94,`900 28px ${F}`,"#f2b01e");para(g,t,100,y+150,S-220,`500 29px ${F}`,TH().sub,38)});
   pill(g,"示意：換成你的真實評價截圖",60,S-62,"#1b1b1bcc","#fff",24)}
 // 8 組合價
-function tBundle(g,img,d){hd(g,d.t,d.en,"#f7f6f3");const tiers=[["1 件",P.price,""],["2 件",Math.round(P.price*1.8),"最多人選"],["3 件",Math.round(P.price*2.5),"最划算"]];
-  tiers.forEach(([lab,pr,tag],i)=>{const w=300,x=60+i*(w+30),y=280,hi=i===1;g.fillStyle=hi?col:"#fff";rr(g,x,y,w,700,22);g.fill();
-    if(tag)pill(g,tag,x+20,y+20,hi?"#1b1b1b":col,"#fff",26);for(let k=0;k<=i;k++)fit(g,img,x+40+k*30,y+90+k*10,w-80-i*30,330,"contain");
-    txt(g,lab,x+w/2,y+480,`900 48px ${F}`,hi?"#fff":"#1b1b1b","center");txt(g,`$${pr}`,x+w/2,y+570,`900 66px ${N}`,hi?"#fff":col,"center");
-    txt(g,i?`平均一件 $${Math.round(pr/(i+1))}`:"原價",x+w/2,y+640,`500 28px ${F}`,hi?"#ffffffcc":"#888","center")})}
+function tBundle(g,img,d){hd(g,d.t,d.en);const tiers=[["1 件",P.price,""],["2 件",Math.round(P.price*1.8),"最多人選"],["3 件",Math.round(P.price*2.5),"最划算"]];
+  tiers.forEach(([lab,pr,tag],i)=>{const w=300,x=60+i*(w+30),y=280,hi=i===1;if(hi){g.fillStyle=col;rr(g,x,y,w,700,22);g.fill()}else card(g,x,y,w,700,22);
+    if(tag)pill(g,tag,x+20,y+20,hi?TH().ink:col,"#fff",26);for(let k=0;k<=i;k++)fit(g,img,x+40+k*30,y+90+k*10,w-80-i*30,330,"contain");
+    txt(g,lab,x+w/2,y+480,`900 48px ${F}`,hi?"#fff":TH().ink,"center");txt(g,`$${pr}`,x+w/2,y+570,`900 66px ${N}`,hi?"#fff":col,"center");
+    txt(g,i?`平均一件 $${Math.round(pr/(i+1))}`:"原價",x+w/2,y+640,`500 28px ${F}`,hi?"#ffffffcc":TH().sub,"center")})}
 // 9 清單（保存、保固、到貨、膚質）
 function tNotice(g,img,d){hd(g,d.t,d.en);fit(g,img,S-300,240,240,520,"contain");
-  const nr=Math.min(5,d.rows.length),gp=Math.min(190,(S-330)/nr);d.rows.slice(0,5).forEach(([ic,lab,ds],i)=>{const y=270+i*gp;g.fillStyle=light(col,.85);rr(g,60,y,100,100,20);g.fill();txt(g,ic,110,y+52,`900 44px ${F}`,col,"center");
-    txt(g,lab,190,y+30,`900 36px ${F}`,"#1b1b1b");para(g,ds,190,y+80,S-560,`500 27px ${F}`,"#666",34)})}
+  const nr=Math.min(5,d.rows.length),gp=Math.min(190,(S-330)/nr);d.rows.slice(0,5).forEach(([ic,lab,ds],i)=>{const y=270+i*gp;icon(g,110,y+50,50,ic);
+    txt(g,lab,190,y+30,`900 36px ${F}`,TH().ink);para(g,ds,190,y+80,S-560,`500 27px ${F}`,TH().sub,34)})}
 // 10 故事
-function tStory(g,img,d){g.fillStyle=light(col,.88);g.fillRect(0,0,S,S);g.fillStyle=light(col,.78);g.beginPath();g.arc(S-160,S-200,380,0,7);g.fill();fit(g,img,S-480,S-760,400,700,"contain");
-  txt(g,d.en,60,110,`700 28px ${N}`,col);txt(g,"“",50,230,`900 160px Georgia,serif`,col);const tl=para(g,d.t,60,300,560,`900 56px ${F}`,"#1b1b1b",72);
-  para(g,d.para,60,300+tl*72+60,520,`500 30px ${F}`,"#444",46);txt(g,d.sign,60,S-80,`700 30px ${F}`,"#666")}
+function tStory(g,img,d){bgPaint(g);g.fillStyle=tint(.78);g.beginPath();g.arc(S-160,S-200,380,0,7);g.fill();fit(g,img,S-480,S-760,400,700,"contain");
+  txt(g,d.en,60,110,`700 28px ${N}`,col);txt(g,"“",50,230,`900 160px Georgia,serif`,col);const tl=para(g,d.t,60,300,560,`900 56px ${F}`,TH().ink,72);
+  para(g,d.para,60,300+tl*72+60,520,`500 30px ${F}`,TH().sub,46);txt(g,d.sign,60,S-80,`700 30px ${F}`,TH().sub)}
 // 11 質地特寫（美妝）
-function tTexture(g,img,d){hd(g,d.t,d.en,"#fbf8f4");fit(g,img,60,260,360,680,"contain");
+function tTexture(g,img,d){hd(g,d.t,d.en);fit(g,img,60,260,360,680,"contain");
   const cx=720,cy=560;g.fillStyle="#fff";g.beginPath();g.arc(cx,cy,280,0,7);g.fill();
-  const sw=g.createLinearGradient(cx-200,0,cx+200,0);sw.addColorStop(0,light(col,.75));sw.addColorStop(.5,light(col,.92));sw.addColorStop(1,light(col,.7));g.fillStyle=sw;g.beginPath();g.moveTo(cx-210,cy+30);g.bezierCurveTo(cx-120,cy-150,cx+60,cy-40,cx+210,cy-90);g.bezierCurveTo(cx+160,cy+60,cx-40,cy+40,cx-210,cy+30);g.fill();
+  const sw=g.createLinearGradient(cx-200,0,cx+200,0);sw.addColorStop(0,tint(.75));sw.addColorStop(.5,tint(.92));sw.addColorStop(1,tint(.7));g.fillStyle=sw;g.beginPath();g.moveTo(cx-210,cy+30);g.bezierCurveTo(cx-120,cy-150,cx+60,cy-40,cx+210,cy-90);g.bezierCurveTo(cx+160,cy+60,cx-40,cy+40,cx-210,cy+30);g.fill();
   g.fillStyle="#ffffffaa";g.beginPath();g.ellipse(cx-40,cy-40,60,14,-.3,0,7);g.fill();
-  d.tags.forEach((t,i)=>pill(g,t,520+(i%2)*230,880+Math.floor(i/2)*80,i%2?"#1b1b1b":col,"#fff",30))}
+  d.tags.forEach((t,i)=>pill(g,t,520+(i%2)*230,880+Math.floor(i/2)*80,i%2?TH().ink:col,"#fff",30))}
 // 12 檢驗／認證（示意）
 function tCert(g,img,d){hd(g,d.t,d.en);fit(g,img,S/2-160,230,320,420,"contain");const n=d.badges.length,w=(S-120)/n;
   d.badges.forEach(([big,sm],i)=>{const cx=60+w*i+w/2,cy=800;g.strokeStyle=col;g.lineWidth=6;g.beginPath();g.arc(cx,cy,110,0,7);g.stroke();g.lineWidth=2;g.beginPath();g.arc(cx,cy,94,0,7);g.stroke();
-    txt(g,big,cx,cy-12,`900 40px ${F}`,col,"center");txt(g,sm,cx,cy+36,`700 24px ${F}`,"#666","center")});
+    txt(g,big,cx,cy-12,`900 40px ${F}`,col,"center");txt(g,sm,cx,cy+36,`700 24px ${F}`,TH().sub,"center")});
   pill(g,"示意：請換成你實際有的檢驗或認證",60,S-62,"#1b1b1bcc","#fff",24)}
 // 13 送禮包裝
 function tGift(g,img,d){g.fillStyle="#1b1b1b";g.fillRect(0,0,S,S);txt(g,d.t,60,110,`900 64px ${F}`,"#fff");txt(g,d.en,62,172,`700 26px ${N}`,col);

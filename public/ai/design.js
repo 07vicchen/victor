@@ -69,13 +69,14 @@
   var PAL = [["經典", [["香檳金", "#c8963e"], ["墨黑", "#1b1b1b"], ["海軍藍", "#1f3a5f"], ["酒紅", "#7a1f2b"]]], ["莫蘭迪", [["霧藍", "#7d93ab"], ["灰粉", "#c49a9a"], ["鼠尾草", "#8a9a7b"], ["奶茶", "#a8896c"]]], ["鮮明", [["莓果紅", "#c2185b"], ["珊瑚橘", "#e8664a"], ["寶藍", "#2457d6"], ["薄荷綠", "#1fa38a"]]], ["柔和", [["蜜桃粉", "#e79a8e"], ["薰衣草", "#9b87c5"], ["芥末黃", "#c9a227"], ["森林綠", "#3f5a4a"]]]];
   function colorsUI() { $("#colors").innerHTML = PAL.map(function (g) { return '<div class="cg"><span>' + g[0] + '</span><div class="sws">' + g[1].map(function (c) { return '<button class="sw" type="button" data-c="' + c[1] + '" aria-label="' + c[0] + '" title="' + c[0] + '" aria-pressed="' + (c[1] === col) + '" style="background:' + c[1] + '"></button>'; }).join("") + "</div></div>"; }).join("");
     $("#colors").style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px"; $$("[data-c]").forEach(function (b) { b.onclick = function () { setCol(b.dataset.c); }; }); }
-  function setCol(c) { col = c; $("#pick").value = c; $$("[data-c]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.c === c)); }); lib(); }
+  var colPicked = false; window.IND_NOW = ind;
+  function setCol(c, auto) { if (!auto) colPicked = true; col = c; $("#pick").value = c; $$("[data-c]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.c === c)); }); lib(); }
   function lib() { syncData(); var L = list(), s = sel[ind], ok = function (i) { return L[i][1] <= plan; };
     $("#sum").innerHTML = "你的方案可用到「" + TIERN[plan] + "」模組・已選 <b>" + s.filter(ok).length + "</b> 張";
     $("#lib").innerHTML = L.map(function (t, i) { var lk = t[1] > plan, on = s.indexOf(i) >= 0 && !lk; return '<div class="tile' + (on ? " sel" : "") + '"><canvas width="300" height="300" aria-label="' + t[0] + '"></canvas>' + (lk ? '<div class="lock"><div><b>' + TIERN[t[1]] + "</b>升級方案才能用</div></div>" : "") + '<div class="cap"><b>' + String(i + 1).padStart(2, "0") + " " + t[0] + '</b><span class="tier">' + TIERN[t[1]] + '</span></div><label class="pick"><input type="checkbox" data-i="' + i + '"' + (on ? " checked" : "") + (lk ? " disabled" : "") + "> 放進這組</label></div>"; }).join("");
     var img = imgFor(); $$("#lib canvas").forEach(function (c, i) { paint(c, L[i], img); });
     $$("#lib [data-i]").forEach(function (c) { c.onchange = function () { var i = +c.dataset.i, a = sel[ind], k = a.indexOf(i); if (c.checked && k < 0) a.push(i); if (!c.checked && k >= 0) a.splice(k, 1); lib(); }; });
-    $("#styRow").hidden = ind !== "cloth"; var sl = plan < 3; $$("[data-sty]").forEach(function (b) { b.disabled = sl && b.dataset.sty !== "s"; }); $("#styNote").textContent = sl ? "韓系、街頭是旗艦方案的風格" : "";
+    $("#styRow").hidden = false; var sl = plan < 3; $$("[data-sty]").forEach(function (b) { b.disabled = sl && b.dataset.sty !== "s"; }); $("#styNote").textContent = sl ? "韓系、街頭是旗艦方案的風格" : "";
     phone(); }
   var slide = 0;
   function chosen() { var L = list(); return sel[ind].slice().sort(function (a, b) { return a - b; }).filter(function (i) { return L[i][1] <= plan; }); }
@@ -169,7 +170,7 @@
       var c = document.createElement("canvas"), g = c.getContext("2d"), fz = 64, fam = '"Noto Serif TC","Noto Sans TC",serif'; g.font = "900 " + fz + "px " + fam; c.width = Math.ceil(g.measureText(t).width) + 8; c.height = Math.ceil(fz * 1.3);
       g = c.getContext("2d"); g.font = "900 " + fz + "px " + fam; g.textBaseline = "middle"; g.fillStyle = "#141414"; g.fillText(t, 4, c.height / 2 + 2);
       logo = c; $("#logoF").value = ""; $("#logoPos").hidden = false; $("#logoMsg").textContent = "每張圖都會放上「" + t + "」"; lib(); };
-    $$("[data-ind]").forEach(function (b) { b.onclick = function () { ind = b.dataset.ind; $$("[data-ind]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); if (ind !== "cloth") { useInd(ind); if (!prodUp) prod = sampleFor(ind); } lib(); }; });
+    $$("[data-ind]").forEach(function (b) { b.onclick = function () { ind = b.dataset.ind; $$("[data-ind]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); window.IND_NOW = ind; if (!colPicked && window.IDS && IDS[ind]) setCol(IDS[ind].accent, true); if (ind !== "cloth") { useInd(ind); if (!prodUp) prod = sampleFor(ind); } lib(); }; });
     $$("[data-sty]").forEach(function (b) { b.onclick = function () { if (b.disabled) return; sty = b.dataset.sty; $$("[data-sty]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); lib(); }; });
     ["#pName", "#pPrice"].forEach(function (s) { $(s).addEventListener("change", lib); });
     $("#genAI").onclick = genAI;
@@ -195,6 +196,6 @@
 
   prod = sampleProduct(); heroAll(); plans();
   if (!RM) setInterval(heroSwap, 3200);
-  (document.fonts && document.fonts.load ? document.fonts.load('900 60px "Noto Sans TC"', "商品圖版型尺寸顏色涼感棉寬版短T") : Promise.resolve()).then(function () { setTimeout(function () { heroAll(); if (booted) lib(); }, 60); });
+  (document.fonts && document.fonts.load ? Promise.all([document.fonts.load('900 60px "Noto Sans TC"', "商品圖版型尺寸顏色涼感棉寬版短T"), document.fonts.load('900 60px "Noto Serif TC"', "六大設計重點每一滴都有用這樣擦最有感常見問題"), document.fonts.load('italic 500 34px "Playfair Display"', "Features"), document.fonts.load('400 46px "Bebas Neue"', "FEATURES"), document.fonts.load('700 26px "Space Grotesk"', "FEATURES")]) : Promise.resolve()).then(function () { setTimeout(function () { heroAll(); if (booted) lib(); }, 60); });
   VAI.onMe(onMeFn);
 })();
