@@ -93,18 +93,33 @@
     var c2 = $("#pv2"); if (c2 && !$("#pvm").hidden) { frame(c2, oo, RM ? 3 : t); pvLogo(c2.getContext("2d"), c2.width, c2.height); } SUBFX.size(oz);
     if (RM) { pvOn = false; return; } requestAnimationFrame(pvLoop); }
   function pvLogo(x, W, H) { if (logoImg && logoImg.complete && logoImg.naturalWidth) { var k = Math.min(W * .2 / logoImg.naturalWidth, W * .2 / logoImg.naturalHeight); x.save(); x.globalAlpha = .9; x.drawImage(logoImg, W - logoImg.naturalWidth * k - W * .05, H * .04, logoImg.naturalWidth * k, logoImg.naturalHeight * k); x.restore(); return; } var tt = ($("#vLogoT") && $("#vLogoT").value || "").trim(); if (!tt) return; var u = W / 720, px = 28 * u; x.save(); x.font = "800 " + px + "px " + SUBFX.SANS; x.textAlign = "right"; x.textBaseline = "top"; x.lineWidth = 5 * u; x.strokeStyle = "rgba(0,0,0,.55)"; x.strokeText(tt, W - 30 * u, 40 * u); x.fillStyle = "#fff"; x.fillText(tt, W - 30 * u, 40 * u); x.restore(); }
-  function listFiles() { $("#flist").innerHTML = files.map(function (f, i) { var big = f.size > 50 * 1048576; return "<div><b>" + E(f.name) + "</b><span" + (big ? ' style="color:#b23b2e"' : "") + ">" + (f.size / 1048576).toFixed(1) + " MB" + (big ? "（超過 50MB）" : "") + '</span><button class="chip" type="button" data-rm="' + i + '">移除</button></div>'; }).join("");
+  // Vic 10/24：手機影片常常超過 50MB，改成每支 500MB 內；6MB 以上用續傳（網路斷掉會接著傳，不用重來）
+  var MAXMB = 500;
+  function loadTus() { return window.tus ? Promise.resolve() : new Promise(function (ok, no) { var s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/tus-js-client@4.1.0/dist/tus.min.js"; s.onload = ok; s.onerror = function () { no(new Error("上傳元件載不進來，重新整理再試一次")); }; document.head.appendChild(s); }); }
+  async function bigUpload(c, path, f, prog) {
+    if (f.size <= 6 * 1048576) { var r = await c.storage.from("ai-videos").upload(path, f, { contentType: f.type || "video/mp4" }); if (r.error) throw new Error("上傳失敗：" + r.error.message); prog(1); return; }
+    await loadTus(); var tk = await VAI.token();
+    await new Promise(function (ok, no) {
+      var u = new window.tus.Upload(f, { endpoint: "https://cswhroimywfyokxxogis.supabase.co/storage/v1/upload/resumable", retryDelays: [0, 2000, 5000, 10000, 20000],
+        headers: { authorization: "Bearer " + tk, "x-upsert": "true" }, uploadDataDuringCreation: true, removeFingerprintOnSuccess: true, chunkSize: 6 * 1024 * 1024,
+        metadata: { bucketName: "ai-videos", objectName: path, contentType: f.type || "video/mp4", cacheControl: "3600" },
+        onError: function (e) { var t = String(e && e.message || e); no(new Error(/413|too large|exceeded/i.test(t) ? "影片太大，系統收不下，請剪短一點或用 1080p 重新匯出" : "上傳失敗：" + t.slice(0, 160))); },
+        onProgress: function (a, b) { prog(b ? a / b : 0); }, onSuccess: function () { prog(1); ok(); } });
+      u.findPreviousUploads().then(function (prev) { if (prev.length) u.resumeFromPreviousUpload(prev[0]); u.start(); });
+    });
+  }
+  function listFiles() { $("#flist").innerHTML = files.map(function (f, i) { var big = f.size > MAXMB * 1048576; return "<div><b>" + E(f.name) + "</b><span" + (big ? ' style="color:#b23b2e"' : "") + ">" + (f.size / 1048576).toFixed(1) + " MB" + (big ? "（超過 " + MAXMB + "MB）" : "") + '</span><button class="chip" type="button" data-rm="' + i + '">移除</button></div>'; }).join("");
     $$("[data-rm]").forEach(function (b) { b.onclick = function () { files.splice(+b.dataset.rm, 1); listFiles(); }; }); }
   async function send() { var m = $("#sendMsg"), b = $("#send"), pg = $("#prog");
     if (!files.length) { m.className = "msg err"; m.textContent = "先選至少一支影片"; return; }
-    if (files.some(function (f) { return f.size > 50 * 1048576; })) { m.className = "msg err"; m.textContent = "有影片超過 50MB，請先剪短一點，或用 1080p 重新匯出"; return; }
+    if (files.some(function (f) { return f.size > MAXMB * 1048576; })) { m.className = "msg err"; m.textContent = "有影片超過 " + MAXMB + "MB，請先剪短一點，或用 1080p 重新匯出"; return; }
     if (mode === "subs" && !pickMod) { m.className = "msg err"; m.textContent = "先選一個字幕模組"; return; }
     if (swPhotos.length && !$("#swOk").checked) { m.className = "msg err"; m.textContent = "要換人的話，請先勾選下面的同意聲明"; return; }
     b.disabled = true; pg.hidden = false; m.className = "msg"; var c = VAI.client(), uid = (await c.auth.getUser()).data.user.id, stamp = Date.now(), up = [];
     try {
       for (var i = 0; i < files.length; i++) { m.textContent = "上傳中 " + (i + 1) + "/" + files.length + "…"; pg.firstChild.style.width = (i / files.length * 90) + "%";
         var f = files[i], path = uid + "/" + stamp + "_" + i + "." + ((f.name.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, "") || "mp4");
-        var r = await c.storage.from("ai-videos").upload(path, f, { contentType: f.type || "video/mp4" }); if (r.error) throw new Error("上傳失敗：" + r.error.message); up.push({ path: path, name: f.name, size: f.size }); }
+        await bigUpload(c, path, f, function (q) { pg.firstChild.style.width = ((i + q) / files.length * 90) + "%"; m.textContent = "上傳中 " + (i + 1) + "/" + files.length + "… " + Math.round(q * 100) + "%"; }); up.push({ path: path, name: f.name, size: f.size }); }
       var lp = null; if (vlogo) { lp = uid + "/" + stamp + "_logo." + ((vlogo.name.split(".").pop() || "png").toLowerCase()); var lr = await c.storage.from("ai-videos").upload(lp, vlogo, { contentType: vlogo.type || "image/png" }); if (lr.error) lp = null; }
       var sw = null; if (swPhotos.length) { var ph = []; for (var k = 0; k < swPhotos.length; k++) { m.textContent = "上傳換人照片 " + (k + 1) + "/" + swPhotos.length + "…"; var pp = uid + "/" + stamp + "_face" + k + "." + ((swPhotos[k].name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"); var pr = await c.storage.from("ai-videos").upload(pp, swPhotos[k], { contentType: swPhotos[k].type || "image/jpeg" }); if (pr.error) throw new Error("照片上傳失敗：" + pr.error.message); ph.push(pp); }
         var proof = null; if (swProof && swWho === "朋友授權") { proof = uid + "/" + stamp + "_proof." + ((swProof.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"); var qr = await c.storage.from("ai-videos").upload(proof, swProof, { contentType: swProof.type || "image/jpeg" }); if (qr.error) proof = null; }
