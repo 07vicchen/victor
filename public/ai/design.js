@@ -99,6 +99,25 @@
     var out = document.createElement("canvas"); out.width = w; out.height = h; var og = out.getContext("2d"); og.drawImage(img, 0, 0); og.globalCompositeOperation = "destination-in"; og.filter = "blur(" + Math.max(1, 1.2 / k) + "px)"; og.drawImage(m, 0, 0, w, h);
     return out; }
 
+
+  // AI 去背（10/25）：照片送到維拓的 AI 去背主機，AI 抓商品、美術總監小老虎檢查過才交回；主機忙線才用簡易去背（只適合純色背景）
+  function useCut(o, note) { cutImg = o; prodUp = o; prod = o; $("#uncut").hidden = false; $("#msg").textContent = note; lib(); }
+  function localCut(why) { var o = cutout(origImg); if (!o) { $("#msg").textContent = why + "，這張背景也太複雜，換一張背景單純的照片再試。"; return; } useCut(o, why + "，先用簡易去背（背景是純色的才會乾淨）。"); }
+  async function aiCut() { var b = $("#cut"), m = $("#msg"); b.disabled = true; m.textContent = "AI 去背中，大約 10～30 秒…";
+    try { var c = VAI.client(), u = (await c.auth.getUser()).data.user; if (!u) { localCut("沒登入"); return; }
+      var cv = document.createElement("canvas"), k = Math.min(1, 1600 / Math.max(iw(origImg), ih(origImg))); cv.width = Math.round(iw(origImg) * k); cv.height = Math.round(ih(origImg) * k); cv.getContext("2d").drawImage(origImg, 0, 0, cv.width, cv.height);
+      var blob = await new Promise(function (r) { cv.toBlob(r, "image/jpeg", .92); }), path = u.id + "/cutsrc_" + Date.now() + ".jpg";
+      var up = await c.storage.from("ai-videos").upload(path, blob, { contentType: "image/jpeg" }); if (up.error) throw new Error(up.error.message);
+      var s = await c.rpc("ai_cutout_submit", { p_src: path }); if (s.error) throw new Error(s.error.message);
+      if (!s.data || !s.data.ok) { localCut("AI 去背主機忙線中"); return; }
+      var id = s.data.id, t0 = Date.now(), j = null;
+      while (Date.now() - t0 < 120000) { await new Promise(function (r) { setTimeout(r, 2000); }); var q = await c.from("ai_cutout_jobs").select("status,result,note").eq("id", id).maybeSingle(); j = q.data; if (j && (j.status === "done" || j.status === "error")) break; }
+      if (!j || j.status !== "done") { if (j && j.status === "error") { m.textContent = j.note || "這張 AI 抓不乾淨，換一張背景單純的照片試試。"; return; } localCut("AI 去背排隊比較久"); return; }
+      var su = await c.storage.from("ai-videos").createSignedUrl(j.result, 600); if (su.error) throw new Error(su.error.message);
+      var bl = await (await fetch(su.data.signedUrl)).blob(), im = new Image();
+      await new Promise(function (ok, no) { im.onload = ok; im.onerror = no; im.src = URL.createObjectURL(bl); });
+      useCut(im, "已用 AI 去背（美術總監檢查過）");
+    } catch (e) { localCut("AI 去背暫時連不上"); } finally { b.disabled = false; } }
   function bind() {
     $("#pick").oninput = function (e) { col = e.target.value; $$("[data-c]").forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); lib(); };
     $("#auto").onclick = function () { var im = prodUp || imgFor(), c = document.createElement("canvas"); c.width = c.height = 64; var g = c.getContext("2d"); g.drawImage(im, 0, 0, 64, 64); var d = g.getImageData(0, 0, 64, 64).data, bins = {}, best = null, bs = -1;
@@ -106,7 +125,7 @@
       Object.keys(bins).forEach(function (k) { var v = bins[k], r = v[0] / v[3], gg = v[1] / v[3], b = v[2] / v[3], sat = Math.max(r, gg, b) - Math.min(r, gg, b), sc = v[3] * (.4 + sat / 255); if (sc > bs) { bs = sc; best = [r, gg, b]; } });
       if (!best) { $("#msg").textContent = "這張照片抓不到明顯的顏色，請直接選一個"; return; } setCol("#" + best.map(function (v) { return Math.round(v * .82).toString(16).padStart(2, "0"); }).join("")); };
     $("#file").onchange = function (e) { var fs = [].slice.call(e.target.files, 0, 2); if (!fs.length) return; photos = fs; var i = new Image(); i.onload = function () { origImg = i; prodUp = i; prod = i; cutImg = null; $("#cut").disabled = false; $("#uncut").hidden = true; $("#msg").textContent = "目前：你的商品照（可以按一鍵去背）"; lib(); }; i.src = URL.createObjectURL(fs[0]); };
-    $("#cut").onclick = function () { if (!origImg) return; $("#msg").textContent = "去背中…"; setTimeout(function () { var o = cutout(origImg); if (!o) { $("#msg").textContent = "這張背景太複雜，抓不出商品。換一張背景單純的照片效果最好。"; return; } cutImg = o; prodUp = o; prod = o; $("#uncut").hidden = false; $("#msg").textContent = "已去背"; lib(); }, 30); };
+    $("#cut").onclick = function () { if (!origImg) return; aiCut(); };
     $("#uncut").onclick = function () { prodUp = origImg; prod = origImg; cutImg = null; $("#uncut").hidden = true; $("#msg").textContent = "已還原背景"; lib(); };
     $("#logoF").onchange = function (e) { var f = e.target.files[0]; if (!f) return; var i = new Image(); i.onload = function () { logo = i; $("#logoPos").hidden = false; $("#logoMsg").textContent = "每張圖都會自動放上 logo"; lib(); }; i.src = URL.createObjectURL(f); };
     $$("[data-lp]").forEach(function (b) { b.onclick = function () { lpos = b.dataset.lp; $$("[data-lp]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); lib(); }; });
