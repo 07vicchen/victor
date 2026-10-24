@@ -53,10 +53,18 @@ function sizes(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);g.fillStyle=col;g.f
   g.fillStyle="#f6f6f4";rr(g,60,830,S-120,180,16);g.fill();
   const sn=P.sizeNotes||["手工測量，誤差 ±1cm","不同螢幕顯示顏色可能略有差異"];txt(g,"・"+sn[0],100,885,`500 32px ${F}`,"#444");txt(g,"・"+sn[1],100,950,`500 32px ${F}`,"#444")}
 function ucNote(g){txt(g,"顏色示意，實際以商品為準",S-60,S-40,`500 26px ${F}`,"#8a8a8a","right")}
+// 10/25 Vic：顏色圖只用實拍照，不用程式染色；沒拍的顏色畫布料色卡
+function ucImg(u,i){return u.img||(u.main&&typeof prodUp!=="undefined"&&prodUp)||null}
+function swatchCard(g,hex,x,y,w,h){g.save();rr(g,x,y,w,h,14);g.clip();g.fillStyle=hex;g.fillRect(x,y,w,h);
+  for(let yy=y;yy<y+h;yy+=6){g.fillStyle=(yy/6)%2?"#ffffff10":"#00000012";g.fillRect(x,yy,w,3)}
+  for(let xx=x;xx<x+w;xx+=6){g.fillStyle="#ffffff08";g.fillRect(xx,y,2,h)}
+  const gr=g.createLinearGradient(x,y,x+w,y+h);gr.addColorStop(0,"#ffffff22");gr.addColorStop(.6,"#00000000");gr.addColorStop(1,"#00000022");g.fillStyle=gr;g.fillRect(x,y,w,h);g.restore();
+  g.strokeStyle="#00000018";g.lineWidth=2;rr(g,x,y,w,h,14);g.stroke();
+  txt(g,"色卡",x+w/2,y+h-30,`700 24px ${F}`,"#ffffffcc","center")}
 function ucOn(){return !!(window.USERCOLORS&&USERCOLORS.length)}
 function ucName(u){return u.n||(window.UCNAME?UCNAME(u.hex):"")}
 function ucDraw(g,title){const L=USERCOLORS,n=L.length,w=(S-120)/n;txt(g,`共 ${n} 色`,S-60,95,`700 34px ${F}`,col,"right");
-  L.forEach((u,i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,230,w-16,640,18);g.fill();const im=window.RECOLOR&&RECOLOR(u.hex,u.tone||0);if(im)fit(g,im,x+20,250,w-40,600,"contain");else{g.fillStyle=u.hex;rr(g,x+28,260,w-56,580,14);g.fill();g.strokeStyle="#00000018";g.lineWidth=2;g.stroke()}
+  L.forEach((u,i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,230,w-16,640,18);g.fill();const im=ucImg(u,i);if(im)fit(g,im,x+20,250,w-40,600,"contain");else swatchCard(g,u.hex,x+28,260,w-56,580)
     g.fillStyle=u.hex;g.beginPath();g.arc(x+w/2,920,24,0,7);g.fill();g.strokeStyle="#00000030";g.lineWidth=2;g.stroke();txt(g,ucName(u),x+w/2,990,`700 ${n>4?28:34}px ${F}`,"#1b1b1b","center")});ucNote(g)}
 function colors(g,img){g.fillStyle="#fafafa";g.fillRect(0,0,S,S);txt(g,P.colorTitle||"顏色一覽",60,90,`900 60px ${F}`,"#1b1b1b");if(ucOn()){ucDraw(g);return}txt(g,`共 ${P.colors.length} ${P.colorUnit||"色"}`,S-60,95,`700 34px ${F}`,col,"right");
   const n=P.colors.length,w=(S-120)/n;
@@ -165,7 +173,7 @@ function c_compare(g,i){bgFill(g);hd(g,"新版 vs 舊版",60,90,60);var z=Z();g.
 function c_return(g){bgFill(g);hd(g,"退換貨說明",60,90,64);[["7 天鑑賞期","收到後 7 天內可申請"],["尺寸不合可換","來回運費一人一趟"],["保持吊牌完整","未下水、未穿著"]].forEach(([a,b],k)=>{var y=200+k*250,z=Z();g.fillStyle=z.panel;rr(g,60,y,S-120,210,20);g.fill();
   g.fillStyle=col;g.beginPath();g.arc(160,y+105,55,0,7);g.fill();txt(g,String(k+1),160,y+107,`900 54px ${N}`,"#fff","center");txt(g,a,260,y+80,`${z.w} 46px ${F}`,z.ink);txt(g,b,260,y+145,`500 32px ${F}`,z.mute)})}
 // 10/25 Vic：多件組合價用客人的商品和客人選的顏色，不用示範 T 恤
-function bundleImg(j){if(ucOn()){const u=USERCOLORS[j%USERCOLORS.length],im=window.RECOLOR&&RECOLOR(u.hex,u.tone||0);return im||(typeof prodUp!=="undefined"&&prodUp)||shirt(u.hex)}return (typeof prodUp!=="undefined"&&prodUp)||shirt(CP.colors[(j+1)%CP.colors.length][1])}
+function bundleImg(j){if(ucOn()){const u=USERCOLORS[j%USERCOLORS.length],im=ucImg(u,j%USERCOLORS.length);return im||(typeof prodUp!=="undefined"&&prodUp)||shirt(u.hex)}return (typeof prodUp!=="undefined"&&prodUp)||shirt(CP.colors[(j+1)%CP.colors.length][1])}
 function c_bundle(g){bgFill(g);hd(g,"多件更划算",60,90,64);[[1,CP.price],[2,690],[3,990]].forEach(([n,p],k)=>{var x=60+k*330,z=Z(),best=k===2;g.fillStyle=best?col:z.panel;rr(g,x,190,300,720,22);g.fill();
   for(let j=0;j<n;j++)fit(g,bundleImg(j),x+30+j*30,240+j*40,220,260,"contain");
   txt(g,`${n} 件`,x+150,640,`900 56px ${F}`,best?"#fff":z.ink,"center");txt(g,`$${p}`,x+150,740,`900 70px ${N}`,best?"#fff":col,"center");if(best)txt(g,"最划算",x+150,840,`700 36px ${F}`,"#fff","center")})}
@@ -193,7 +201,7 @@ function c_count(g,i){g.fillStyle="#141414";g.fillRect(0,0,S,S);txt(g,"限時搶
 function c_ai_model(g,i){model(g,i)}
 function c_ai_scene(g,i){scene(g,i)}
 var CLOTH=[
- ["服飾白底主圖",1,c_white],["服飾尺寸表",1,c_size],["顏色一覽（自動換色）",1,c_colors],["第二件折扣封面",1,c_promo],
+ ["服飾白底主圖",1,c_white],["服飾尺寸表",1,c_size],["顏色一覽",1,c_colors],["第二件折扣封面",1,c_promo],
  ["尺寸量法圖",2,c_measure],["試穿身高體重",2,c_fit],["布料感受指標",2,c_fabric],["細節三格",2,c_detail],["正反面對照",2,c_frontback],["三種穿搭建議",2,c_outfit],
  ["洗滌方式",2,c_wash],["新品上市",2,c_new],["現貨 24H 出貨",2,c_stock],["九宮格賣點",2,c_grid],["雜誌風封面",2,c_mag],["尺碼推薦表",2,c_sizeguide],
  ["新舊款對比",2,c_compare],["退換貨說明",2,c_return],["多件組合價",2,c_bundle],["換季上新",2,c_season],["成分吊牌",2,c_label],["品牌故事",2,c_story],["平拍穿搭",2,c_flatlay],
