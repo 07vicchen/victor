@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AI 工具｜AI 美編、AI 剪片｜維拓傳媒</title>
-<meta name="description" content="維拓傳媒 AI 工具：AI 美編幫你去背修圖、套版型、寫商品文案；AI 剪片幫你剪停頓、排重點、上字幕音效。會員登入就能用，月租 999 元起。">
-<meta property="og:title" content="維拓 AI 工具｜AI 美編・AI 剪片">
+<title>AI 工具｜AI 美編、AI 剪片、AI 數據艙｜維拓傳媒</title>
+<meta name="description" content="維拓傳媒 AI 工具：AI 美編幫你去背修圖、套版型、寫商品文案；AI 剪片幫你剪停頓、排重點、上字幕音效；AI 數據艙把即時比分、每節比分、盤口和台美股行情放在同一個畫面。Google 帳號登入就能用。">
+<meta property="og:title" content="維拓 AI 工具｜AI 美編・AI 剪片・AI 數據艙">
 <meta property="og:description" content="沒有美編、沒時間剪片，也能每天端出好看的內容。月租 999 元起。">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#0d0c0b">
@@ -121,6 +121,31 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
 @media (max-width:640px){.monthly{flex-direction:column;align-items:flex-start}}
 @media (max-width:960px){.thead{grid-template-columns:1fr}.fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.plans{grid-template-columns:repeat(2,minmax(0,1fr))}.pains{grid-template-columns:repeat(2,minmax(0,1fr))}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.steps div:nth-child(2){border-right:0}.steps div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
 @media (max-width:640px){.pick2,.fgrid,.plans,.pains,.forwho{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.steps div{border-right:0;border-bottom:1px solid var(--line)}.door{padding-right:26px;padding-bottom:150px}.door canvas{width:120px;right:16px}header nav{margin-left:0}}
+.door.wide{grid-column:1/-1;padding-right:26px;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:18px 28px;align-items:center}
+.door.wide .tx{display:flex;flex-direction:column;gap:10px}
+.door .new{display:inline-block;margin-left:10px;vertical-align:4px;font:700 11px var(--body);color:#14110c;background:var(--gold);padding:1px 9px;border-radius:999px;letter-spacing:0}
+.board{border:1px solid var(--line2);border-radius:14px;background:#0f0e0c;padding:12px 14px;font:13px var(--num);font-variant-numeric:tabular-nums;box-shadow:0 20px 40px #000a}
+.board .bh{display:flex;justify-content:space-between;color:var(--dim);font:12px var(--body);margin-bottom:6px}
+.board .bh b{color:var(--accent);font-weight:700}.board .bh b::before{content:"● ";animation:blk 1.2s steps(2) infinite}
+@keyframes blk{50%{opacity:.25}}
+.board table{width:100%;border-collapse:collapse}
+.board th,.board td{padding:5px 4px;text-align:center;white-space:nowrap;border-bottom:1px solid var(--line)}
+.board tr:last-child td{border-bottom:0}
+.board th{color:var(--dim);font:500 11px var(--body)}
+.board td:first-child,.board th:first-child{text-align:left;font:500 13px var(--body);color:var(--ink)}
+.board .hf{color:var(--gold2)}.board .tt{color:var(--gold);font-weight:700}.board .w{color:var(--ok)}
+.board .ft{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;color:var(--mid);font:12px var(--body)}.board .ft b{color:var(--gold2);font-weight:500}
+.board .demo{color:var(--dim);font:11px var(--body);text-align:right;margin-top:6px}
+.dshow{display:flex;flex-direction:column;gap:12px}
+.tickr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tickr div{border:1px solid var(--line);border-radius:12px;background:var(--s2);padding:10px 12px;font:12px var(--body);color:var(--mid)}
+.tickr b{display:block;font:700 17px var(--num);color:var(--ink)}.tickr em{font-style:normal;font:600 12px var(--num)}.tickr .up{color:var(--ok)}.tickr .dn{color:var(--accent)}
+.perks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:16px}
+.perks div{border:1px solid var(--gold);border-radius:16px;padding:16px;background:linear-gradient(150deg,#2a2316,#161412)}
+.perks b{display:block;font:700 26px/1.1 var(--num);color:var(--gold2);margin-bottom:4px}.perks strong{display:block;font-size:15px}.perks span{color:var(--mid);font-size:13.5px}
+.dplan .p small{font:500 14px var(--body);color:var(--mid)}.dplan .yr{font-size:13px;color:var(--ok)}
+@media (max-width:960px){.door.wide{grid-template-columns:1fr}.perks{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.door.wide{padding-bottom:26px}.tickr{grid-template-columns:1fr 1fr}.perks{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 .extras{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
 .ex{border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--s2)}
@@ -137,16 +162,21 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
 
 
 <header class="top"><div class="in"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="36" height="36" style="border-radius:50%"><b>維拓傳媒</b></a>
-  <nav aria-label="AI 工具"><a href="/">回官網首頁</a><a class="on" href="#top">AI 工具</a><a href="#design">AI 美編</a><a href="#video">AI 剪片</a><a href="#price">價格</a><a href="/ai-design#member">會員登入</a></nav></div></header>
+  <nav aria-label="AI 工具"><a href="/">回官網首頁</a><a class="on" href="#top">AI 工具</a><a href="#design">AI 美編</a><a href="#video">AI 剪片</a><a href="#data">AI 數據艙</a><a href="#price">價格</a><a href="/ai-design#member">會員登入</a></nav></div></header>
 
 <main id="top">
 <section class="hero"><div class="in">
   <div class="kick">VICTOR MEDIA · AI TOOLS</div>
   <h1>沒有美編、沒時間剪片，<br>也能每天<em>端出好看的內容</em></h1>
-  <p>維拓傳媒把我們幫客戶做圖、剪片的方法，做成兩個你自己就能用的 AI 工具。登入會員，上傳照片或影片，幾分鐘拿到成品，存下來就能發。</p>
+  <p>維拓傳媒把我們幫客戶做圖、剪片的方法，做成你自己就能用的 AI 工具。登入會員，上傳照片或影片，幾分鐘拿到成品，存下來就能發。看球、看盤的人，也有一個專門的數據艙。</p>
   <div class="pick2">
     <a class="door" href="/ai-design"><span class="nm"><small>AI DESIGN</small>AI 美編</span><p>一張商品照，換一整組會賣的圖：去背修圖、套版型、寫標題和描述。</p><span class="go">看 AI 美編怎麼買 →</span><canvas id="d1" width="340" height="340"></canvas></a>
     <a class="door" href="/ai-video"><span class="nm"><small>AI VIDEO</small>AI 剪片</span><p>一段素材，剪成一支看得完的短影音：剪停頓、排重點、上字幕音效。</p><span class="go">看 AI 剪片怎麼買 →</span><canvas id="v1" width="270" height="480"></canvas></a>
+    <a class="door wide" href="#data"><div class="tx"><span class="nm"><small>AI DATA</small>AI 數據艙<span class="new">新上線・有免費版</span></span><p>比賽打到第幾節、每一節幾分、盤口怎麼動，台股美股虛幣漲多少，一個畫面全看完。公司一發公告，AI 用白話告訴你重點。</p><span class="go">看 AI 數據艙能做什麼 →</span></div><div class="board" aria-label="每節比分示意"><div class="bh"><span>NBA・第 4 節 5:12</span><b>進行中</b></div>
+<table><thead><tr><th>隊伍</th><th>1</th><th>2</th><th>3</th><th>4</th><th class="hf">上半</th><th class="hf">下半</th><th class="tt">總分</th></tr></thead>
+<tbody><tr><td>湖人</td><td class="w">28</td><td>24</td><td>22</td><td class="w">18</td><td class="hf w">52</td><td class="hf w">40</td><td class="tt">92</td></tr>
+<tr><td>勇士</td><td>21</td><td class="w">30</td><td class="w">27</td><td>12</td><td class="hf">51</td><td class="hf">39</td><td class="tt">90</td></tr></tbody></table>
+<div class="ft"><span>讓分 <b>湖人 -3.5</b></span><span>大小 <b>226.5</b></span><span>盤口勝率 <b>湖人 63%</b></span></div><div class="demo">示意畫面</div></div></a>
   </div>
 </div></section>
 
@@ -239,10 +269,55 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
   <div class="forwho"><div><b>老闆、講師口播</b><span>有內容、會講，但沒時間剪。</span></div><div><b>直播主、帶貨賣家</b><span>直播錄下來，切成很多支短影音再賣一次。</span></div><div><b>美業、命理、Podcast</b><span>每週固定出片，要穩定又要有自己的風格。</span></div></div>
 </div></section>
 
+<section class="tool" id="data"><div class="in">
+  <div class="thead">
+    <div><div class="kick">TOOL 03 · AI 數據艙</div><h2>比分、盤口、行情，<br><em>一個畫面</em>就看完</h2>
+      <p>看球的人最煩的，是比分 App 只給總分，想知道上半場誰領先、第三節是不是被打爆，要再開好幾個網站。看盤也一樣，公告一大串看不懂，等看懂行情早就跑了。AI 數據艙把這些全部放進同一個畫面，打開就是即時的。</p>
+      <ul class="ticks"><li>每一節、每一局、上下半場分數，比賽進行中自動更新</li><li>讓分、大小分、盤口換算勝率，跟比分放在一起看</li><li>台股、美股、虛擬貨幣、黃金原油，漲跌即時跳</li><li>追蹤的公司一發公告，AI 用白話整理重點給你</li></ul>
+      <div class="cta" style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="https://data.victormedia.com.tw" target="_blank" rel="noopener">免費打開 AI 數據艙</a><a class="btn gh" href="#price" data-go="data">看方案</a></div></div>
+    <div class="dshow"><div class="board" aria-label="每節比分示意畫面"><div class="bh"><span>NBA・第 4 節 5:12</span><b>進行中</b></div>
+<table><thead><tr><th>隊伍</th><th>1</th><th>2</th><th>3</th><th>4</th><th class="hf">上半</th><th class="hf">下半</th><th class="tt">總分</th></tr></thead>
+<tbody><tr><td>湖人</td><td class="w">28</td><td>24</td><td>22</td><td class="w">18</td><td class="hf w">52</td><td class="hf w">40</td><td class="tt">92</td></tr>
+<tr><td>勇士</td><td>21</td><td class="w">30</td><td class="w">27</td><td>12</td><td class="hf">51</td><td class="hf">39</td><td class="tt">90</td></tr></tbody></table>
+<div class="ft"><span>讓分 <b>湖人 -3.5</b></span><span>大小 <b>226.5</b></span><span>盤口勝率 <b>湖人 63%</b></span></div><div class="demo">示意畫面</div></div>
+      <div class="tickr" aria-label="行情示意"><div>加權指數<b>23,418</b><em class="up">▲ 0.82%</em></div><div>那斯達克<b>18,906</b><em class="dn">▼ 0.41%</em></div><div>比特幣<b>67,250</b><em class="up">▲ 1.95%</em></div></div>
+      <div class="demo" style="color:var(--dim);font-size:11px;text-align:right">以上為示意畫面，實際數字以數據艙即時資料為準</div>
+    </div>
+  </div>
+
+  <h3 class="sub2">它會幫你做這些事</h3>
+  <div class="fgrid">
+    <div class="fi"><i>01</i><b>每節、每局、上下半場</b><span>NBA、NFL 每一節加上下半場小計，MLB 每一局加安打失誤，NHL 每一局，足球上下半場。哪一段被追分，一眼就看出來。</span></div>
+    <div class="fi"><i>02</i><b>比分跟盤口放一起</b><span>MLB、NBA、NFL、NHL、英超、西甲、歐冠、中職，從昨天到未來 3 天的比賽全列好。讓分、大小分、盤口換算勝率就在比分旁邊。</span></div>
+    <div class="fi"><i>03</i><b>追蹤你的隊伍</b><span>隊名旁按一下星星，開賽、得分、終場都會通知你。手機把網站加到主畫面，關掉網頁也收得到。</span></div>
+    <div class="fi"><i>04</i><b>台美股、虛幣即時行情</b><span>台股成交量排行、美股、比特幣、黃金、原油、匯率，搜尋代號就能加進自選。急漲急跌超過 3% 會提醒你。</span></div>
+    <div class="fi"><i>05</i><b>AI 趨勢小幫手</b><span>你追蹤的公司一發重大訊息，AI 用白話整理成幾句重點；每週再幫你把持股的公告整理成一段摘要，不用自己翻公開資訊觀測站。</span></div>
+    <div class="fi"><i>06</i><b>預測區和高手榜</b><span>看高手怎麼看這場比賽，戰績公開、勝率透明。用點數解鎖單則預測，第一次跟某位高手買，輸了點數全退。</span></div>
+  </div>
+
+  <div class="perks">
+    <div><b>免費</b><strong>比分、行情、討論區</strong><span>不用登入就能看，登入就能留言。</span></div>
+    <div><b>送 30 點</b><strong>新會員見面禮</strong><span>Google 帳號登入，點數直接進帳。</span></div>
+    <div><b>送 2 個月</b><strong>年繳只付 10 個月</strong><span>標準版、進階版都適用。</span></div>
+    <div><b>最多送 15%</b><strong>儲值越多送越多</strong><span>儲值 5,000 送 750 點。</span></div>
+  </div>
+
+  <h3 class="sub2">怎麼用</h3>
+  <div class="steps">
+    <div><b>STEP 1</b><strong>打開數據艙</strong><span>手機、電腦都可以，先免費看比分和行情。</span></div>
+    <div><b>STEP 2</b><strong>Google 登入</strong><span>跟維拓會員同一個帳號，送 30 點。</span></div>
+    <div><b>STEP 3</b><strong>追蹤隊伍、加自選</strong><span>點星星追蹤隊伍，搜尋代號加股票。</span></div>
+    <div><b>STEP 4</b><strong>升級小幫手</strong><span>要不限家數、AI 整理公告，就升級標準版或進階版。</span></div>
+  </div>
+
+  <h3 class="sub2">適合誰</h3>
+  <div class="forwho"><div><b>每天看球的人</b><span>同時追好幾場，想知道每一節的走勢和盤口。</span></div><div><b>上班族投資人</b><span>沒時間盯盤、沒時間看公告，想有人幫你整理重點。</span></div><div><b>有實力的預測高手</b><span>把你的預測放上預測區，賣出的點數你分 40%，每月 25 號撥款。</span></div></div>
+</div></section>
+
 <section class="price" id="price"><div class="in">
   <div class="kick">PRICING</div>
-  <h2>月租制，999 起</h2><p style="color:var(--mid);margin:0">按月付費，隨時升級。兩個工具分開訂，要哪個買哪個。</p>
-  <div class="ptabs" role="tablist"><button type="button" role="tab" data-t="design" aria-selected="true">AI 美編</button><button type="button" role="tab" data-t="video" aria-selected="false">AI 剪片</button></div>
+  <h2>月租制，按工具分開訂</h2><p style="color:var(--mid);margin:0" id="priceSub">按月付費，隨時升級。每個工具分開訂，要哪個買哪個。</p>
+  <div class="ptabs" role="tablist"><button type="button" role="tab" data-t="design" aria-selected="true">AI 美編</button><button type="button" role="tab" data-t="video" aria-selected="false">AI 剪片</button><button type="button" role="tab" data-t="data" aria-selected="false">AI 數據艙</button></div>
   <div class="plans" id="plans"></div>
   <div id="extras"></div>
   <p class="fine" id="fineNote"></p>
@@ -256,19 +331,22 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
     <details><summary>每個方案到底買到什麼？</summary><p>上面方案卡寫的就是全部內容，沒寫的不包含。AI 換人、加購支數、急件這些另外加購，價格都列在方案下面。</p></details>
     <details><summary>我完全不會修圖、不會剪片，用得來嗎？</summary><p>可以。你只要上傳照片或影片、選好想要的樣子，剩下 AI 會做。每一步畫面上都有說明，不用學任何軟體。</p></details>
     <details><summary>做出來的圖和影片，可以用在哪裡？</summary><p>都可以。成品存在你的手機或電腦，要上購物平台、官網、IG、Facebook、TikTok、YouTube 都行，沒有綁定任何平台。</p></details>
-    <details><summary>有免費試用嗎？</summary><p>沒有免費方案，最低 999 元一個月。按月付費，覺得不需要了下個月不續就好。</p></details>
+    <details><summary>有免費試用嗎？</summary><p>AI 美編、AI 剪片沒有免費方案，最低 999 元一個月，按月付費，不需要了下個月不續就好。AI 數據艙有免費版，比分、行情、討論區都不用錢，新會員再送 30 點。</p></details>
     <details><summary>一定要放 logo 嗎？</summary><p>不用，logo 是選填。有上傳的話，AI 美編會放在每張圖的角落，AI 剪片會放在影片角落當浮水印，位置可以自己選。</p></details>
     <details><summary>模組和剪法會更新嗎？</summary><p>會。每個月 1 號至少新增 5 款，跟著當月爆款的做法更新，訂閱期間都能用，不用另外付錢。旗艦方案可以比別人早一個月用到。</p></details>
     <details><summary>方案可以中途升級嗎？</summary><p>可以，隨時升級，立刻能用到更多模組或更多支數。</p></details>
     <details><summary>AI 換人可以換成明星或網紅嗎？</summary><p>不行。只能用你本人，或朋友同意給你用的照片。送出前要勾同意聲明，朋友的話建議附上他同意的對話截圖。成品會標示「AI 生成」，換人用的照片 30 天後自動刪除。</p></details>
     <details><summary>AI 剪片的配樂會不會有版權問題？</summary><p>內建配樂是原創的，可以放心用。也可以選不要配樂，發的時候用平台內建的熱門歌。</p></details>
+    <details><summary>AI 數據艙的點數怎麼算？</summary><p>1 元等於 1 點。儲值 1,000 送 50 點、3,000 送 300 點、5,000 送 750 點。點數可以用來訂閱 AI 趨勢小幫手，也可以解鎖預測區的單則預測。目前儲值由維拓客服幫你加點，之後會開放線上刷卡自動入點。</p></details>
+    <details><summary>AI 數據艙的資料準嗎？多久更新？</summary><p>比分、每節比分和盤口來自 ESPN，比賽進行中每 10～20 秒更新；虛擬貨幣來自 Binance 即時報價；台股、美股來自 Yahoo 財經和證交所，部分延遲約 15 分鐘。所有內容只是資訊整理，不構成投資或投注建議。</p></details>
+    <details><summary>數據艙要另外註冊嗎？</summary><p>不用。跟維拓 AI 工具是同一個會員帳號，用同一個 Google 帳號登入就好。</p></details>
     <details><summary>公司有好幾個品牌、好幾個人要用怎麼辦？</summary><p>選「企業組」。可以多品牌、多帳號一起用，也能幫你量身做專屬模組和剪法，由專人對接，價格依需求報價。</p></details>
   </div>
 </div></section>
 
 <section class="end"><div class="in">
-  <h2>今天開始，讓 AI 當你的美編和剪輯師</h2>
-  <div class="cta"><a class="btn" href="/ai-design">AI 美編：看方案</a><a class="btn gh" href="/ai-video">AI 剪片：看方案</a></div>
+  <h2>今天開始，讓 AI 當你的美編、剪輯師和數據助理</h2>
+  <div class="cta"><a class="btn" href="/ai-design">AI 美編：看方案</a><a class="btn gh" href="/ai-video">AI 剪片：看方案</a><a class="btn gh" href="https://data.victormedia.com.tw" target="_blank" rel="noopener">免費打開 AI 數據艙</a></div>
 </div></section>
 </main>
 <footer><div class="in">© 維拓傳媒 Victor Media · 維拓顧問有限公司 統一編號 62180576 · 示範畫面為示意</div><a href="/privacy">隱私權政策</a><a href="/terms">服務條款</a></footer>
@@ -281,8 +359,29 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
 "use strict";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
-function plans(t){$("#plans").innerHTML=VAI.planCards(t,{href:t==="design"?"/ai-design#plans":"/ai-video#plans"});$("#fineNote").textContent="價格為目前方案，如有調整以網站公告為準。"}
-$$("[data-t]").forEach(b=>b.onclick=()=>{$$("[data-t]").forEach(x=>x.setAttribute("aria-selected",String(x===b)));plans(b.dataset.t)});plans("design");$("#extras").innerHTML=VAI.extras();
+// AI 數據艙方案：直接讀數據艙資料庫的設定（vm_config），數據艙改價格這裡自動跟著變
+const DOPEN="https://data.victormedia.com.tw";
+let DC={subs:{std:{m:199,y:1990,name:"標準版"},pro:{m:399,y:3990,name:"進階版"}},tiers:[{ntd:300,bonus:0},{ntd:500,bonus:0},{ntd:1000,bonus:50},{ntd:3000,bonus:300},{ntd:5000,bonus:750}],prices:{"鷹眼":99,"神眼":149},welcome:30,share:.4};
+fetch("https://cswhroimywfyokxxogis.supabase.co/rest/v1/vm_config?select=k,v",{headers:{apikey:"sb_publishable_vNNC0f5QzxX7uUl2hqvKhA_WSXIhwiY"}}).then(r=>r.ok?r.json():[]).then(rows=>{(rows||[]).forEach(r=>{DC[r.k]=r.v});if(cur==="data")plans("data")}).catch(()=>{});
+const n=v=>Number(v||0).toLocaleString();
+function dataPlans(){const s=DC.subs||{},st=s.std||{},pr=s.pro||{},pc=DC.prices||{};
+  const card=(hot,h,p,yr,q,f,btn)=>`<div class="plan dplan${hot?" hot":""}">${hot?'<span class="bd">最多人選</span>':""}<h3>${h}</h3><div class="p">${p}</div>${yr?`<div class="yr">${yr}</div>`:""}<div class="q">${q}</div><ul>${f.map(x=>`<li>${x}</li>`).join("")}</ul><a class="btn${hot?"":" gh"}" href="${DOPEN}" target="_blank" rel="noopener">${btn}</a></div>`;
+  return card(0,"免費版","0<small> 元</small>","","比分・行情 <b>不限</b>",["即時比分、每節／每局比分","讓分、大小分、盤口勝率","台股、美股、虛幣、原物料行情","追蹤隊伍，開賽得分終場通知","AI 趨勢小幫手：追蹤 3 家公司","討論區留言（登入）"],"免費打開")
+   +card(0,VAI.E(st.name||"標準版"),`${n(st.m)}<small> 元／月</small>`,`年繳 ${n(st.y)} 元，送 2 個月`,"追蹤公司 <b>不限</b>",["免費版全部功能","追蹤公司不限家數","所有追蹤公司的重大訊息提醒","所有自選的急漲急跌提醒","財報、營收一鍵連結"],"選"+VAI.E(st.name||"標準版"))
+   +card(1,VAI.E(pr.name||"進階版"),`${n(pr.m)}<small> 元／月</small>`,`年繳 ${n(pr.y)} 元，送 2 個月`,"AI 整理 <b>每則公告</b>",["標準版全部功能","AI 用白話整理每則公告重點","每週持股摘要（AI 整理 7 天公告）","看不懂公告的人最需要的一版"],"選"+VAI.E(pr.name||"進階版"))
+   +card(0,"預測區",`${n(pc["鷹眼"])}<small> 點起／則</small>`,"","按則購買，<b>不用月費</b>",[`鷹眼（當月勝率 60% 以上）${n(pc["鷹眼"])} 點`,`神眼（當月勝率 70% 以上）${n(pc["神眼"])} 點`,"戰績公開、每月重新評級","第一次跟同一位高手買，輸了點數全退",`你也可以賣預測，分 ${Math.round((DC.share||.4)*100)}%`],"去預測區看看");}
+function dataExtras(){const t=(DC.tiers||[]);
+  return `<div class="extras"><div class="ex"><h4>儲值點數（1 元＝1 點）</h4>${t.map(x=>`<div class="row${x.bonus?" hot":""}"><span><b>儲值 ${n(x.ntd)}</b>${x.bonus?`送 ${n(x.bonus)} 點`:""}</span><em>${n(x.ntd+(x.bonus||0))} 點</em></div>`).join("")}</div>
+  <div class="ex"><h4>新會員見面禮</h4><p>用 Google 帳號登入就送 ${n(DC.welcome||30)} 點，先試試預測區。</p><h4 style="margin-top:14px">年繳更划算</h4><p>標準版、進階版年繳付 10 個月，用 12 個月。</p></div>
+  <div class="ex"><h4>點數可以用在</h4><div class="row"><span>訂閱 AI 趨勢小幫手</span><em>標準版／進階版</em></div><div class="row"><span>解鎖預測區單則預測</span><em>${n((DC.prices||{})["鷹眼"])}～${n((DC.prices||{})["神眼"])} 點</em></div><div class="row"><span>賣預測賺到的點數</span><em>每月 25 號撥款</em></div></div></div>`}
+let cur="design";
+function plans(t){cur=t;
+  if(t==="data"){$("#plans").innerHTML=dataPlans();$("#extras").innerHTML=dataExtras();$("#fineNote").textContent="AI 數據艙只提供資訊整理與提醒，不構成投資或投注建議。價格以數據艙公告為準。";return}
+  $("#plans").innerHTML=VAI.planCards(t,{href:t==="design"?"/ai-design#plans":"/ai-video#plans"});$("#extras").innerHTML=VAI.extras();$("#fineNote").textContent="價格為目前方案，如有調整以網站公告為準。"}
+const pick=t=>{$$("[data-t]").forEach(x=>x.setAttribute("aria-selected",String(x.dataset.t===t)));plans(t)};
+$$("[data-t]").forEach(b=>b.onclick=()=>pick(b.dataset.t));
+$$("[data-go]").forEach(a=>a.addEventListener("click",()=>pick(a.dataset.go)));
+pick(location.hash==="#data"?"data":"design");
 // 常見問題：一次只開一題
 $$("#qa details").forEach(d=>d.addEventListener("toggle",()=>{if(d.open)$$("#qa details").forEach(x=>{if(x!==d)x.open=false})}));
 // ===== 示範圖 =====
