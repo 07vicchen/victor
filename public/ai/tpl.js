@@ -225,3 +225,113 @@ function sampleFor(k){if(k==="gen"||!IND[k])return sampleProduct();const c=docum
   g.fillStyle="#fffaf0";rr(g,170,520,260,220,16);g.fill();g.fillStyle="#7a4a20";g.font="800 34px sans-serif";g.textAlign="center";g.fillText("GRANOLA",300,600);g.font="500 24px sans-serif";g.fillText("堅果燕麥脆片",300,650);g.fillText("300g",300,695);
   const lid=g.createLinearGradient(140,0,460,0);lid.addColorStop(0,"#5a3a1c");lid.addColorStop(.5,"#8a5e33");lid.addColorStop(1,"#4a2f16");rr(g,140,230,320,90,18);g.fillStyle=lid;g.fill()}
  return c}
+
+// ---------- 各行業專屬版型（資料驅動，用客人上傳的商品照，不用付費生圖） ----------
+function hd(g,t,en,bg){g.fillStyle=bg||"#fff";g.fillRect(0,0,S,S);txt(g,t,60,96,`900 64px ${F}`,"#1b1b1b");if(en)txt(g,en,62,158,`700 26px ${N}`,col);g.fillStyle=col;g.fillRect(60,190,90,8)}
+function para(g,t,x,y,max,font,color,lh){g.font=font;const ls=wrap(g,t,max);ls.forEach((l,i)=>txt(g,l,x,y+i*lh,font,color));return ls.length}
+function chk(g,x,y,r,ok){g.fillStyle=ok?col:"#c9c9c9";g.beginPath();g.arc(x,y,r,0,7);g.fill();g.strokeStyle="#fff";g.lineWidth=r*.22;g.lineCap="round";g.beginPath();if(ok){g.moveTo(x-r*.42,y);g.lineTo(x-r*.1,y+r*.32);g.lineTo(x+r*.45,y-r*.32)}else{g.moveTo(x-r*.35,y-r*.35);g.lineTo(x+r*.35,y+r*.35);g.moveTo(x+r*.35,y-r*.35);g.lineTo(x-r*.35,y+r*.35)}g.stroke();g.lineCap="butt"}
+// 1 功能／成分格子
+function tGrid(g,img,d){hd(g,d.t,d.en,"#fbfaf7");fit(g,img,S-300,40,240,300,"contain");
+  const it=d.items,cols=2,cw=(S-150)/cols,rows=Math.ceil(Math.min(6,it.length)/cols),ch=Math.min(300,(S-400-(rows-1)*24)/rows);it.slice(0,6).forEach(([ic,lab,ds],i)=>{const x=60+(i%cols)*(cw+30),y=360+Math.floor(i/cols)*(ch+24);
+    g.fillStyle="#fff";rr(g,x,y,cw,ch,18);g.fill();g.strokeStyle="#ece7dd";g.lineWidth=2;g.stroke();
+    g.fillStyle=light(col,.82);g.beginPath();g.arc(x+70,y+ch/2,46,0,7);g.fill();txt(g,ic,x+70,y+ch/2+2,`900 40px ${F}`,col,"center");
+    txt(g,lab,x+140,y+ch/2-28,`900 38px ${F}`,"#1b1b1b");para(g,ds,x+140,y+ch/2+28,cw-170,`500 26px ${F}`,"#666",36)})}
+// 2 步驟
+function tSteps(g,img,d){hd(g,d.t,d.en);g.fillStyle=light(col,.9);g.fillRect(0,230,400,S-230);fit(g,img,40,280,320,700,"contain");
+  const st=d.steps,gap=(S-300)/st.length;g.strokeStyle=light(col,.6);g.lineWidth=4;g.beginPath();g.moveTo(490,300);g.lineTo(490,300+gap*(st.length-1));g.stroke();
+  st.forEach(([lab,ds],i)=>{const y=300+i*gap;g.fillStyle=col;g.beginPath();g.arc(490,y,40,0,7);g.fill();txt(g,String(i+1),490,y+2,`900 40px ${N}`,"#fff","center");
+    txt(g,lab,560,y-14,`900 40px ${F}`,"#1b1b1b");para(g,ds,560,y+36,S-620,`500 27px ${F}`,"#666",36)})}
+// 3 包裝內容物
+function tBox(g,img,d){hd(g,d.t,d.en,"#f7f6f3");g.fillStyle="#fff";rr(g,60,240,S-120,500,24);g.fill();shadow(g,S/2,700,420);fit(g,img,S/2-210,270,420,440,"contain");
+  const it=d.items,w=(S-120-(it.length-1)*16)/it.length;it.forEach((t,i)=>{const x=60+i*(w+16);g.fillStyle="#fff";rr(g,x,780,w,220,18);g.fill();chk(g,x+w/2,840,30,true);para(g,t,x+20,910,w-40,`700 28px ${F}`,"#333",36)})}
+// 4 尺寸對照（跟信用卡比）
+function tScale(g,img,d){hd(g,d.t,d.en);const [x,y,w,h]=fit(g,img,140,260,420,700,"contain");
+  g.strokeStyle="#1b1b1b";g.lineWidth=3;g.beginPath();g.moveTo(x-40,y);g.lineTo(x-40,y+h);g.moveTo(x-55,y);g.lineTo(x-25,y);g.moveTo(x-55,y+h);g.lineTo(x-25,y+h);g.stroke();
+  g.save();g.translate(x-75,y+h/2);g.rotate(-Math.PI/2);txt(g,d.h,0,0,`900 34px ${N}`,"#1b1b1b","center");g.restore();
+  g.beginPath();g.moveTo(x,y+h+40);g.lineTo(x+w,y+h+40);g.stroke();txt(g,d.w,x+w/2,y+h+80,`900 34px ${N}`,"#1b1b1b","center");
+  const cx=640,cy=640,cw=300,chh=190;g.fillStyle=light(col,.8);rr(g,cx,cy,cw,chh,16);g.fill();g.fillStyle=light(col,.6);rr(g,cx+30,cy+50,60,44,8);g.fill();txt(g,"8.5 × 5.4 cm",cx+cw/2,cy+chh+44,`700 28px ${N}`,"#666","center");txt(g,"一張信用卡",cx+cw/2,cy-36,`700 30px ${F}`,"#666","center");
+  g.fillStyle="#f6f4ef";rr(g,620,300,400,240,18);g.fill();para(g,d.note,650,350,340,`700 32px ${F}`,"#1b1b1b",46)}
+// 5 比較表
+function tCompare(g,img,d){hd(g,d.t,d.en);fit(g,img,S-260,30,200,260,"contain");
+  const x0=60,y0=260,cw=[380,280,280],rh=(S-320)/(d.rows.length+1);
+  [["",d.cols[0],d.cols[1]]].concat(d.rows).forEach((r,i)=>{let x=x0;r.forEach((c,j)=>{const y=y0+i*rh;g.fillStyle=j===1?(i?light(col,.9):col):(i%2?"#fafafa":"#fff");g.fillRect(x,y,cw[j],rh);g.strokeStyle="#ececec";g.lineWidth=2;g.strokeRect(x,y,cw[j],rh);
+    if(i===0)txt(g,c,x+cw[j]/2,y+rh/2,`900 34px ${F}`,j===1?"#fff":"#888","center");else if(j===0)txt(g,c,x+30,y+rh/2,`700 32px ${F}`,"#333");
+    else if(c==="✓"||c==="✕")chk(g,x+cw[j]/2,y+rh/2,26,c==="✓");else txt(g,c,x+cw[j]/2,y+rh/2,`${j===1?900:500} 30px ${F}`,j===1?col:"#888","center");x+=cw[j]})})}
+// 6 常見問題
+function tFaq(g,img,d){hd(g,d.t,d.en,"#fbfaf7");fit(g,img,S-250,30,190,250,"contain");let y=260;
+  d.qa.slice(0,4).forEach(([q,a])=>{g.fillStyle="#fff";rr(g,60,y,S-120,170,18);g.fill();g.fillStyle=col;g.beginPath();g.arc(115,y+52,30,0,7);g.fill();txt(g,"Q",115,y+54,`900 32px ${N}`,"#fff","center");
+    txt(g,q,165,y+52,`900 32px ${F}`,"#1b1b1b");para(g,a,165,y+108,S-260,`500 27px ${F}`,"#666",36);y+=190})}
+// 7 好評框（示意，客人換成自己的真實評價）
+function tReview(g,img,d){hd(g,d.t,d.en,light(col,.9));fit(g,img,S-260,30,200,260,"contain");
+  d.rv.slice(0,3).forEach(([n,t],i)=>{const y=280+i*240;g.fillStyle="#fff";rr(g,60,y,S-120,210,20);g.fill();g.fillStyle=light(col,.75);g.beginPath();g.arc(130,y+70,40,0,7);g.fill();txt(g,n.slice(0,1),130,y+72,`900 34px ${F}`,col,"center");
+    txt(g,n,190,y+52,`700 30px ${F}`,"#333");txt(g,"★★★★★",190,y+94,`900 28px ${F}`,"#f2b01e");para(g,t,100,y+150,S-220,`500 29px ${F}`,"#444",38)});
+  pill(g,"示意：換成你的真實評價截圖",60,S-62,"#1b1b1bcc","#fff",24)}
+// 8 組合價
+function tBundle(g,img,d){hd(g,d.t,d.en,"#f7f6f3");const tiers=[["1 件",P.price,""],["2 件",Math.round(P.price*1.8),"最多人選"],["3 件",Math.round(P.price*2.5),"最划算"]];
+  tiers.forEach(([lab,pr,tag],i)=>{const w=300,x=60+i*(w+30),y=280,hi=i===1;g.fillStyle=hi?col:"#fff";rr(g,x,y,w,700,22);g.fill();
+    if(tag)pill(g,tag,x+20,y+20,hi?"#1b1b1b":col,"#fff",26);for(let k=0;k<=i;k++)fit(g,img,x+40+k*30,y+90+k*10,w-80-i*30,330,"contain");
+    txt(g,lab,x+w/2,y+480,`900 48px ${F}`,hi?"#fff":"#1b1b1b","center");txt(g,`$${pr}`,x+w/2,y+570,`900 66px ${N}`,hi?"#fff":col,"center");
+    txt(g,i?`平均一件 $${Math.round(pr/(i+1))}`:"原價",x+w/2,y+640,`500 28px ${F}`,hi?"#ffffffcc":"#888","center")})}
+// 9 清單（保存、保固、到貨、膚質）
+function tNotice(g,img,d){hd(g,d.t,d.en);fit(g,img,S-300,240,240,520,"contain");
+  const nr=Math.min(5,d.rows.length),gp=Math.min(190,(S-330)/nr);d.rows.slice(0,5).forEach(([ic,lab,ds],i)=>{const y=270+i*gp;g.fillStyle=light(col,.85);rr(g,60,y,100,100,20);g.fill();txt(g,ic,110,y+52,`900 44px ${F}`,col,"center");
+    txt(g,lab,190,y+30,`900 36px ${F}`,"#1b1b1b");para(g,ds,190,y+80,S-560,`500 27px ${F}`,"#666",34)})}
+// 10 故事
+function tStory(g,img,d){g.fillStyle=light(col,.88);g.fillRect(0,0,S,S);g.fillStyle=light(col,.78);g.beginPath();g.arc(S-160,S-200,380,0,7);g.fill();fit(g,img,S-480,S-760,400,700,"contain");
+  txt(g,d.en,60,110,`700 28px ${N}`,col);txt(g,"“",50,230,`900 160px Georgia,serif`,col);const tl=para(g,d.t,60,300,560,`900 56px ${F}`,"#1b1b1b",72);
+  para(g,d.para,60,300+tl*72+60,520,`500 30px ${F}`,"#444",46);txt(g,d.sign,60,S-80,`700 30px ${F}`,"#666")}
+// 11 質地特寫（美妝）
+function tTexture(g,img,d){hd(g,d.t,d.en,"#fbf8f4");fit(g,img,60,260,360,680,"contain");
+  const cx=720,cy=560;g.fillStyle="#fff";g.beginPath();g.arc(cx,cy,280,0,7);g.fill();
+  const sw=g.createLinearGradient(cx-200,0,cx+200,0);sw.addColorStop(0,light(col,.75));sw.addColorStop(.5,light(col,.92));sw.addColorStop(1,light(col,.7));g.fillStyle=sw;g.beginPath();g.moveTo(cx-210,cy+30);g.bezierCurveTo(cx-120,cy-150,cx+60,cy-40,cx+210,cy-90);g.bezierCurveTo(cx+160,cy+60,cx-40,cy+40,cx-210,cy+30);g.fill();
+  g.fillStyle="#ffffffaa";g.beginPath();g.ellipse(cx-40,cy-40,60,14,-.3,0,7);g.fill();
+  d.tags.forEach((t,i)=>pill(g,t,520+(i%2)*230,880+Math.floor(i/2)*80,i%2?"#1b1b1b":col,"#fff",30))}
+// 12 檢驗／認證（示意）
+function tCert(g,img,d){hd(g,d.t,d.en);fit(g,img,S/2-160,230,320,420,"contain");const n=d.badges.length,w=(S-120)/n;
+  d.badges.forEach(([big,sm],i)=>{const cx=60+w*i+w/2,cy=800;g.strokeStyle=col;g.lineWidth=6;g.beginPath();g.arc(cx,cy,110,0,7);g.stroke();g.lineWidth=2;g.beginPath();g.arc(cx,cy,94,0,7);g.stroke();
+    txt(g,big,cx,cy-12,`900 40px ${F}`,col,"center");txt(g,sm,cx,cy+36,`700 24px ${F}`,"#666","center")});
+  pill(g,"示意：請換成你實際有的檢驗或認證",60,S-62,"#1b1b1bcc","#fff",24)}
+// 13 送禮包裝
+function tGift(g,img,d){g.fillStyle="#1b1b1b";g.fillRect(0,0,S,S);txt(g,d.t,60,110,`900 64px ${F}`,"#fff");txt(g,d.en,62,172,`700 26px ${N}`,col);
+  const bx=330,by=420,bw=520,bh=480;g.fillStyle=col;g.fillRect(bx,by,bw,bh);g.fillStyle=light(col,.35);g.fillRect(bx-20,by-90,bw+40,110);g.fillStyle="#fff";g.fillRect(bx+bw/2-22,by-90,44,bh+90);
+  g.fillStyle="#fff";g.beginPath();g.ellipse(bx+bw/2-70,by-110,80,40,-.5,0,7);g.ellipse(bx+bw/2+70,by-110,80,40,.5,0,7);g.fill();
+  shadow(g,230,960,260);fit(g,img,90,520,280,440,"contain");d.tags.forEach((t,i)=>pill(g,t,60,240+i*80,"#ffffff1f","#fff",30))}
+
+// 各行業加的版型：[名稱, 等級(1入門 2專業), 畫法]
+(function(){const X={
+ gen:[["功能九宮格",1,(g,img)=>tGrid(g,img,{t:"六大設計重點",en:"FEATURES",items:[["冰","24H 保冰","冰塊放一天還在"],["熱","12H 保溫","早上泡的茶下午還燙"],["輕","輕量 330g","放包包不重"],["鋼","316 不鏽鋼","不怕咖啡和果汁"],["扣","單手開蓋","騎車停紅燈也能喝"],["洗","可拆洗杯蓋","零件全部拆開洗"]]})],
+  ["使用步驟",1,(g,img)=>tSteps(g,img,{t:"第一次使用",en:"HOW TO USE",steps:[["先用熱水沖一遍","去除新品氣味"],["裝到瓶口下 1cm","太滿蓋子會壓到"],["轉緊再按壓開蓋","聽到喀一聲就鎖好了"],["每天用完拆洗","杯蓋零件都能拆"]]})],
+  ["包裝內容物",1,(g,img)=>tBox(g,img,{t:"收到會有這些",en:"IN THE BOX",items:["保溫瓶 ×1","替換杯蓋 ×1","清潔刷 ×1","保固卡 ×1"]})],
+  ["手拿尺寸對照",1,(g,img)=>tScale(g,img,{t:"實際大小",en:"ACTUAL SIZE",h:"23 cm",w:"7 cm",note:"比一般手搖杯細，車上杯架、包包側袋都放得下"})],
+  ["跟一般的比",2,(g,img)=>tCompare(g,img,{t:"為什麼選這支",en:"COMPARE",cols:["我們","一般保溫瓶"],rows:[["保冰時間","24 小時","6 小時"],["內膽材質","316","304"],["單手開蓋","✓","✕"],["杯蓋可拆洗","✓","✕"],["保固","1 年","無"]]})],
+  ["常見問題",1,(g,img)=>tFaq(g,img,{t:"常見問題",en:"Q & A",qa:[["可以裝熱湯嗎？","可以，但請不要裝牛奶放隔夜。"],["可以進洗碗機嗎？","杯身建議手洗，杯蓋可以。"],["多久會到？","現貨 24 小時內出貨，2～3 天到。"],["壞了怎麼辦？","一年內非人為損壞免費換新。"]]})],
+  ["好評框",2,(g,img)=>tReview(g,img,{t:"買過的人說",en:"REVIEWS",rv:[["王小姐","放車上一整天，下班冰塊還在，很驚喜。"],["陳先生","單手就能開，騎車等紅燈超方便。"],["林小姐","杯蓋全部拆得開，洗起來很安心。"]]})],
+  ["組合價",1,(g,img)=>tBundle(g,img,{t:"多買更划算",en:"BUNDLE"})]],
+ beauty:[["成分功效",1,(g,img)=>tGrid(g,img,{t:"每一滴都有用",en:"KEY INGREDIENTS",items:[["水","三重玻尿酸","大中小分子層層補水"],["B5","維他命 B5","安撫乾燥泛紅"],["神","神經醯胺","修護保水屏障"],["茶","綠茶萃取","調理油水平衡"]]})],
+  ["質地特寫",1,(g,img)=>tTexture(g,img,{t:"清爽不黏",en:"TEXTURE",tags:["水感精華","一抹就吸收","不黏膩","上妝不搓泥"]})],
+  ["使用步驟",1,(g,img)=>tSteps(g,img,{t:"這樣擦最有感",en:"HOW TO USE",steps:[["洗完臉先上化妝水","讓肌膚先打底"],["滴 2～3 滴在手心","搓開溫熱一下"],["由內往外輕壓","不要用力推"],["再擦乳液鎖水","早晚都可以用"]]})],
+  ["適合膚質",1,(g,img)=>tNotice(g,img,{t:"適合誰用",en:"SKIN TYPE",rows:[["乾","乾肌","洗完臉就緊繃、會脫皮"],["混","混合肌","T 字出油、兩頰乾"],["敏","敏感肌","無香精、無酒精配方"],["妝","常上妝","上妝前擦，比較服貼"]]})],
+  ["檢驗認證",2,(g,img)=>tCert(g,img,{t:"安心有保障",en:"CERTIFIED",badges:[["檢驗","重金屬"],["檢驗","微生物"],["登錄","化粧品"]]})],
+  ["好評框",2,(g,img)=>tReview(g,img,{t:"擦過的人說",en:"REVIEWS",rv:[["Amy","冷氣房一整天臉都不緊繃了。"],["小雯","敏感肌擦了沒有刺刺的感覺。"],["Joyce","上妝前擦，粉底變得很服貼。"]]})],
+  ["容量對照",1,(g,img)=>tScale(g,img,{t:"實際大小",en:"ACTUAL SIZE",h:"12 cm",w:"4 cm",note:"30ml 約可以用一個月，出國放隨身包剛好"})],
+  ["組合價",1,(g,img)=>tBundle(g,img,{t:"囤貨更划算",en:"BUNDLE"})],
+  ["常見問題",1,(g,img)=>tFaq(g,img,{t:"常見問題",en:"Q & A",qa:[["孕婦可以用嗎？","配方溫和，但建議先問過醫師。"],["可以跟 A 醇一起用嗎？","可以，先擦精華再擦 A 醇。"],["開封後可以放多久？","開封後 12 個月內用完。"],["擦了會過敏怎麼辦？","先停用，7 天內可退換。"]]})]],
+ tech:[["功能九宮格",1,(g,img)=>tGrid(g,img,{t:"六大功能",en:"FEATURES",items:[["靜","主動降噪","捷運、飛機都安靜"],["電","30 小時續航","一週充一次就好"],["水","IPX5 防水","運動流汗不怕"],["連","藍牙 5.3","連線穩、不延遲"],["觸","觸控操作","點兩下切歌"],["充","快充 10 分鐘","聽 2 小時"]]})],
+  ["規格比較",2,(g,img)=>tCompare(g,img,{t:"跟別款比一比",en:"COMPARE",cols:["Pro","一般款"],rows:[["主動降噪","✓","✕"],["總續航","30 小時","18 小時"],["防水","IPX5","無"],["快充","✓","✕"],["保固","1 年","3 個月"]]})],
+  ["包裝內容物",1,(g,img)=>tBox(g,img,{t:"盒子裡有",en:"IN THE BOX",items:["耳機 ×2","充電盒 ×1","Type-C 線 ×1","耳塞 S/M/L"]})],
+  ["連接步驟",1,(g,img)=>tSteps(g,img,{t:"三步驟就連上",en:"SETUP",steps:[["打開充電盒","燈號閃白光"],["手機打開藍牙","選「降噪藍牙耳機 Pro」"],["聽到提示音","之後打開盒子就自動連"]]})],
+  ["手拿尺寸",1,(g,img)=>tScale(g,img,{t:"實際大小",en:"ACTUAL SIZE",h:"5 cm",w:"6 cm",note:"充電盒比雞蛋還小，口袋放得下"})],
+  ["保固說明",1,(g,img)=>tNotice(g,img,{t:"買得安心",en:"WARRANTY",rows:[["保","一年保固","非人為損壞免費換新"],["修","台灣在地維修","不用寄回原廠"],["換","7 天鑑賞期","不滿意可以退"],["客","LINE 客服","有問題直接傳訊息"]]})],
+  ["常見問題",1,(g,img)=>tFaq(g,img,{t:"常見問題",en:"Q & A",qa:[["iPhone、安卓都能用嗎？","都可以，有藍牙就能連。"],["可以只戴一耳嗎？","可以，左右耳都能單獨用。"],["講電話對方聽得清楚嗎？","有降噪麥克風，路邊也清楚。"],["電池會壞嗎？","一年內電池問題免費換新。"]]})],
+  ["好評框",2,(g,img)=>tReview(g,img,{t:"用過的人說",en:"REVIEWS",rv:[["阿傑","捷運上開降噪，終於聽得清楚 podcast。"],["Kevin","跑步一小時沒掉過，很穩。"],["小雨","一週才充一次電，很省事。"]]})],
+  ["組合價",1,(g,img)=>tBundle(g,img,{t:"跟朋友一起買",en:"BUNDLE"})]],
+ food:[["吃法建議",1,(g,img)=>tSteps(g,img,{t:"這樣吃最好吃",en:"HOW TO EAT",steps:[["配優格","早餐 3 分鐘搞定"],["加鮮奶","泡 1 分鐘口感剛好"],["直接吃","下午嘴饞的小點心"],["撒在冰淇淋上","多一層酥脆"]]})],
+  ["無添加標示",1,(g,img)=>tGrid(g,img,{t:"吃得安心",en:"CLEAN LABEL",items:[["糖","無精緻糖","用蜂蜜帶出甜味"],["防","無防腐劑","手工小批烘焙"],["香","無人工香料","香味來自堅果本身"],["纖","高纖","一份 3.6g 膳食纖維"]]})],
+  ["保存方式",1,(g,img)=>tNotice(g,img,{t:"怎麼保存",en:"STORAGE",rows:[["夾","開封夾緊","夾鏈袋擠出空氣再封"],["涼","放陰涼處","避免陽光直射"],["冰","夏天可冷藏","口感會更脆"],["期","2 週內吃完","開封後風味最好"]]})],
+  ["產地故事",1,(g,img)=>tStory(g,img,{t:"一鍋一鍋慢慢烤",en:"OUR STORY",para:"每天早上烤一小批，堅果整顆放、不磨碎，烤到金黃就出爐。我們只做自己每天會吃的東西。",sign:"— 店主（示意，換成你的故事）"})],
+  ["份量對照",1,(g,img)=>tScale(g,img,{t:"一罐有多少",en:"PORTION",h:"15 cm",w:"9 cm",note:"300g 約 7～8 份早餐，一個人吃一週半"})],
+  ["跟一般的比",2,(g,img)=>tCompare(g,img,{t:"跟市售穀片比",en:"COMPARE",cols:["我們","市售穀片"],rows:[["精緻糖","不添加","每份 8g"],["堅果","整顆","碎粒"],["防腐劑","✕","✓"],["烘焙","手工小批","工廠量產"]]})],
+  ["送禮包裝",1,(g,img)=>tGift(g,img,{t:"送禮也體面",en:"GIFT BOX",tags:["質感禮盒","附手寫卡片","可代寄"]})],
+  ["組合價",1,(g,img)=>tBundle(g,img,{t:"多買更划算",en:"BUNDLE"})],
+  ["好評框",2,(g,img)=>tReview(g,img,{t:"吃過的人說",en:"REVIEWS",rv:[["Mia","不會太甜，小孩也很愛。"],["阿明","配優格當早餐，飽到中午。"],["小芳","堅果真的很多，一直回購。"]]})]]};
+ window.XTPL=function(k){return X[k]||[]}})();
