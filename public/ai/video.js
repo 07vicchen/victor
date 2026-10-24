@@ -101,7 +101,7 @@
     await loadTus(); var tk = await VAI.token();
     await new Promise(function (ok, no) {
       var u = new window.tus.Upload(f, { endpoint: "https://cswhroimywfyokxxogis.supabase.co/storage/v1/upload/resumable", retryDelays: [0, 2000, 5000, 10000, 20000],
-        headers: { authorization: "Bearer " + tk, "x-upsert": "true" }, uploadDataDuringCreation: true, removeFingerprintOnSuccess: true, chunkSize: 6 * 1024 * 1024,
+        headers: { authorization: "Bearer " + tk }, uploadDataDuringCreation: true, removeFingerprintOnSuccess: true, chunkSize: 6 * 1024 * 1024,
         metadata: { bucketName: "ai-videos", objectName: path, contentType: f.type || "video/mp4", cacheControl: "3600" },
         onError: function (e) { var t = String(e && e.message || e); no(new Error(/413|too large|exceeded/i.test(t) ? "影片太大，系統收不下，請剪短一點或用 1080p 重新匯出" : "上傳失敗：" + t.slice(0, 160))); },
         onProgress: function (a, b) { prog(b ? a / b : 0); }, onSuccess: function () { prog(1); ok(); } });
