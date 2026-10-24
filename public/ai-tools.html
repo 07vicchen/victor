@@ -169,13 +169,24 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
 .ex .row.hot em{color:var(--gold2)}
 .plan .pq{font:900 26px var(--serif)}
 @media (max-width:960px){.extras{grid-template-columns:1fr}}
+.vs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:6px}
+.vsc{border:1px solid var(--line);border-radius:18px;background:var(--s2);padding:22px 20px;min-width:0}
+.vsc h3{margin:0 0 4px;font:900 19px var(--serif)}.vsc>small{display:block;color:var(--dim);font-size:13px;margin-bottom:10px}
+.vsc dl{margin:0}.vsc dl div{display:grid;grid-template-columns:5.5em minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px dashed var(--line)}
+.vsc dt{font-size:13px;color:var(--dim)}.vsc dd{margin:0;font-size:14.5px;color:var(--mid)}.vsc dd b{color:var(--ink)}
+.vsc.me{position:relative;border:2px solid var(--gold);background:linear-gradient(165deg,#2a2418,#161412 60%);box-shadow:0 0 40px #d6b46a26}
+.vsc.me::before{content:"一鍵完成";position:absolute;top:-12px;left:18px;background:var(--gold);color:#14110c;font:700 12px var(--body);padding:2px 12px;border-radius:999px}
+.vsc.me dd{color:var(--ink)}.vsc.me dd b{color:var(--gold2)}
+.vsnote{font-size:13px;color:var(--dim);margin:12px 0 0}
+.vsw{padding-block:50px 40px;border-top:1px solid var(--line)}.vsw h2{font:900 clamp(26px,3.2vw,38px)/1.3 var(--serif);margin:10px 0 8px}.vsw .ld{color:var(--mid);margin:0 0 22px;max-width:40em}
+@media (max-width:860px){.vs{grid-template-columns:1fr}.vsc.me{order:-1}}
 </style>
 </head>
 <body>
 
 
 <header class="top"><div class="in"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="36" height="36" style="border-radius:50%"><b>維拓傳媒</b></a>
-  <nav aria-label="AI 工具"><a href="/">回官網首頁</a><a class="on" href="#top">AI 工具</a><a href="#design">AI 美編</a><a href="#video">AI 剪片</a><a href="#data">AI 數據艙</a><a href="#price">價格</a><a href="/ai-design#member">會員登入</a></nav></div></header>
+  <nav aria-label="AI 工具"><a href="/">回官網首頁</a><a class="on" href="#top">AI 工具</a><a href="#vs">差在哪</a><a href="#design">AI 美編</a><a href="#video">AI 剪片</a><a href="#data">AI 數據艙</a><a href="#price">價格</a><a href="/ai-design#member">會員登入</a></nav></div></header>
 
 <main id="top">
 <section class="hero"><div class="in">
@@ -204,6 +215,14 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
     <div><b>影片拍了一堆，放著沒剪</b><span>剪一支要兩三個小時，最後乾脆不發，帳號就這樣停住。</span></div>
     <div><b>發了也沒人看完</b><span>開頭太慢、停頓太多、沒字幕，觀眾三秒就滑走。</span></div>
   </div>
+</div></section>
+
+<section class="vsw" id="vs"><div class="in">
+  <div class="kick">WHY US</div>
+  <h2>請人做、自己做、交給 AI，差在哪</h2>
+  <p class="ld">一般人做商品圖、剪短影音，不是花錢請人，就是自己熬夜學軟體。維拓 AI 工具不用學、不用等，按一下就有成品。</p>
+  <div class="vs"><div class="vsc"><h3>請美編、剪輯師</h3><small>外包、接案</small><dl><div><dt>誰動手</dt><dd>別人做，你要來回溝通</dd></div><div><dt>多久拿到</dt><dd>排檔期，常常要等好幾天</dd></div><div><dt>費用</dt><dd>商品圖一張約 <b>500～2,000 元</b>，影片一支一支算</dd></div><div><dt>要改的話</dt><dd>改一次、等一次</dd></div></dl></div><div class="vsc"><h3>自己用軟體、App</h3><small>套範本自己排、自己剪</small><dl><div><dt>誰動手</dt><dd><b>你自己</b></dd></div><div><dt>要不要學</dt><dd>要學排版、剪輯、上字幕</dd></div><div><dt>多久拿到</dt><dd>一組圖、一支片常常一兩個小時</dd></div><div><dt>費用</dt><dd>軟體便宜，花的是你的時間</dd></div></dl></div><div class="vsc me"><h3>維拓 AI 工具</h3><small>上傳，按一下</small><dl><div><dt>誰動手</dt><dd><b>AI 做，你只按一下</b></dd></div><div><dt>要不要學</dt><dd><b>不用學</b></dd></div><div><dt>多久拿到</dt><dd><b>幾分鐘</b>拿到成品，存下來就能發</dd></div><div><dt>費用</dt><dd>月租 <b>999 元起</b>，一個月固定；專業方案以上每月新增 1～5 款新樣式</dd></div></dl></div></div>
+  <p class="vsnote">美編費用是台灣接案平台上常見的行情，實際依案子而定；時間是一般情況。</p>
 </div></section>
 
 <section class="tool" id="design"><div class="in">
