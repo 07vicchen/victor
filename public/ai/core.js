@@ -24,12 +24,30 @@
   var LINE_ID = "@898biiyu";
   var GOOGLE_ON = true;
   var sb = null, me = null, listeners = [];
+  // Vic 10/24：Google 登入回來網址變成「#member#access_token=…」讀不到，先修成「#access_token=…」
+  try { var hh = location.hash; if (/#[^#]*#.*access_token=/.test(hh)) history.replaceState(null, "", location.pathname + location.search + "#" + hh.split("#").pop()); } catch (e) {}
+  function backUrl(back) { var i = back.indexOf("#"); if (i >= 0) { try { sessionStorage.setItem("vai-jump", back.slice(i + 1)); } catch (e) {} back = back.slice(0, i); } return location.origin + back; }
+  var TOOL = /ai-video/.test(location.pathname) ? "video" : /ai-design/.test(location.pathname) ? "design" : null;
+  function memberMode(m) {
+    var root = document.documentElement, on = !!(m && m.login && (m.admin || (TOOL ? (m[TOOL] || {}).status === "active" : ((m.video || {}).status === "active" || (m.design || {}).status === "active"))));
+    root.classList.toggle("vai-login", !!(m && m.login)); root.classList.toggle("vai-in", on);
+    if (TOOL) { var mem = document.getElementById("member");
+      if (mem && on && !document.getElementById("vaiAll")) { var b = document.createElement("div"); b.className = "vai-bar"; b.innerHTML = '<span>會員工作區</span><button type="button" id="vaiAll">看方案、加購和功能介紹</button>'; mem.insertBefore(b, mem.firstChild);
+        b.querySelector("button").onclick = function () { var all = root.classList.toggle("vai-all"); this.textContent = all ? "收起介紹，只看工作區" : "看方案、加購和功能介紹"; }; }
+      if (on && !root.classList.contains("vai-all") && !location.hash) window.scrollTo(0, 0); }
+    var nm = document.getElementById("navMem"); if (nm) nm.textContent = m && m.login ? "會員區" : "會員登入";
+    var bar = document.getElementById("vaiTop");
+    if (bar) { bar.hidden = !(m && m.login); if (m && m.login) bar.querySelector("[data-email]").textContent = m.email || ""; }
+    var j = null; try { j = sessionStorage.getItem("vai-jump"); } catch (e) {}
+    if (j && m && m.login) { try { sessionStorage.removeItem("vai-jump"); } catch (e) {} if (!on) { var t = document.getElementById(j); if (t) setTimeout(function () { t.scrollIntoView(); }, 300); } }
+  }
   function E(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function client() { if (!sb && window.supabase) sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, detectSessionInUrl: true } }); return sb; }
   async function refresh() {
     var c = client(); if (!c) return null;
     var s = (await c.auth.getSession()).data.session;
     if (!s) { me = { login: false }; } else { c.rpc("ai_tool_touch").then(function () {}, function () {}); var r = await c.rpc("ai_tool_me"); me = r.error ? { login: true, err: r.error.message } : r.data; }
+    try { memberMode(me); } catch (e) {}
     listeners.forEach(function (f) { try { f(me); } catch (e) {} });
     return me;
   }
@@ -58,7 +76,7 @@
     var m = el.querySelector("#auMsg"), em = function () { return el.querySelector("#auEmail").value.trim(); };
     var say = function (t, ok) { m.textContent = t; m.className = "msg" + (ok ? " ok" : " err"); };
     el.querySelector("#auPwT").onclick = function () { el.querySelector("#auPw").hidden = false; };
-    if (GOOGLE_ON) el.querySelector("#auG").onclick = async function () { this.disabled = true; var r = await client().auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + back, queryParams: { prompt: "select_account" } } }); if (r.error) { this.disabled = false; say("Google 登入失敗：" + r.error.message); } };
+    if (GOOGLE_ON) el.querySelector("#auG").onclick = async function () { this.disabled = true; var r = await client().auth.signInWithOAuth({ provider: "google", options: { redirectTo: backUrl(back), queryParams: { prompt: "select_account" } } }); if (r.error) { this.disabled = false; say("Google 登入失敗：" + r.error.message); } };
     el.querySelector("#auOtp").onclick = async function () {
       if (!/.+@.+\..+/.test(em())) return say("請先輸入正確的信箱");
       this.disabled = true; var r = await client().auth.signInWithOtp({ email: em(), options: { emailRedirectTo: location.origin + back } }); this.disabled = false;
@@ -70,7 +88,7 @@
     };
     el.querySelector("#auUp").onclick = async function () {
       var pw = el.querySelector("#auPass").value; if (pw.length < 8) return say("密碼至少 8 個字");
-      var r = await client().auth.signUp({ email: em(), password: pw, options: { emailRedirectTo: location.origin + back } });
+      var r = await client().auth.signUp({ email: em(), password: pw, options: { emailRedirectTo: backUrl(back) } });
       r.error ? say(r.error.message) : r.data.session ? (say("註冊成功", true), refresh()) : say("註冊成功，請到信箱點確認連結。", true);
     };
   }
