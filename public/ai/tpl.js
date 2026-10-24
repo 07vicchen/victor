@@ -56,7 +56,7 @@ function ucNote(g){txt(g,"顏色示意，實際以商品為準",S-60,S-40,`500 2
 function ucOn(){return !!(window.USERCOLORS&&USERCOLORS.length)}
 function ucName(u){return u.n||(window.UCNAME?UCNAME(u.hex):"")}
 function ucDraw(g,title){const L=USERCOLORS,n=L.length,w=(S-120)/n;txt(g,`共 ${n} 色`,S-60,95,`700 34px ${F}`,col,"right");
-  L.forEach((u,i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,170,w-16,700,18);g.fill();const im=window.RECOLOR&&RECOLOR(u.hex,u.tone||0);if(im)fit(g,im,x+20,200,w-40,620,"contain");else{g.fillStyle=u.hex;rr(g,x+28,200,w-56,620,14);g.fill();g.strokeStyle="#00000018";g.lineWidth=2;g.stroke()}
+  L.forEach((u,i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,230,w-16,640,18);g.fill();const im=window.RECOLOR&&RECOLOR(u.hex,u.tone||0);if(im)fit(g,im,x+20,250,w-40,600,"contain");else{g.fillStyle=u.hex;rr(g,x+28,260,w-56,580,14);g.fill();g.strokeStyle="#00000018";g.lineWidth=2;g.stroke()}
     g.fillStyle=u.hex;g.beginPath();g.arc(x+w/2,920,24,0,7);g.fill();g.strokeStyle="#00000030";g.lineWidth=2;g.stroke();txt(g,ucName(u),x+w/2,990,`700 ${n>4?28:34}px ${F}`,"#1b1b1b","center")});ucNote(g)}
 function colors(g,img){g.fillStyle="#fafafa";g.fillRect(0,0,S,S);txt(g,P.colorTitle||"顏色一覽",60,90,`900 60px ${F}`,"#1b1b1b");if(ucOn()){ucDraw(g);return}txt(g,`共 ${P.colors.length} ${P.colorUnit||"色"}`,S-60,95,`700 34px ${F}`,col,"right");
   const n=P.colors.length,w=(S-120)/n;
@@ -115,7 +115,7 @@ function shirt(color){if(shirtCache[color])return shirtCache[color];var c=docume
 var shirtImg=()=>prodUp||shirt(CP.colors[0][1]==="#f2f1ed"?"#e9e7e1":CP.colors[0][1]);
 function Z(){return STY[sty]}
 function bgFill(g){var z=Z();g.fillStyle=z.bg;g.fillRect(0,0,S,S)}
-function hd(g,t,x,y,size,color,align){var z=Z();txt(g,t,x,y,`${z.w} ${size}px ${F}`,color||z.ink,align)}
+function hdA(g,t,x,y,size,color,align){var z=Z();txt(g,t,x,y,`${z.w} ${size}px ${F}`,color||z.ink,align)}
 function bars(g,label,v,x,y,w){var z=Z();txt(g,label,x,y,`700 34px ${F}`,z.ink);for(let i=0;i<5;i++){rr(g,x+210+i*(w-210)/5,y-16,(w-210)/5-10,32,8);g.fillStyle=i<v?col:z.panel;g.fill()}}
 function tableAt(g,rows,x,y,w,rh){var z=Z(),cw=w/rows[0].length;rows.forEach((r,ri)=>r.forEach((c,ci)=>{g.fillStyle=ri===0?col:(ri%2?z.panel:z.bg);g.fillRect(x+ci*cw,y+ri*rh,cw,rh);g.strokeStyle=z.mute+"55";g.lineWidth=2;g.strokeRect(x+ci*cw,y+ri*rh,cw,rh);
   txt(g,c,x+ci*cw+cw/2,y+ri*rh+rh/2,`${ri===0||ci===0?800:500} ${ri===0?34:32}px ${F}`,ri===0?"#fff":z.ink,"center")}))}
@@ -164,8 +164,10 @@ function c_compare(g,i){bgFill(g);hd(g,"新版 vs 舊版",60,90,60);var z=Z();g.
   [["布料","一般棉","涼感棉"],["領口","容易鬆","雙針車"],["長度","偏短","加長 3cm"]].forEach(([a,b,c],k)=>{var y=670+k*95;txt(g,a+"："+b,290,y,`500 34px ${F}`,z.mute,"center");txt(g,a+"："+c,790,y,`800 36px ${F}`,col,"center")})}
 function c_return(g){bgFill(g);hd(g,"退換貨說明",60,90,64);[["7 天鑑賞期","收到後 7 天內可申請"],["尺寸不合可換","來回運費一人一趟"],["保持吊牌完整","未下水、未穿著"]].forEach(([a,b],k)=>{var y=200+k*250,z=Z();g.fillStyle=z.panel;rr(g,60,y,S-120,210,20);g.fill();
   g.fillStyle=col;g.beginPath();g.arc(160,y+105,55,0,7);g.fill();txt(g,String(k+1),160,y+107,`900 54px ${N}`,"#fff","center");txt(g,a,260,y+80,`${z.w} 46px ${F}`,z.ink);txt(g,b,260,y+145,`500 32px ${F}`,z.mute)})}
+// 10/25 Vic：多件組合價用客人的商品和客人選的顏色，不用示範 T 恤
+function bundleImg(j){if(ucOn()){const u=USERCOLORS[j%USERCOLORS.length],im=window.RECOLOR&&RECOLOR(u.hex,u.tone||0);return im||(typeof prodUp!=="undefined"&&prodUp)||shirt(u.hex)}return (typeof prodUp!=="undefined"&&prodUp)||shirt(CP.colors[(j+1)%CP.colors.length][1])}
 function c_bundle(g){bgFill(g);hd(g,"多件更划算",60,90,64);[[1,CP.price],[2,690],[3,990]].forEach(([n,p],k)=>{var x=60+k*330,z=Z(),best=k===2;g.fillStyle=best?col:z.panel;rr(g,x,190,300,720,22);g.fill();
-  for(let j=0;j<n;j++)fit(g,shirt(CP.colors[j+1][1]),x+30+j*30,240+j*40,220,260,"contain");
+  for(let j=0;j<n;j++)fit(g,bundleImg(j),x+30+j*30,240+j*40,220,260,"contain");
   txt(g,`${n} 件`,x+150,640,`900 56px ${F}`,best?"#fff":z.ink,"center");txt(g,`$${p}`,x+150,740,`900 70px ${N}`,best?"#fff":col,"center");if(best)txt(g,"最划算",x+150,840,`700 36px ${F}`,"#fff","center")})}
 function c_season(g,i){var gr=g.createLinearGradient(0,0,S,S);gr.addColorStop(0,light(col,.75));gr.addColorStop(1,col);g.fillStyle=gr;g.fillRect(0,0,S,S);
   for(let k=0;k<26;k++){g.fillStyle="#ffffff40";g.beginPath();g.ellipse((k*397)%S,(k*263)%S,14,24,k,0,7);g.fill()}fit(g,i,330,250,420,520,"contain");hd(g,"秋冬上新",S/2,140,96,"#fff","center");txt(g,"早鳥 9 折",S/2,880,`900 64px ${F}`,"#fff","center")}
@@ -233,7 +235,7 @@ function sampleFor(k){if(k==="gen"||!IND[k])return sampleProduct();const c=docum
  return c}
 
 // ---------- 各行業專屬版型（資料驅動，用客人上傳的商品照，不用付費生圖） ----------
-function hd(g,t,en,bg){g.fillStyle=bg||"#fff";g.fillRect(0,0,S,S);txt(g,t,60,96,`900 64px ${F}`,"#1b1b1b");if(en)txt(g,en,62,158,`700 26px ${N}`,col);g.fillStyle=col;g.fillRect(60,190,90,8)}
+function hd(g,t,en,bg){if(typeof en==="number")return hdA(g,t,en,bg,arguments[4],arguments[5],arguments[6]);g.fillStyle=bg||"#fff";g.fillRect(0,0,S,S);txt(g,t,60,96,`900 64px ${F}`,"#1b1b1b");if(en)txt(g,en,62,158,`700 26px ${N}`,col);g.fillStyle=col;g.fillRect(60,190,90,8)}
 function para(g,t,x,y,max,font,color,lh){g.font=font;const ls=wrap(g,t,max);ls.forEach((l,i)=>txt(g,l,x,y+i*lh,font,color));return ls.length}
 function chk(g,x,y,r,ok){g.fillStyle=ok?col:"#c9c9c9";g.beginPath();g.arc(x,y,r,0,7);g.fill();g.strokeStyle="#fff";g.lineWidth=r*.22;g.lineCap="round";g.beginPath();if(ok){g.moveTo(x-r*.42,y);g.lineTo(x-r*.1,y+r*.32);g.lineTo(x+r*.45,y-r*.32)}else{g.moveTo(x-r*.35,y-r*.35);g.lineTo(x+r*.35,y+r*.35);g.moveTo(x+r*.35,y-r*.35);g.lineTo(x-r*.35,y+r*.35)}g.stroke();g.lineCap="butt"}
 // 1 功能／成分格子

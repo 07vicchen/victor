@@ -101,7 +101,7 @@
 
 
   // AI 去背（10/25）：照片送到維拓的 AI 去背主機，AI 抓出商品去背；主機忙線才用簡易去背（只適合純色背景）
-  function useCut(o, note) { rcCache = {}; cutImg = o; prodUp = o; prod = o; $("#uncut").hidden = false; $("#msg").textContent = note; lib(); }
+  function useCut(o, note) { rcCache = {}; window.UCSEED = null; cutImg = o; prodUp = o; prod = o; $("#uncut").hidden = false; $("#msg").textContent = note; ucPick(); lib(); }
   function localCut(why) { var o = cutout(origImg); if (!o) { $("#msg").textContent = why + "，這張背景也太複雜，換一張背景單純的照片再試。"; return; } useCut(o, why + "，先用簡易去背（背景是純色的才會乾淨）。"); }
   async function aiCut() { var b = $("#cut"), m = $("#msg"); b.disabled = true; m.textContent = "AI 去背中，大約 10～30 秒…";
     try { var c = VAI.client(), u = (await c.auth.getUser()).data.user; if (!u) { localCut("沒登入"); return; }
@@ -133,20 +133,44 @@
     var x = h(fx) * .95047, y = h(fy), z = h(fz) * 1.08883, R = x * 3.2406 - y * 1.5372 - z * .4986, G = -x * .9689 + y * 1.8758 + z * .0415, B = x * .0557 - y * .204 + z * 1.057;
     function g(c) { c = c > .0031308 ? 1.055 * Math.pow(c, 1 / 2.4) - .055 : 12.92 * c; return Math.max(0, Math.min(255, Math.round(c * 255))); } return [g(R), g(G), g(B)]; }
   var rcCache = {}; window.HASCUT = function () { return !!cutImg; };
+  // 換色（10/25 Vic：臉不能跟著變色）：只換「衣服本身的顏色」那一塊；膚色、頭髮、配件、別的顏色的衣服都不動
+  function skin(r, g, b) { var cb = 128 - .168736 * r - .331264 * g + .5 * b, cr = 128 + .5 * r - .418688 * g - .081312 * b; return cb > 77 && cb < 127 && cr > 136 && cr < 173 && r > g && r > 60; }
   window.RECOLOR = function (hex, tone) { if (!cutImg) return null; var key = hex + "|" + (tone || 0) + "|" + (cutImg.src || cutImg.width); if (rcCache[key]) return rcCache[key];
     var w = iw(cutImg), h = ih(cutImg), k = Math.min(1, 900 / Math.max(w, h)), c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
-    var g = c.getContext("2d"); g.drawImage(cutImg, 0, 0, c.width, c.height); var d = g.getImageData(0, 0, c.width, c.height), px = d.data, n = 0, sum = 0, Ls = new Float32Array(px.length / 4);
-    for (var i = 0; i < px.length; i += 4) { if (px[i + 3] < 20) continue; var l = lab(px[i], px[i + 1], px[i + 2])[0]; Ls[i / 4] = l; sum += l; n++; }
-    var mean = n ? sum / n : 50, t = lab(parseInt(hex.substr(1, 2), 16), parseInt(hex.substr(3, 2), 16), parseInt(hex.substr(5, 2), 16)), Lt = t[0] + (tone || 0) * 8;
-    for (i = 0; i < px.length; i += 4) { if (px[i + 3] < 20) continue; var L = Math.max(0, Math.min(100, Lt + (Ls[i / 4] - mean) * .85)), o = rgb(L, t[1], t[2]); px[i] = o[0]; px[i + 1] = o[1]; px[i + 2] = o[2]; }
+    var g = c.getContext("2d"); g.drawImage(cutImg, 0, 0, c.width, c.height); var d = g.getImageData(0, 0, c.width, c.height), px = d.data, N = px.length / 4;
+    var LL = new Float32Array(N), AA = new Float32Array(N), BB = new Float32Array(N), SK = new Uint8Array(N), hist = {}, i, q;
+    for (i = 0; i < N; i++) { q = i * 4; if (px[q + 3] < 20) continue; var o = lab(px[q], px[q + 1], px[q + 2]); LL[i] = o[0]; AA[i] = o[1]; BB[i] = o[2]; SK[i] = skin(px[q], px[q + 1], px[q + 2]) ? 1 : 0;
+    }
+    // 衣服在哪：客人點過就用點的地方；沒點就看商品中段（模特兒照的上衣）最多的顏色
+    var y0 = c.height, y1 = 0; for (i = 0; i < N; i++) if (px[i * 4 + 3] >= 20) { var yy = (i / c.width) | 0; if (yy < y0) y0 = yy; if (yy > y1) y1 = yy; }
+    var bandA = y0 + (y1 - y0) * .22, bandB = y0 + (y1 - y0) * .62;
+    for (i = 0; i < N; i++) { if (px[i * 4 + 3] < 20 || SK[i]) continue; var yb = (i / c.width) | 0; if (yb < bandA || yb > bandB) continue; var kk = Math.round(LL[i] / 12) + "," + Math.round(AA[i] / 10) + "," + Math.round(BB[i] / 10); hist[kk] = (hist[kk] || 0) + 1; }
+    var top = Object.keys(hist).sort(function (x, y) { return hist[y] - hist[x]; })[0]; if (!top && !window.UCSEED) return null;
+    var tb = window.UCSEED ? [window.UCSEED[0] / 12, window.UCSEED[1] / 10, window.UCSEED[2] / 10] : top.split(",").map(Number), cL = tb[0] * 12, cA = tb[1] * 10, cB = tb[2] * 10, sL = 0, sA = 0, sB = 0, n = 0;
+    for (i = 0; i < N; i++) { if (px[i * 4 + 3] < 20 || SK[i]) continue; var dd = Math.hypot((LL[i] - cL) * .5, AA[i] - cA, BB[i] - cB); if (dd < 18) { sL += LL[i]; sA += AA[i]; sB += BB[i]; n++; } }
+    if (n) { cL = sL / n; cA = sA / n; cB = sB / n; }
+    var t = lab(parseInt(hex.substr(1, 2), 16), parseInt(hex.substr(3, 2), 16), parseInt(hex.substr(5, 2), 16)), Lt = t[0] + (tone || 0) * 8;
+    var chromaG = Math.hypot(cA, cB), T1 = chromaG < 12 ? 14 : 20, T2 = T1 + 16; // 衣服本來是黑白灰時範圍收緊，避免頭髮、陰影被染
+    for (i = 0; i < N; i++) { q = i * 4; if (px[q + 3] < 20 || SK[i]) continue;
+      var dist = Math.hypot((LL[i] - cL) * (chromaG < 12 ? .9 : .35), AA[i] - cA, BB[i] - cB), wgt = dist <= T1 ? 1 : dist >= T2 ? 0 : 1 - (dist - T1) / (T2 - T1); if (!wgt) continue;
+      var L = Math.max(0, Math.min(100, Lt + (LL[i] - cL) * .85)), r2 = rgb(L, t[1], t[2]);
+      px[q] = Math.round(px[q] * (1 - wgt) + r2[0] * wgt); px[q + 1] = Math.round(px[q + 1] * (1 - wgt) + r2[1] * wgt); px[q + 2] = Math.round(px[q + 2] * (1 - wgt) + r2[2] * wgt); }
     g.putImageData(d, 0, 0); rcCache[key] = c; return c; };
+  window.UCSEED = null;
+  function ucPick() { var cv = $("#ucPick"), m = $("#ucPickMsg"); if (!cv) return; var on = !!(cutImg && USERCOLORS.length); cv.hidden = !on; m.hidden = !on; if (!on) return;
+    var k = 260 / Math.max(iw(cutImg), ih(cutImg)); cv.width = Math.round(iw(cutImg) * k); cv.height = Math.round(ih(cutImg) * k); var g = cv.getContext("2d"); g.clearRect(0, 0, cv.width, cv.height); g.drawImage(cutImg, 0, 0, cv.width, cv.height);
+    if (window.UCSEED && cv.dataset.px) { var p = cv.dataset.px.split(",").map(Number); g.strokeStyle = "#fff"; g.lineWidth = 3; g.beginPath(); g.arc(p[0], p[1], 9, 0, 7); g.stroke(); g.strokeStyle = "#c8322f"; g.lineWidth = 2; g.stroke(); }
+    m.textContent = window.UCSEED ? "已照你點的地方換色；換錯就再點一次商品本身。" : "換到臉或別的衣服？在這張小圖點一下「要換顏色的商品」，就只換那一塊。";
+    cv.onclick = function (e) { var r = cv.getBoundingClientRect(), x = Math.round((e.clientX - r.left) * cv.width / r.width), y = Math.round((e.clientY - r.top) * cv.height / r.height), d = g.getImageData(Math.max(0, x - 2), Math.max(0, y - 2), 5, 5).data, R = 0, G = 0, B = 0, n = 0;
+      for (var i = 0; i < d.length; i += 4) if (d[i + 3] > 20) { R += d[i]; G += d[i + 1]; B += d[i + 2]; n++; } if (!n) { m.textContent = "點到背景了，請點在商品上"; return; }
+      window.UCSEED = lab(R / n, G / n, B / n); cv.dataset.px = x + "," + y; rcCache = {}; ucPick(); lib(); }; }
   function ucRows() { var box = $("#ucRows"); if (!box) return;
     box.innerHTML = USERCOLORS.map(function (u, i) { return '<div class="bar" style="gap:8px;align-items:center;margin:4px 0"><input type="text" data-ucn="' + i + '" value="' + E(u.n) + '" maxlength="8" placeholder="顏色名字" style="width:110px"><input type="color" data-uch="' + i + '" value="' + u.hex + '" aria-label="' + E(u.n) + ' 的顏色"><label class="note" style="display:flex;gap:6px;align-items:center">淺<input type="range" min="-3" max="3" step="1" data-uct="' + i + '" value="' + (u.tone || 0) + '">深</label><button class="chip" type="button" data-ucx="' + i + '" aria-label="刪掉這個顏色">×</button></div>'; }).join("");
     $$("[data-ucn]").forEach(function (x) { x.oninput = function () { var u = USERCOLORS[+x.dataset.ucn]; u.n = x.value.trim(); if (!u.picked) { u.hex = guessHex(u.n); var hp = $('[data-uch="' + x.dataset.ucn + '"]'); if (hp) hp.value = u.hex; } ucLib(); }; });
     $$("[data-uch]").forEach(function (x) { x.oninput = function () { var u = USERCOLORS[+x.dataset.uch]; u.hex = x.value; u.picked = true; ucLib(); }; });
     $$("[data-uct]").forEach(function (x) { x.oninput = function () { USERCOLORS[+x.dataset.uct].tone = -(+x.value); ucLib(); }; });
     $$("[data-ucx]").forEach(function (x) { x.onclick = function () { USERCOLORS.splice(+x.dataset.ucx, 1); ucRows(); ucLib(); }; }); }
-  var ucT = 0; function ucLib() { clearTimeout(ucT); ucT = setTimeout(function () { $("#ucMsg").textContent = USERCOLORS.length && !cutImg ? "「顏色一覽」先用色塊表示；按上面的「一鍵去背」後，會換成你的商品照片上色。" : USERCOLORS.length ? "「顏色一覽」那張已換成你的商品。有印花或很多顏色的商品，建議每個顏色各拍一張。" : "拍一張就好：先按「一鍵去背」，再打顏色名字、點色盤對到實品的顏色，用拉桿調深淺。"; lib(); }, 120); }
+  var ucT = 0; function ucLib() { clearTimeout(ucT); ucT = setTimeout(function () { $("#ucMsg").textContent = USERCOLORS.length && !cutImg ? "「顏色一覽」先用色塊表示；按上面的「一鍵去背」後，會換成你的商品照片上色。" : USERCOLORS.length ? "「顏色一覽」那張已換成你的商品。有印花或很多顏色的商品，建議每個顏色各拍一張。" : "拍一張就好：先按「一鍵去背」，再打顏色名字、點色盤對到實品的顏色，用拉桿調深淺。"; ucPick(); lib(); }, 120); }
   function ucBind() { if (!$("#ucAdd")) return;
     $("#ucAdd").onclick = function () { if (USERCOLORS.length >= 6) { $("#ucMsg").textContent = "最多 6 個顏色"; return; } USERCOLORS.push({ n: "", hex: "#8a8a8a", tone: 0 }); ucRows(); var l = $$("[data-ucn]"); if (l.length) l[l.length - 1].focus(); };
     $("#ucSpec").onclick = function () { var m = String($("#pSpec").value || "").match(/顏色[:：]\s*([^／/|;；]+)/); if (!m) { $("#ucMsg").textContent = "規格裡沒寫「顏色：白、黑」這種格式，直接按「＋加一個顏色」就好"; return; }
@@ -159,7 +183,7 @@
       if (!best) { $("#msg").textContent = "這張照片抓不到明顯的顏色，請直接選一個"; return; } setCol("#" + best.map(function (v) { return Math.round(v * .82).toString(16).padStart(2, "0"); }).join("")); };
     $("#file").onchange = function (e) { var fs = [].slice.call(e.target.files, 0, 2); if (!fs.length) return; photos = fs; var i = new Image(); i.onload = function () { origImg = i; prodUp = i; prod = i; cutImg = null; $("#cut").disabled = false; $("#uncut").hidden = true; $("#msg").textContent = "目前：你的商品照（可以按一鍵去背）"; lib(); }; i.src = URL.createObjectURL(fs[0]); };
     $("#cut").onclick = function () { if (!origImg) return; aiCut(); };
-    $("#uncut").onclick = function () { prodUp = origImg; prod = origImg; cutImg = null; $("#uncut").hidden = true; $("#msg").textContent = "已還原背景"; lib(); };
+    $("#uncut").onclick = function () { prodUp = origImg; prod = origImg; cutImg = null; window.UCSEED = null; $("#uncut").hidden = true; $("#msg").textContent = "已還原背景"; lib(); };
     $("#logoF").onchange = function (e) { var f = e.target.files[0]; if (!f) return; var i = new Image(); i.onload = function () { logo = i; $("#logoPos").hidden = false; $("#logoMsg").textContent = "每張圖都會自動放上 logo"; lib(); }; i.src = URL.createObjectURL(f); };
     $$("[data-lp]").forEach(function (b) { b.onclick = function () { lpos = b.dataset.lp; $$("[data-lp]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); lib(); }; });
     $("#logoX").onclick = function () { logo = null; $("#logoPos").hidden = true; $("#logoF").value = ""; $("#logoT").value = ""; $("#logoMsg").textContent = "沒有也可以"; lib(); };
