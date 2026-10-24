@@ -213,9 +213,9 @@ footer a{color:var(--mid)}
 @media (max-width:860px){.vs{grid-template-columns:1fr}.vsc.me{order:-1}}
 
 /* 會員模式（Vic 10/24）：有開通的會員進來只看工作區，不再看廣告；要看方案按一下才展開 */
-html.vai-in:not(.vai-all) .wrap>section:not(#member){display:none}
-html.vai-in:not(.vai-all) .tabs a[href^="#"]{display:none}
-html.vai-in:not(.vai-all) .wrap{gap:28px}
+html.vai-in.vai-tool:not(.vai-all) .wrap>section:not(#member){display:none}
+html.vai-in.vai-tool:not(.vai-all) .tabs a[href^="#"]{display:none}
+html.vai-in.vai-tool:not(.vai-all) .wrap{gap:28px}
 .vai-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--gold);background:var(--goldSoft);padding:10px 14px;margin-bottom:14px}
 .vai-bar span{font:700 14px var(--body);color:var(--gold2)}
 .vai-bar button{border:1px solid var(--fg);background:#fff;color:var(--fg);font:500 13.5px var(--body);padding:6px 14px;cursor:pointer}

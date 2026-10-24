@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 客服後台｜維拓傳媒</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/m/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/ai/editorial.css">
+<style>
+[hidden]{display:none!important}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.kpi{background:#fff;border:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi b{font:700 24px "Space Grotesk",sans-serif}.kpi span{font-size:12.5px;color:var(--mid)}
+.kpi.hi{background:var(--fg);color:#fff;border-color:var(--fg)}.kpi.hi span{color:#d9d4c8}
+.head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:20px 0 10px}
+.list{display:flex;flex-direction:column;gap:8px}
+.st{background:#fff;border:1px solid var(--line)}.st[open]{border-color:var(--fg)}
+.st>summary{list-style:none;cursor:pointer;padding:13px 14px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.st>summary::-webkit-details-marker{display:none}
+.st>summary .nm{flex:1 1 240px;min-width:0;display:flex;flex-direction:column}.st>summary .nm b{overflow-wrap:anywhere}.st>summary .nm small{color:var(--mid)}
+.tag{font-size:12px;padding:3px 8px;border:1px solid var(--line);white-space:nowrap}
+.tag.ok{background:#e7f2ea;border-color:#b9d8c3;color:#2f6a47}.tag.warn{background:#fff4dc;border-color:#ecd49a;color:#8a6414}.tag.bad{background:#f6e6e3;border-color:#e3bcb5;color:#9a3a2c}
+.sb{padding:0 14px 16px;display:flex;flex-direction:column;gap:12px}
+.tb{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.tb button{font:inherit;font-size:14px;padding:7px 12px;border:1px solid var(--line);background:#fff;cursor:pointer}
+.tb button[aria-pressed=true]{background:var(--fg);color:#fff;border-color:var(--fg)}
+.pane{display:flex;flex-direction:column;gap:10px;min-width:0}
+.f2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fl{display:flex;flex-direction:column;gap:4px;font-size:13.5px;min-width:0}.fl>span{color:var(--mid)}
+.fl input,.fl textarea,.fl select{padding:9px 10px;border:1px solid var(--line);font:inherit;background:#fff;width:100%;box-sizing:border-box}
+.fl textarea{min-height:90px;resize:vertical}
+.fl small{color:var(--dim)}
+.cv{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:10px;min-height:360px}
+.cl{border:1px solid var(--line);overflow:auto;max-height:520px}
+.cl button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:#fff;font:inherit;cursor:pointer}
+.cl button[aria-current=true]{background:var(--goldSoft)}.cl button small{color:var(--mid);font-size:12px}
+.chat{border:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
+.msgs{flex:1;overflow:auto;max-height:440px;padding:12px;display:flex;flex-direction:column;gap:8px;background:#faf9f6}
+.bub{max-width:80%;padding:8px 11px;font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.bub.u{align-self:flex-start;background:#fff;border:1px solid var(--line)}
+.bub.a{align-self:flex-end;background:#e9f4ec;border:1px solid #c7e1cf}
+.bub.s{align-self:flex-end;background:var(--goldSoft);border:1px solid #e3d3ad}
+.bub.p{align-self:flex-end;background:#eef0f8;border:1px solid #cfd5ea}
+.bub i{display:block;font-style:normal;font-size:11px;color:var(--dim);margin-top:3px}
+.send{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.send textarea{flex:1;min-width:160px;min-height:44px;padding:8px;border:1px solid var(--line);font:inherit}
+.rows{display:flex;flex-direction:column;gap:8px}
+.qa{border:1px solid var(--line);padding:10px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:start}
+.qa textarea,.qa input{width:100%;box-sizing:border-box;padding:7px 8px;border:1px solid var(--line);font:inherit}
+.qa textarea{min-height:56px}
+.x{border:1px solid var(--line);background:#fff;cursor:pointer;padding:4px 9px;font:inherit}
+.kn{border:1px solid var(--line);padding:10px;font-size:13.5px;display:flex;gap:10px;justify-content:space-between}
+.kn div{min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}.kn small{color:var(--dim)}
+.steps{margin:0;padding-left:20px;font-size:13.5px;color:var(--mid);display:flex;flex-direction:column;gap:3px}
+.copy{display:flex;gap:6px}.copy input{flex:1;min-width:0;padding:8px;border:1px solid var(--line);font:12.5px ui-monospace,monospace;background:#faf9f6}
+.rule{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border:1px solid var(--line);padding:8px 10px;font-size:13.5px}
+.rule b{flex:1;min-width:140px}
+.warnbox{background:#fff4dc;border:1px solid #ecd49a;padding:10px 12px;font-size:13.5px}
+.empty{color:var(--dim);font-size:14px;padding:14px;text-align:center}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:700px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.f2{grid-template-columns:1fr}.cv{grid-template-columns:1fr}.cl{max-height:220px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>AI 客服後台</small></div></a>
+    <div class="tabs"><a href="/ai-kefu">AI 客服介紹</a><a href="/ai-admin">AI 工具後台</a></div>
+    <div class="who" id="who"></div></nav>
+
+  <section class="sect">
+    <div class="sh"><small>LINE AI 客服</small><h2 id="ttl">AI 客服後台</h2><p id="sub">讀取中…</p></div>
+    <div id="gate"></div>
+    <div id="dash" hidden>
+      <div class="kpis" id="kpis"></div>
+      <div class="head"><b id="cnt"></b><button class="btn sm" type="button" id="newBtn" hidden>＋ 新增店家</button></div>
+      <div id="newBox" hidden class="pane" style="border:1px solid var(--fg);padding:14px;background:#fff">
+        <div class="f2">
+          <label class="fl"><span>店名</span><input id="nName" placeholder="例：逆妍專佳"></label>
+          <label class="fl"><span>代號（英文小寫，網址用）</span><input id="nSlug" placeholder="例：nyzj"></label>
+          <label class="fl"><span>店家老闆登入信箱（讓他看自己的後台，可之後再填）</span><input id="nMail" type="email" placeholder="boss@gmail.com"></label>
+          <label class="fl"><span>對應的問卷</span><select id="nIntake"><option value="">（先不選）</option></select></label>
+        </div>
+        <div class="bar"><button class="btn" type="button" id="nGo">建立</button><button class="btn gh" type="button" id="nX">取消</button></div>
+        <p class="note">建好後 AI 先是關的，等你把 LINE 接好、人設和問答確認過，再打開。</p>
+      </div>
+      <div class="list" id="list"></div>
+      <p class="msg" id="msg" role="status"></p>
+    </div>
+  </section>
+  <footer><img src="/m/logo.png" alt="" width="36" height="36" style="border-radius:50%"><span>維拓傳媒 AI 客服後台・只有管理員和店家本人看得到</span><a href="/">回官網</a></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="/ai/core.js"></script>
+<script>
+(function () {
+  "use strict";
+  var FN = "https://cswhroimywfyokxxogis.supabase.co/functions/v1/aics-admin";
+  var PK = "sb_publishable_vNNC0f5QzxX7uUl2hqvKhA_WSXIhwiY";
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); }, E = VAI.E;
+  var ME = null, ROWS = [], OPEN = null, TAB = {}, CHAT = {}, POLL = null;
+  var TAGN = { asked_price: "問價格", asked_franchise: "問加盟", asked_trainee: "問課程", asked_booking: "想預約", asked_location: "問地點", hesitating: "猶豫", booked: "已約好", complaint: "抱怨", price_sensitive: "在意價格", skin_concern: "皮膚困擾" };
+  var STG = { new: "剛來", interested: "有興趣", hesitating: "猶豫", customer: "客人", vip: "常客", lost: "不要了" };
+  function say(t, ok) { var m = $("#msg"); m.textContent = t || ""; m.className = "msg" + (t ? ok ? " ok" : " err" : ""); }
+  function ago(x) { if (!x) return "還沒有訊息"; var m = (Date.now() - new Date(x)) / 60000; if (m < 60) return Math.max(1, Math.round(m)) + " 分鐘前"; if (m < 1440) return Math.round(m / 60) + " 小時前"; return Math.round(m / 1440) + " 天前"; }
+  function tm(x) { var d = new Date(x); return (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+  async function api(action, body) {
+    var t = await VAI.token(); if (!t) throw new Error("請先登入");
+    var r = await fetch(FN, { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + t, apikey: PK }, body: JSON.stringify(Object.assign({ action: action }, body || {})) });
+    var j = await r.json().catch(function () { return { error: "伺服器沒有回應" }; });
+    if (!r.ok || j.error) throw new Error(j.error || ("錯誤 " + r.status)); return j;
+  }
+  function busy(b, on, txt) { if (!b) return; if (on) { b.dataset.t = b.textContent; b.textContent = txt || "處理中…"; b.disabled = true; } else { b.textContent = b.dataset.t || b.textContent; b.disabled = false; } }
+
+  // ===== 總覽 =====
+  async function load() {
+    try {
+      var o = await api("overview"); ROWS = o.rows;
+      var sum = function (k) { return ROWS.reduce(function (s, r) { return s + (r[k] || 0); }, 0); };
+      var tok = ROWS.reduce(function (s, r) { return s + r.tokens.i + r.tokens.o; }, 0);
+      $("#kpis").innerHTML = [["店家", ROWS.length], ["本月 AI 回覆", sum("replies")], ["本月成交", sum("deals"), sum("deals") > 0], ["等真人回", sum("waiting"), sum("waiting") > 0], ["銷售訊息待確認", sum("pending"), sum("pending") > 0], ["一週內出錯", sum("errors"), sum("errors") > 0]]
+        .map(function (k) { return '<div class="kpi' + (k[2] ? " hi" : "") + '"><b>' + k[1] + "</b><span>" + k[0] + "</span></div>"; }).join("");
+      $("#cnt").textContent = ME.admin ? "全部店家（本月 AI 用量約 " + Math.round(tok / 1000) + "K tokens）" : "你的店";
+      drawList();
+    } catch (e) { say(e.message); }
+  }
+  function drawList() {
+    if (!ROWS.length) { $("#list").innerHTML = '<p class="empty">' + (ME.admin ? "還沒有店家，按「新增店家」開始。" : "你的帳號還沒綁定店家，請跟維拓傳媒說你登入用的信箱。") + "</p>"; return; }
+    $("#list").innerHTML = ROWS.map(function (r) {
+      var tags = [];
+      tags.push(r.ai_enabled ? '<span class="tag ok">AI 回覆中</span>' : '<span class="tag">AI 關著</span>');
+      tags.push(r.line_ok ? '<span class="tag ok">LINE 已接</span>' : '<span class="tag warn">LINE 還沒接</span>');
+      if (r.waiting) tags.push('<span class="tag bad">等你回 ' + r.waiting + "</span>");
+      if (r.pending) tags.push('<span class="tag warn">待確認 ' + r.pending + "</span>");
+      if (r.errors) tags.push('<span class="tag bad">出錯 ' + r.errors + "</span>");
+      return '<details class="st" data-id="' + r.id + '"' + (OPEN === r.id ? " open" : "") + '><summary><span class="nm"><b>' + E(r.name) + "</b><small>本月 AI 回 " + r.replies + "／" + r.quota + " 則・成交 " + r.deals + "・客人 " + r.contacts + "（本月新 " + r.new_contacts + "）・資料 " + r.knowledge + " 筆・" + ago(r.last_at) + "</small></span>" + tags.join("") + '</summary><div class="sb"></div></details>';
+    }).join("");
+    $$(".st").forEach(function (d) {
+      d.addEventListener("toggle", function () {
+        if (d.open) { $$(".st").forEach(function (o) { if (o !== d) o.open = false; }); OPEN = d.dataset.id; openStore(d); }
+        else if (OPEN === d.dataset.id) { OPEN = null; stopPoll(); }
+      });
+      if (d.open) openStore(d);
+    });
+  }
+  function openStore(d) {
+    var id = d.dataset.id, tabs = [["chat", "對話"], ["test", "試聊"], ["out", "主動訊息"], ["kn", "資料庫"]];
+    if (ME.admin) tabs.splice(2, 0, ["learn", "AI 學老闆"], ["set", "設定"]);
+    var cur = TAB[id] || (ME.admin && !ROWS.filter(function (r) { return r.id === id; })[0].line_ok ? "set" : "chat");
+    var sb = $(".sb", d);
+    sb.innerHTML = '<div class="tb">' + tabs.map(function (t) { return '<button type="button" data-t="' + t[0] + '" aria-pressed="' + (t[0] === cur) + '">' + t[1] + "</button>"; }).join("") + '</div><div class="pane"></div>';
+    $$(".tb button", sb).forEach(function (b) { b.onclick = function () { $$(".tb button", sb).forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); TAB[id] = b.dataset.t; show(id, b.dataset.t, $(".pane", sb)); }; });
+    show(id, cur, $(".pane", sb));
+  }
+  function show(id, t, el) {
+    stopPoll(); el.innerHTML = '<p class="note">讀取中…</p>';
+    ({ chat: paneChat, test: paneTest, learn: paneLearn, set: paneSet, kn: paneKn, out: paneOut })[t](id, el).catch(function (e) { el.innerHTML = '<p class="msg err">' + E(e.message) + "</p>"; });
+  }
+  function stopPoll() { if (POLL) { clearInterval(POLL); POLL = null; } }
+
+  // ===== 對話 =====
+  async function paneChat(id, el, filter, pick) {
+    filter = filter || "all";
+    var r = await api("contacts", { id: id, filter: filter });
+    el.innerHTML = '<div class="bar">' + [["all", "全部"], ["human", "等真人回"], ["booked", "已約好"], ["hesitating", "猶豫中"]].map(function (f) { return '<button class="chip" type="button" data-f="' + f[0] + '" aria-pressed="' + (f[0] === filter) + '">' + f[1] + "</button>"; }).join("") + '</div>' +
+      (r.rows.length ? '<div class="cv"><div class="cl">' + r.rows.map(function (c) {
+        return '<button type="button" data-c="' + c.id + '"><b>' + E(c.display_name || "（沒有名字）") + (c.needs_human ? ' <span class="tag bad">等你回</span>' : "") + "</b><small>" + (STG[c.stage] || c.stage) + "・" + ago(c.last_message_at) + "</small><small>" + (c.tags || []).map(function (x) { return TAGN[x] || x; }).join("、") + "</small></button>";
+      }).join("") + '</div><div class="chat" id="chat-' + id + '"><p class="empty">點左邊的客人看對話</p></div></div>' : '<p class="empty">' + (filter === "all" ? "還沒有客人傳訊息。LINE 接好之後，客人一傳就會出現在這裡。" : "沒有符合的客人") + "</p>");
+    $$(".chip", el).forEach(function (b) { b.onclick = function () { paneChat(id, el, b.dataset.f).catch(function (e) { say(e.message); }); }; });
+    $$(".cl button", el).forEach(function (b) { b.onclick = function () { $$(".cl button", el).forEach(function (x) { x.setAttribute("aria-current", x === b); }); thread(id, b.dataset.c, $("#chat-" + id)); }; });
+    if (pick) { var pb = $('.cl button[data-c="' + pick + '"]', el); if (pb) pb.click(); }
+  }
+  async function thread(id, cid, box) {
+    box.innerHTML = '<p class="empty">讀取中…</p>';
+    var r = await api("messages", { contact_id: cid }), c = r.contact;
+    var who = { user: ["u", "客人"], assistant: ["a", "AI"], staff: ["s", "真人"], push: ["p", "主動訊息"] };
+    box.innerHTML = '<div class="msgs">' + r.rows.map(function (m) { var w = who[m.role] || ["a", m.role]; var meta = m.meta || {}; return '<div class="bub ' + w[0] + '">' + E(m.content) + "<i>" + w[1] + "・" + tm(m.created_at) + (meta.deal ? "・🎉成交" : "") + (meta.handoff ? "・轉真人" : "") + (meta.error ? "・錯誤" : "") + "</i></div>"; }).join("") + "</div>" +
+      '<div class="send"><textarea placeholder="直接打字回客人（用店家的 LINE 發出去，AI 會先暫停回這位客人）"></textarea><div class="bar" style="flex-direction:column"><button class="btn sm" type="button" data-s>我來回</button>' + (c.needs_human ? '<button class="btn sm gh" type="button" data-r>交還 AI</button>' : '<button class="btn sm gh" type="button" data-k>先暫停 AI</button>') + "</div></div>";
+    var ms = $(".msgs", box); ms.scrollTop = ms.scrollHeight;
+    var reload = function () { var pane = box.closest(".pane"); var f = $(".chip[aria-pressed=true]", pane); paneChat(id, pane, f ? f.dataset.f : "all", cid).then(load); };
+    $("[data-s]", box).onclick = async function () { var tx = $("textarea", box).value.trim(); if (!tx) return; busy(this, true, "傳送中…"); try { await api("staff_send", { contact_id: cid, text: tx }); say("已傳給客人，AI 先暫停回他；回完記得按「交還 AI」", true); reload(); } catch (e) { busy(this, false); say(e.message); } };
+    var rb = $("[data-r]", box); if (rb) rb.onclick = async function () { busy(this, true); try { await api("release", { contact_id: cid }); say("交還 AI 了", true); reload(); } catch (e) { busy(this, false); say(e.message); } };
+    var kb = $("[data-k]", box); if (kb) kb.onclick = async function () { busy(this, true); try { await api("takeover", { contact_id: cid }); say("這位客人 AI 先不回，等你回", true); reload(); } catch (e) { busy(this, false); say(e.message); } };
+  }
+
+  // ===== 試聊 =====
+  async function paneTest(id, el) {
+    var h = CHAT[id] = CHAT[id] || [];
+    el.innerHTML = '<p class="note">在這裡假裝客人跟 AI 聊，跟 LINE 上的規則、資料完全一樣，但不會傳到 LINE。改完人設或資料庫後先來這裡試。</p><div class="chat"><div class="msgs"></div><div class="send"><textarea placeholder="打一句客人會問的話，例如：請問多少錢？"></textarea><div class="bar" style="flex-direction:column"><button class="btn sm" type="button" data-s>送出</button><button class="btn sm gh" type="button" data-c>清空</button></div></div></div>';
+    var ms = $(".msgs", el);
+    function draw() { ms.innerHTML = h.length ? h.map(function (m) { return '<div class="bub ' + (m.role === "user" ? "u" : "a") + '">' + E(m.content) + (m.note ? "<i>" + E(m.note) + "</i>" : "") + "</div>"; }).join("") : '<p class="empty">還沒開始</p>'; ms.scrollTop = ms.scrollHeight; }
+    draw();
+    var ta = $("textarea", el);
+    ta.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("[data-s]", el).click(); } });
+    $("[data-s]", el).onclick = async function () {
+      var tx = ta.value.trim(); if (!tx) return; ta.value = ""; h.push({ role: "user", content: tx }); draw(); busy(this, true, "AI 想一下…");
+      try { var r = await api("test", { id: id, text: tx, history: h.slice(0, -1).map(function (m) { return { role: m.role, content: m.content }; }) });
+        var note = []; if (r.tags && r.tags.length) note.push("標籤：" + r.tags.map(function (x) { return TAGN[x] || x; }).join("、")); if (r.handoff) note.push("會轉真人"); if (r.deal) note.push("判斷成交"); note.push(r.sources && r.sources.length ? "參考：" + r.sources.join("／") : "資料庫沒找到相關資料");
+        h.push({ role: "assistant", content: r.reply, note: note.join("・") }); } catch (e) { h.push({ role: "assistant", content: "（出錯：" + e.message + "）" }); }
+      busy(this, false); draw();
+    };
+    $("[data-c]", el).onclick = function () { h.length = 0; draw(); };
+  }
+
+  // ===== AI 學老闆（對話紀錄＋問卷 → 人設、問答、話術）=====
+  var INTAKES = null;
+  async function intakes() { if (!INTAKES) INTAKES = (await api("intakes")).rows; return INTAKES; }
+  async function paneLearn(id, el) {
+    var g = await api("tenant_get", { id: id }), t = g.tenant, d = t.draft, iq = await intakes();
+    if (d && d.status === "working") {
+      el.innerHTML = '<p class="warnbox">AI 正在讀對話紀錄、整理老闆的說話方式和常見問題（' + (d.chars || 0).toLocaleString() + ' 字），大約 1～3 分鐘，這頁會自己更新。可以先去忙別的。</p>';
+      POLL = setInterval(function () { if (OPEN !== id) return stopPoll(); api("tenant_get", { id: id }).then(function (x) { if (!x.tenant.draft || x.tenant.draft.status !== "working") { stopPoll(); paneLearn(id, el); } }); }, 6000);
+      return;
+    }
+    var form = '<div class="pane" style="border:1px solid var(--line);padding:12px">' +
+      '<b>第 1 步：給 AI 看老闆平常怎麼回客人</b>' +
+      '<ol class="steps"><li>老闆在手機 LINE 打開跟客人的聊天室 → 右上角 ≡ → 其他設定 → 傳送聊天記錄 → 存成文字檔（.txt）</li><li>挑 5～20 個有問價、有成交、有處理客訴的聊天室，越多越像</li><li>LINE 官方帳號後台的聊天也可以匯出，一樣是 .txt</li></ol>' +
+      '<div class="f2"><label class="fl"><span>老闆在對話裡顯示的名字</span><input id="lo-' + id + '" placeholder="例：逆妍專佳 Amy"><small>讓 AI 知道哪一邊是老闆</small></label>' +
+      '<label class="fl"><span>一起參考的問卷</span><select id="li-' + id + '"><option value="">（不用問卷）</option>' + iq.map(function (q) { return '<option value="' + q.id + '"' + (t.intake_id === q.id ? " selected" : "") + ">" + E((q.store_name || "未命名") + "・" + (q.status === "submitted" ? "已交" : q.status === "invited" ? "還沒填" : q.status)) + "</option>"; }).join("") + "</select></label></div>" +
+      '<label class="fl"><span>對話紀錄檔（可以一次選很多個 .txt）</span><input type="file" id="lf-' + id + '" accept=".txt,text/plain" multiple></label>' +
+      '<label class="fl"><span>或直接貼上</span><textarea id="lp-' + id + '" placeholder="把對話複製貼在這裡"></textarea><small id="lc-' + id + '"></small></label>' +
+      '<p class="note">對話裡客人的名字、電話不會存下來，AI 整理完只留老闆的說話方式和問答。整理一次大約用掉 Claude API 幾塊台幣（從你每月送的額度扣）。</p>' +
+      '<div class="bar"><button class="btn" type="button" id="lg-' + id + '">開始整理</button></div></div>';
+    var res = "";
+    if (d && d.status === "error") res = '<p class="msg err">上次整理失敗：' + E(d.error) + "</p>";
+    if (d && d.status === "done") res = draftEditor(id, d);
+    el.innerHTML = res + form;
+    var files = [];
+    var cnt = function () { var n = files.reduce(function (s, f) { return s + f.text.length; }, 0) + $("#lp-" + id).value.length; $("#lc-" + id).textContent = n ? "共 " + n.toLocaleString() + " 字" + (n > 90000 ? "（太長了，只會用最新的 90,000 字）" : "") : ""; };
+    $("#lf-" + id).onchange = async function () { files = await Promise.all([].slice.call(this.files).map(function (f) { return f.text().then(function (x) { return { name: f.name, text: x }; }); })); cnt(); };
+    $("#lp-" + id).oninput = cnt;
+    $("#lg-" + id).onclick = async function () {
+      var chat = files.map(function (f) { return "=== " + f.name + " ===\n" + f.text; }).join("\n\n") + ($("#lp-" + id).value.trim() ? "\n\n=== 貼上的對話 ===\n" + $("#lp-" + id).value : "");
+      busy(this, true, "送出中…");
+      try { if ($("#li-" + id).value !== (t.intake_id || "")) await api("tenant_save", { id: id, intake_id: $("#li-" + id).value });
+        await api("draft", { id: id, chat: chat.trim(), owner_name: $("#lo-" + id).value.trim(), intake_id: $("#li-" + id).value }); paneLearn(id, el); }
+      catch (e) { busy(this, false); say(e.message); }
+    };
+    if (d && d.status === "done") bindDraft(id, el, d);
+  }
+  function draftEditor(id, d) {
+    return '<div class="pane" style="border:1px solid var(--fg);padding:12px" id="dr-' + id + '"><b>第 2 步：看一下 AI 整理的結果，改到對了再存</b><p class="note">整理時間：' + tm(d.at) + "。每一格都可以直接改，不要的按 ✕。</p>" +
+      ((d.unknowns || []).length ? '<div class="warnbox"><b>這幾件事要跟老闆確認：</b><ul style="margin:6px 0 0;padding-left:20px">' + d.unknowns.map(function (u) { return "<li>" + E(u) + "</li>"; }).join("") + "</ul></div>" : "") +
+      '<label class="fl"><span>AI 的個性和說話方式（人設）</span><textarea data-k="persona" style="min-height:200px">' + E(d.persona) + "</textarea></label>" +
+      '<label class="fl"><span>老闆真的講過的句子（一行一句，AI 會學這個味道）</span><textarea data-k="examples">' + E((d.examples || []).join("\n")) + "</textarea></label>" +
+      '<label class="fl"><span>營業時間</span><input data-k="hours" value="' + E(d.business_hours || "") + '"></label>' +
+      '<b>常見問題（' + (d.faqs || []).length + ' 題）</b><div class="rows" data-k="faqs">' + (d.faqs || []).map(function (f) { return '<div class="qa"><div style="display:flex;flex-direction:column;gap:6px"><input value="' + E(f.q) + '" aria-label="問題"><textarea aria-label="回答">' + E(f.a) + '</textarea></div><button class="x" type="button" aria-label="刪掉">✕</button></div>'; }).join("") + '</div><button class="btn sm gh" type="button" data-add="faqs">＋ 加一題</button>' +
+      '<b>銷售話術（' + (d.scripts || []).length + ' 條）</b><div class="rows" data-k="scripts">' + (d.scripts || []).map(function (s) { return '<div class="qa"><div style="display:flex;flex-direction:column;gap:6px"><input value="' + E(s.situation) + '" aria-label="客人狀況"><textarea aria-label="怎麼回">' + E(s.how) + '</textarea></div><button class="x" type="button" aria-label="刪掉">✕</button></div>'; }).join("") + '</div><button class="btn sm gh" type="button" data-add="scripts">＋ 加一條</button>' +
+      '<label style="font-size:14px;display:flex;gap:6px;align-items:center"><input type="checkbox" data-k="replace" checked> 蓋掉之前 AI 整理的問答和話術（自己手動加的資料不會動）</label>' +
+      '<div class="bar"><button class="btn" type="button" data-save>存進 AI 客服</button></div></div>';
+  }
+  function bindDraft(id, el, d) {
+    var box = $("#dr-" + id);
+    var row = function (a, b) { var x = document.createElement("div"); x.className = "qa"; x.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px"><input placeholder="' + a + '"><textarea placeholder="' + b + '"></textarea></div><button class="x" type="button" aria-label="刪掉">✕</button>'; return x; };
+    box.addEventListener("click", function (e) { if (e.target.classList.contains("x")) e.target.closest(".qa").remove(); });
+    $$("[data-add]", box).forEach(function (b) { b.onclick = function () { var k = b.dataset.add; $('[data-k="' + k + '"]', box).appendChild(k === "faqs" ? row("客人問什麼", "老闆怎麼回") : row("客人的狀況（例：嫌貴）", "老闆怎麼回、怎麼推下一步")); }; });
+    $("[data-save]", box).onclick = async function () {
+      var pairs = function (k) { return $$('[data-k="' + k + '"] .qa', box).map(function (q) { return [$("input", q).value.trim(), $("textarea", q).value.trim()]; }).filter(function (p) { return p[0] && p[1]; }); };
+      busy(this, true, "存檔中，每題都要建索引…");
+      try { var r = await api("draft_apply", { id: id, persona: $('[data-k="persona"]', box).value, examples: $('[data-k="examples"]', box).value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean), business_hours: $('[data-k="hours"]', box).value.trim(),
+        faqs: pairs("faqs").map(function (p) { return { q: p[0], a: p[1] }; }), scripts: pairs("scripts").map(function (p) { return { situation: p[0], how: p[1] }; }), replace: $('[data-k="replace"]', box).checked });
+        busy(this, false); say("存好了：人設更新、加了 " + r.added + " 筆資料" + (r.errors && r.errors.length ? "，有 " + r.errors.length + " 筆失敗" : "") + "。去「試聊」問幾句看看像不像。", !(r.errors && r.errors.length)); load(); }
+      catch (e) { busy(this, false); say(e.message); }
+    };
+  }
+
+  // ===== 設定 =====
+  async function paneSet(id, el) {
+    var g = await api("tenant_get", { id: id }), t = g.tenant, iq = await intakes();
+    var f = function (k, lab, v, typ, hint) { return '<label class="fl"><span>' + lab + '</span><input data-k="' + k + '" type="' + (typ || "text") + '" value="' + E(v == null ? "" : v) + '">' + (hint ? "<small>" + hint + "</small>" : "") + "</label>"; };
+    el.innerHTML =
+      '<label style="font-size:15px;display:flex;gap:8px;align-items:center"><input type="checkbox" data-k="ai_enabled"' + (t.ai_enabled ? " checked" : "") + '> <b>AI 自動回覆客人</b>（關掉的話訊息照收，只是 AI 不回）</label>' +
+      '<div class="f2">' + f("name", "店名", t.name) + f("owner_email", "店家老闆登入信箱", t.owner_email, "email", "老闆用這個信箱在官網登入，就能看自己這家的對話和成交") + f("plan", "方案（自己記）", t.plan, "text", "例：月繳 3,980") + f("business_hours", "營業時間", t.business_hours) +
+      f("monthly_ai_quota", "每月 AI 回覆上限（則）", t.monthly_ai_quota, "number") + f("max_turns_per_day", "每位客人每天最多回幾則", t.max_turns_per_day, "number") + f("monthly_push_quota", "每月主動訊息上限（則）", t.monthly_push_quota, "number", "LINE 免費方案每月 200 則") + f("handoff_keywords", "客人講這些字就轉真人（用、分開）", (t.handoff_keywords || []).join("、")) + "</div>" +
+      '<label class="fl"><span>對應的問卷</span><select data-k="intake_id"><option value="">（沒有）</option>' + iq.map(function (q) { return '<option value="' + q.id + '"' + (t.intake_id === q.id ? " selected" : "") + ">" + E(q.store_name || "未命名") + "</option>"; }).join("") + "</select></label>" +
+      '<label class="fl"><span>AI 的個性和說話方式（人設）</span><textarea data-k="persona" style="min-height:160px">' + E(t.persona) + "</textarea><small>用「AI 學老闆」整理比較準，這裡可以微調</small></label>" +
+      '<div class="pane" style="border:1px solid var(--line);padding:12px"><b>接 LINE（' + (t.line_secret_set && t.line_token_set ? "已接好" : "還沒接") + '）</b>' +
+      '<ol class="steps"><li>到 LINE Developers（developers.line.biz）用店家的 LINE 帳號登入，選這家的官方帳號 → Messaging API</li><li>Basic settings 複製 <b>Channel secret</b>；Messaging API 頁最下面按 Issue 拿 <b>Channel access token</b>，兩個貼到下面</li><li>同一頁 Webhook URL 貼上下面這串，按 Verify，打開 Use webhook</li><li>到 LINE 官方帳號管理後台 → 回應設定：關掉「自動回應訊息」，聊天保持開著（老闆還能自己回）</li></ol>' +
+      '<div class="copy"><input readonly value="' + E(t.webhook) + '" aria-label="Webhook 網址"><button class="btn sm gh" type="button" data-cp>複製</button></div>' +
+      '<div class="f2">' + f("line_channel_secret", "Channel secret" + (t.line_secret_set ? "（已設定，要換才填）" : ""), "", "password") + f("line_access_token", "Channel access token" + (t.line_token_set ? "（已設定，要換才填）" : ""), "", "password") + "</div>" +
+      f("owner_line_user_id", "老闆的 LINE userId（收成交、轉真人通知）", t.owner_line_user_id, "text", "老闆先用自己的 LINE 傳一句話給官方帳號，再到「對話」找到他，跟維拓說，我們幫你填") + "</div>" +
+      '<div class="pane" style="border:1px solid var(--line);padding:12px"><b>主動關心／銷售訊息</b><p class="note">打勾才會發；「自動發」沒勾的會先放「主動訊息」等你確認。</p>' + (g.rules.length ? g.rules.map(function (r) { return '<div class="rule" data-r="' + r.id + '"><b>' + E(r.name) + '</b><label><input type="checkbox" data-a' + (r.active ? " checked" : "") + '> 啟用</label><label><input type="checkbox" data-u' + (r.auto_send ? " checked" : "") + '> 自動發</label><input data-h value="' + E(r.message_hint || "") + '" style="flex-basis:100%;padding:7px;border:1px solid var(--line);font:inherit" aria-label="訊息方向"></div>'; }).join("") : '<p class="empty">沒有規則</p>') + "</div>" +
+      '<label class="fl"><span>內部備註（店家看不到）</span><textarea data-k="note">' + E(t.note || "") + "</textarea></label>" +
+      '<div class="bar"><button class="btn" type="button" data-save>儲存設定</button></div>';
+    $("[data-cp]", el).onclick = function () { var i = $(".copy input", el); navigator.clipboard.writeText(i.value).then(function () { say("複製好了", true); }, function () { i.select(); }); };
+    $("[data-save]", el).onclick = async function () {
+      var v = function (k) { var x = $('[data-k="' + k + '"]', el); return x ? x.value : undefined; };
+      var body = { id: id, ai_enabled: $('[data-k="ai_enabled"]', el).checked, name: v("name"), owner_email: v("owner_email"), plan: v("plan"), business_hours: v("business_hours"), persona: v("persona"), note: v("note"), owner_line_user_id: v("owner_line_user_id"),
+        monthly_ai_quota: v("monthly_ai_quota"), max_turns_per_day: v("max_turns_per_day"), monthly_push_quota: v("monthly_push_quota"), intake_id: v("intake_id"),
+        handoff_keywords: v("handoff_keywords").split(/[、,，\s]+/).filter(Boolean), line_channel_secret: v("line_channel_secret"), line_access_token: v("line_access_token"),
+        rules: $$(".rule", el).map(function (r) { return { id: r.dataset.r, active: $("[data-a]", r).checked, auto_send: $("[data-u]", r).checked, message_hint: $("[data-h]", r).value }; }) };
+      if (body.ai_enabled && !(g.tenant.line_secret_set || body.line_channel_secret)) { say("LINE 還沒接好，AI 先不能打開"); return; }
+      busy(this, true, "儲存中…");
+      try { await api("tenant_save", body); busy(this, false); say("設定存好了", true); await load(); } catch (e) { busy(this, false); say(e.message); }
+    };
+  }
+
+  // ===== 資料庫 =====
+  async function paneKn(id, el) {
+    var r = await api("knowledge_list", { id: id });
+    el.innerHTML = (ME.admin ? '<div class="pane" style="border:1px solid var(--line);padding:12px"><b>手動加一筆</b><label class="fl"><span>標題</span><input data-t placeholder="例：週年慶優惠"></label><label class="fl"><span>內容</span><textarea data-c placeholder="例：11/1～11/30 第二堂半價，限新客"></textarea></label><div class="bar"><button class="btn sm" type="button" data-add>加入</button></div></div>' : "") +
+      '<p class="note">共 ' + r.rows.length + " 筆。AI 回客人時只會用這裡的資料，沒寫的不會亂講。</p>" +
+      (r.rows.length ? r.rows.map(function (k) { return '<div class="kn"><div><b>' + E(k.title || "（沒有標題）") + "</b>\n" + E(k.content) + "\n<small>" + E(k.source || "") + "・" + tm(k.created_at) + "</small></div>" + (ME.admin ? '<button class="x" type="button" data-del="' + k.id + '" aria-label="刪掉">✕</button>' : "") + "</div>"; }).join("") : '<p class="empty">還沒有資料，用「AI 學老闆」一次整理進來最快。</p>');
+    var add = $("[data-add]", el); if (add) add.onclick = async function () { var t = $("[data-t]", el).value.trim(), c = $("[data-c]", el).value.trim(); if (!c) return say("內容要填"); busy(this, true); try { await api("knowledge_add", { id: id, items: [{ title: t, content: c, source: "後台手動" }] }); say("加好了", true); paneKn(id, el); load(); } catch (e) { busy(this, false); say(e.message); } };
+    $$("[data-del]", el).forEach(function (b) { b.onclick = async function () { if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "確定刪？"; setTimeout(function () { b.dataset.sure = ""; b.textContent = "✕"; }, 3000); return; } try { await api("knowledge_del", { id: id, kid: +b.dataset.del }); b.closest(".kn").remove(); load(); } catch (e) { say(e.message); } }; });
+  }
+
+  // ===== 主動訊息 =====
+  async function paneOut(id, el) {
+    var r = await api("outbox", { id: id }), ST = { pending: ["warn", "等你確認"], approved: ["", "排隊發送"], sent: ["ok", "已發"], skipped: ["", "不發"], failed: ["bad", "失敗"] };
+    var pend = r.rows.filter(function (x) { return x.status === "pending"; });
+    el.innerHTML = '<p class="note">系統每天會依規則挑客人擬訊息（生日、做完回訪、問了價沒約…）。關心類可以自動發，銷售類先放這裡等你按發送。</p>' +
+      (pend.length ? '<div class="bar"><button class="btn sm" type="button" data-all>全部發送（' + pend.length + "）</button></div>" : "") +
+      (r.rows.length ? r.rows.map(function (m) { var s = ST[m.status] || ["", m.status]; return '<div class="kn"><div><b>' + E((m.aics_contacts && m.aics_contacts.display_name) || "客人") + '</b> <span class="tag ' + s[0] + '">' + s[1] + "</span>\n" + E(m.message) + "\n<small>" + tm(m.created_at) + (m.error ? "・" + E(m.error) : "") + "</small></div>" + (m.status === "pending" ? '<div class="bar" style="flex-direction:column"><button class="btn sm" type="button" data-ok="' + m.id + '">發送</button><button class="btn sm gh" type="button" data-no="' + m.id + '">不發</button></div>' : "") + "</div>"; }).join("") : '<p class="empty">還沒有主動訊息</p>');
+    var act = async function (ids, a, b) { busy(b, true); try { await api("outbox_act", { id: id, ids: ids, act: a }); say(a === "approve" ? "發出去了" : "這則不發", true); paneOut(id, el); load(); } catch (e) { busy(b, false); say(e.message); } };
+    $$("[data-ok]", el).forEach(function (b) { b.onclick = function () { act([+b.dataset.ok], "approve", b); }; });
+    $$("[data-no]", el).forEach(function (b) { b.onclick = function () { act([+b.dataset.no], "skip", b); }; });
+    var all = $("[data-all]", el); if (all) all.onclick = function () { act(pend.map(function (x) { return x.id; }), "approve", all); };
+  }
+
+  // ===== 新增店家 =====
+  $("#newBtn").onclick = async function () { $("#newBox").hidden = false; try { var iq = await intakes(); $("#nIntake").innerHTML = '<option value="">（先不選）</option>' + iq.map(function (q) { return '<option value="' + q.id + '">' + E((q.store_name || "未命名") + "・" + q.status) + "</option>"; }).join(""); } catch (e) {} };
+  $("#nX").onclick = function () { $("#newBox").hidden = true; };
+  $("#nGo").onclick = async function () {
+    busy(this, true, "建立中…");
+    try { var r = await api("tenant_create", { name: $("#nName").value, slug: $("#nSlug").value, owner_email: $("#nMail").value, intake_id: $("#nIntake").value }); busy(this, false); $("#newBox").hidden = true; OPEN = r.tenant.id; TAB[OPEN] = "set"; say("建好了，接著把 LINE 接起來", true); await load(); var d = $('.st[data-id="' + OPEN + '"]'); if (d) d.scrollIntoView({ block: "start" }); }
+    catch (e) { busy(this, false); say(e.message); }
+  };
+
+  // ===== 登入 =====
+  var started = false;
+  VAI.onMe(async function (m) {
+    if (!m.login) { $("#dash").hidden = true; $("#sub").textContent = "請用維拓帳號，或店家綁定的信箱登入。"; VAI.authBox($("#gate"), "/ai-kefu-admin"); $("#who").innerHTML = ""; return; }
+    $("#gate").innerHTML = ""; $("#who").innerHTML = "<span>" + E(m.email || "") + '</span><button class="btn sm gh" type="button" id="out">登出</button>'; $("#out").onclick = async function () { await VAI.client().auth.signOut(); location.reload(); };
+    if (started) return; started = true;
+    try { ME = await api("me"); } catch (e) { $("#sub").textContent = e.message; return; }
+    $("#ttl").textContent = ME.admin ? "AI 客服後台（全部店家）" : (ME.tenants[0] ? ME.tenants[0].name + "・AI 客服" : "AI 客服");
+    $("#sub").textContent = ME.admin ? "幫店家接 LINE、讓 AI 學老闆說話、看每家的對話和成交。" : "看 AI 幫你回了哪些客人、誰約好了、誰在等你回。";
+    $("#newBtn").hidden = !ME.admin; $("#dash").hidden = false;
+    if (!ME.admin && ME.tenants.length === 1) OPEN = ME.tenants[0].id;
+    load();
+  });
+})();
+</script>
+</body>
+</html>

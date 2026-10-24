@@ -30,7 +30,7 @@
   var TOOL = /ai-video/.test(location.pathname) ? "video" : /ai-design/.test(location.pathname) ? "design" : null;
   function memberMode(m) {
     var root = document.documentElement, on = !!(m && m.login && (m.admin || (TOOL ? /^(active|trial)$/.test((m[TOOL] || {}).status) : (/^(active|trial)$/.test((m.video || {}).status) || /^(active|trial)$/.test((m.design || {}).status)))));
-    root.classList.toggle("vai-login", !!(m && m.login)); root.classList.toggle("vai-in", on);
+    root.classList.toggle("vai-login", !!(m && m.login)); root.classList.toggle("vai-in", on); root.classList.toggle("vai-tool", !!TOOL);
     if (TOOL) { var mem = document.getElementById("member");
       if (mem && on && !document.getElementById("vaiAll")) { var b = document.createElement("div"); b.className = "vai-bar"; b.innerHTML = '<span>會員工作區</span><button type="button" id="vaiAll">看方案、加購和功能介紹</button>'; mem.insertBefore(b, mem.firstChild);
         b.querySelector("button").onclick = function () { var all = root.classList.toggle("vai-all"); this.textContent = all ? "收起介紹，只看工作區" : "看方案、加購和功能介紹"; }; }
