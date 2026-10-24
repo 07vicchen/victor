@@ -216,7 +216,7 @@ function Login(p) {
 }
 
 /* ---------- 主畫面 ---------- */
-var TABS = [['msg', '客人留言'], ['tools', 'AI 工具會員'], ['orders', 'AI 剪片單'], ['kefu', 'AI 客服'], ['cat', '價錢與服務'], ['pages', '每頁文字與圖片'], ['info', '聯絡資訊']];
+var TABS = [['msg', '客人留言'], ['tools', 'AI 工具會員'], ['orders', 'AI 剪片・美編單'], ['kefu', 'AI 客服'], ['cat', '價錢與服務'], ['pages', '每頁文字與圖片'], ['info', '聯絡資訊']];
 // Vic 10/25：AI 工具、剪片單、AI 客服的管理都放進 /admin，不用記其他網址
 var EMBED = { tools: '/ai-admin', orders: '/ai-orders', kefu: '/ai-kefu-admin' };
 function EmbedTab(p) {

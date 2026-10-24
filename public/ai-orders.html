@@ -3,24 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AI 剪片單與開通｜維拓傳媒</title>
+<title>AI 剪片與美編單｜維拓傳媒</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/m/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Space+Grotesk:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="/ai/editorial.css">
-<style>[hidden]{display:none!important}.two{display:flex;flex-direction:column;gap:28px}</style>
+<style>[hidden]{display:none!important}.two{display:flex;flex-direction:column;gap:28px}
+.ck{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0}.ck div{background:#fff;border:1px solid var(--line);padding:10px 12px}.ck b{display:block;font:700 22px "Space Grotesk",sans-serif}.ck span{font-size:12.5px;color:var(--mid)}
+.cj{display:flex;flex-direction:column;gap:6px}.cj div{background:#fff;border:1px solid var(--line);padding:9px 12px;font-size:13.5px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}.cj small{color:var(--dim)}
+.tg{font-size:12px;padding:2px 8px;border:1px solid var(--line)}.tg.ok{background:#e7f2ea;color:#2f6a47;border-color:#b9d8c3}.tg.w{background:#fff4dc;color:#8a6414;border-color:#ecd49a}.tg.b{background:#f6e6e3;color:#9a3a2c;border-color:#e3bcb5}
+@media (max-width:700px){.ck{grid-template-columns:repeat(2,minmax(0,1fr))}}</style>
 </head>
 <body>
 <div class="wrap">
   <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>AI 剪片單</small></div></a>
     <div class="tabs"><a href="/admin">回後台</a></div><div class="who" id="who"></div></nav>
   <section class="sect">
-    <div class="sh"><small>ORDERS</small><h2>AI 剪片單・AI 美編開通</h2><p id="sub">讀取中…</p></div>
+    <div class="sh"><small>ORDERS</small><h2>AI 剪片單・AI 美編去背單</h2><p id="sub">讀取中…</p></div>
     <div id="gate"></div>
     <div class="two" id="dash" hidden>
       <div><h3>AI 剪片：客人送來的單</h3><p class="note">完整剪片由桌機自動剪；這裡看進度，有問題可以手動上傳成品。</p><div id="v"></div></div>
-      <div><h3>AI 美編（修照片）：開通申請</h3><p class="note">AI 美編在客人自己的瀏覽器做圖，不用排單；這裡只處理開通。</p><div id="d"></div></div>
+      <div><h3>AI 美編：一鍵去背單</h3><p class="note">客人按「一鍵去背」會送到桌機 AI 去背＋小老虎檢查；桌機忙或沒開時，客人那邊先用簡易去背。</p><div id="cb"></div><div class="ck" id="ck"></div><div class="cj" id="cj"></div></div>
+      <div><h3>AI 美編：開通申請</h3><div id="d"></div></div>
     </div>
   </section>
   <footer><img src="/m/logo.png" alt="" width="36" height="36" style="border-radius:50%"><span>只有管理員看得到</span><a href="/admin">回後台</a></footer>
@@ -36,7 +41,17 @@
     if (!m.admin) { g.innerHTML = '<p class="msg err">這個帳號不是管理員。</p>'; document.getElementById("sub").textContent = ""; return; }
     g.innerHTML = ""; document.getElementById("sub").textContent = "每 2 分鐘自動更新"; document.getElementById("dash").hidden = false;
     if (done) return; done = true;
-    var run = function () { VAI.adminPanel(document.getElementById("v"), "video"); VAI.adminPanel(document.getElementById("d"), "design"); };
+    var E = VAI.E, ST = { queued: ["w", "排隊中"], working: ["w", "去背中"], done: ["ok", "完成"], error: ["b", "失敗"], failed: ["b", "失敗"], fallback: ["", "改用簡易去背"] };
+    var tm = function (x) { if (!x) return ""; var d = new Date(x); return (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
+    var cut = async function () {
+      var r = await VAI.client().rpc("ai_cutout_admin_list"), cj = document.getElementById("cj");
+      if (r.error) { cj.innerHTML = '<p class="msg err">' + E(r.error.message) + "</p>"; return; }
+      var d = r.data, s = d.stats, bot = (d.bots || [])[0], mins = bot ? (Date.now() - new Date(bot.seen_at)) / 60000 : null;
+      document.getElementById("cb").innerHTML = bot ? '<p class="note">桌機程式：<span class="tg ' + (mins < 10 ? "ok" : "b") + '">' + (mins < 10 ? "開著" : "沒回應") + "</span> 最後回報 " + tm(bot.seen_at) + (bot.state ? "・" + E(bot.state) : "") + "</p>" : '<p class="note">桌機程式還沒回報過</p>';
+      document.getElementById("ck").innerHTML = [["今天", s.today], ["排隊／處理中", s.waiting], ["一週內失敗", s.failed], ["本月花費", "$" + Number(s.usd_month || 0).toFixed(2)]].map(function (k) { return "<div><b>" + k[1] + "</b><span>" + k[0] + "</span></div>"; }).join("");
+      cj.innerHTML = d.jobs.length ? d.jobs.map(function (j) { var t = ST[j.status] || ["", j.status]; return '<div><b>#' + j.id + '</b><span class="tg ' + t[0] + '">' + t[1] + "</span><span>" + E(j.email || "") + "</span><small>" + tm(j.created_at) + (j.done_at ? " → " + tm(j.done_at) : "") + (j.tries > 1 ? "・試了 " + j.tries + " 次" : "") + (j.usd ? "・$" + Number(j.usd).toFixed(3) : "") + (j.note ? "・" + E(j.note) : "") + "</small></div>"; }).join("") : '<p class="note">還沒有去背單</p>';
+    };
+    var run = function () { VAI.adminPanel(document.getElementById("v"), "video"); VAI.adminPanel(document.getElementById("d"), "design"); cut(); };
     run(); setInterval(run, 120000);
   });
 })();
