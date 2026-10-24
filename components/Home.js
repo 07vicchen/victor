@@ -83,7 +83,7 @@ function Quote(p) {
       h('div', { className: 'qcats' }, CAT.map(function (g, gi) {
         var on = open === gi, n = g.items.filter(function (x) { return sel[x.id]; }).length;
         return h('div', { key: gi, className: 'qcat' + (on ? ' on' : '') },
-          h('button', { type: 'button', className: 'qhead', 'aria-expanded': on, onClick: function () { setOpen(on ? -1 : gi); } }, h('span', { className: 'qno' }, '0' + (gi + 1)), h('span', { className: 'qtt' }, h('b', null, g.g), h('small', null, g.sub || '')), h('span', { className: 'qct' }, n ? '已選 ' + n : g.items.length + ' 項'), h('i', null)),
+          h('button', { type: 'button', className: 'qhead', 'aria-expanded': on, onClick: function () { setOpen(on ? -1 : gi); } }, h('span', { className: 'qno' }, String(gi + 1).padStart(2, '0')), h('span', { className: 'qtt' }, h('b', null, g.g), h('small', null, g.sub || '')), h('span', { className: 'qct' }, n ? '已選 ' + n : g.items.length + ' 項'), h('i', null)),
           on ? h('div', { className: 'qitems' }, SVC[gi] ? h('a', { className: 'qmore', href: SVC[gi].slug === 'seo-geo' ? '/seo-geo' : SVC[gi].slug === 'ai-animation' ? '/ai-animation' : SVC[gi].slug === 'brand' ? '/web-design' : '/services/' + SVC[gi].slug }, '看「' + g.g + '」每一項的完整介紹 →') : null, g.items.map(function (it) {
             var s = !!sel[it.id], r = REQ[it.id], lk = r && !sel[r];
             return h('div', { key: it.id, className: 'qit' + (s ? ' on' : '') },
@@ -113,7 +113,7 @@ RENDER.doors = function (d) {
     h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
     h('div', { className: 'doors' }, d.items.map(function (x, i) {
       return h('a', { key: i, className: 'door d' + i, href: x.href },
-        h('span', { className: 'dn' }, '0' + (i + 1)),
+        h('span', { className: 'dn' }, String(i + 1).padStart(2, '0')),
         h('span', { className: 'dc' }, h('small', null, x.en), h('b', null, x.title), h('span', null, x.desc), h('i', null, '進去看 →')));
     }))));
 };
@@ -231,7 +231,7 @@ RENDER.sgdemo = function (d) {
 RENDER.sgsteps = function (d) {
   return h('section', { className: 'sec sec-alt sgsteps' }, h('div', { className: 'sec-inner' },
     h('div', { className: 'sec-head' }, h('h2', null, d.title), h('p', null, d.sub)),
-    h('ol', { className: 'sgs' }, d.steps.map(function (x, i) { return h('li', { key: i }, h('span', null, '0' + (i + 1)), h('b', null, x[0]), h('p', null, x[1])); })),
+    h('ol', { className: 'sgs' }, d.steps.map(function (x, i) { return h('li', { key: i }, h('span', null, String(i + 1).padStart(2, '0')), h('b', null, x[0]), h('p', null, x[1])); })),
     d.note ? h('p', { className: 'sgnote' }, d.note) : null,
     h('div', { className: 'ofbtn' }, h('a', { className: 'gobtn', href: '/quote' }, h('span', { className: 'gob' }, h('small', null, 'PRICE'), h('b', null, d.btn || '去報價單勾選')), h('i', { className: 'goa' }, '→')))));
 };
@@ -319,6 +319,8 @@ var DOORS = [
   { href: '/demo', en: 'DEMO', title: '服務示範', desc: 'AI 辦公室、LOGO 動畫、AI 客服、語音電話、廣告短片，直接玩玩看', image: M + 'edward_p.jpg' },
   { href: '/quote', en: 'PRICE', title: '服務與報價', desc: '每一項都有價錢，勾好直接傳到 LINE', image: M + 'corgi.jpg' },
   { href: '/office', en: 'AI OFFICE', title: 'AI 辦公室', desc: '一組 AI 員工照班表上班，你只要看、按同意', image: M + 'tanlang.jpg' },
+  { href: '/ai-kefu', en: 'AI SERVICE', title: 'AI 客服', desc: 'LINE、官網 24 小時自動回客人，還會主動關心和推薦', image: M + 'office_p.jpg' },
+  { href: '/ai-tools', en: 'AI TOOLS', title: 'AI 工具', desc: 'AI 美編幫你做整組商品圖，AI 剪片幫你剪片上字幕，月訂閱自己動手做', image: M + 'f70.jpg' },
   { href: '/ai-animation', en: 'AI ANIMATION', title: 'AI 動畫', desc: '老闆不用露臉，AI 角色幫你講；先免費看你的角色', image: M + 'tuoen.jpg' },
   { href: '/web-design', en: 'WEB DESIGN', title: '網頁設計', desc: '形象官網、一頁式、預約和報價頁，上線就跟 Google 報到', image: M + 'f70.jpg' },
   { href: '/short-video', en: 'SHORT VIDEO', title: '短影音代操', desc: '企劃、拍攝、剪輯、發文；不露臉也能用 AI 出片', image: M + 'edward_p.jpg' },
