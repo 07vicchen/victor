@@ -1,5 +1,5 @@
 'use client';
-/* 維拓傳媒官網後台 /admin：登入 → 客人留言、價錢與服務、每頁文字與圖片、聯絡資訊
+/* 維拓傳媒官網後台 /admin：登入 → 客人留言、AI 工具會員、AI 剪片單、AI 客服、價錢與服務、每頁文字與圖片、聯絡資訊
    資料存在 Supabase web_settings（site_pages、site_catalog、line_id、instagram），圖片傳到 web-media。 */
 import React from 'react';
 import { createClient } from '@supabase/supabase-js';
@@ -216,7 +216,19 @@ function Login(p) {
 }
 
 /* ---------- 主畫面 ---------- */
-var TABS = [['msg', '客人留言'], ['cat', '價錢與服務'], ['pages', '每頁文字與圖片'], ['info', '聯絡資訊']];
+var TABS = [['msg', '客人留言'], ['tools', 'AI 工具會員'], ['orders', 'AI 剪片單'], ['kefu', 'AI 客服'], ['cat', '價錢與服務'], ['pages', '每頁文字與圖片'], ['info', '聯絡資訊']];
+// Vic 10/25：AI 工具、剪片單、AI 客服的管理都放進 /admin，不用記其他網址
+var EMBED = { tools: '/ai-admin', orders: '/ai-orders', kefu: '/ai-kefu-admin' };
+function EmbedTab(p) {
+  var s = useState(900), ht = s[0], setHt = s[1];
+  useEffect(function () {
+    function on(e) { if (e.origin === location.origin && e.data && e.data.vaiH && e.data.path === p.src) setHt(Math.max(600, e.data.vaiH + 20)); }
+    window.addEventListener('message', on); return function () { window.removeEventListener('message', on); };
+  }, [p.src]);
+  return h('div', { className: 'ad-embed' },
+    h('a', { href: p.src, target: '_blank', rel: 'noopener', className: 'ad-embed-open' }, '在新分頁打開 ↗'),
+    h('iframe', { key: p.src, src: p.src + '?embed=1', title: p.src, style: { width: '100%', height: ht + 'px', border: 0, background: '#f6f5f1', display: 'block' } }));
+}
 export default function Admin() {
   var s0 = useState(undefined), session = s0[0], setSession = s0[1];
   var s1 = useState(null), isAdmin = s1[0], setIsAdmin = s1[1];
@@ -276,12 +288,13 @@ export default function Admin() {
       h('a', { href: '/', target: '_blank', rel: 'noopener' }, '看官網 ↗'),
       h('button', { type: 'button', className: 'ad-out', onClick: function () { if (!dirty || confirm('還有沒存的修改，確定登出？')) sb.auth.signOut(); } }, '登出')),
     h('nav', { className: 'ad-tabs' }, TABS.map(function (t) { return h('button', { key: t[0], type: 'button', className: tab === t[0] ? 'on' : '', onClick: function () { setTab(t[0]); window.scrollTo(0, 0); } }, t[1]); })),
-    h('main', { className: 'ad-main' },
+    h('main', { className: 'ad-main' + (EMBED[tab] ? ' wide' : '') },
       tab === 'msg' ? h(MsgTab) :
+      EMBED[tab] ? h(EmbedTab, { src: EMBED[tab] }) :
       tab === 'cat' ? h(CatTab, { cat: data.cat, setCat: function (c) { setData(Object.assign({}, data, { cat: c })); } }) :
       tab === 'pages' ? h(PagesTab, { ov: data.ov, setOv: function (o) { setData(Object.assign({}, data, { ov: o })); } }) :
       h(InfoTab, { info: data.info, setInfo: function (i) { setData(Object.assign({}, data, { info: i })); } })),
-    tab !== 'msg' ? h('div', { className: 'ad-save' + (dirty ? ' dirty' : '') },
+    tab !== 'msg' && !EMBED[tab] ? h('div', { className: 'ad-save' + (dirty ? ' dirty' : '') },
       h('span', null, msg || (dirty ? '有修改還沒存' : '都存好了')),
       dirty ? h('button', { type: 'button', className: 'ad-btn ghost', onClick: function () { if (confirm('放棄還沒存的修改？')) { setData(JSON.parse(base)); setMsg(''); } } }, '放棄') : null,
       h('button', { type: 'button', className: 'ad-btn big', disabled: !dirty || saving, onClick: save }, saving ? '存檔中…' : '存檔')) : null);

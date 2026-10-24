@@ -224,3 +224,8 @@ html.vai-in.vai-tool:not(.vai-all) .wrap{gap:28px}
 .state.trial{border:1px solid var(--gold);background:linear-gradient(170deg,var(--goldSoft),var(--paper) 60%);padding:16px 18px;margin-bottom:14px}
 .state.trial h3{margin:0 0 6px;font:900 18px var(--serif);color:var(--gold2)}
 .keep{font-size:12.5px;color:var(--mid)}.keep.soon{color:#b23b2e;font-weight:700}
+
+/* 嵌在官網 /admin 後台裡 */
+html.vai-embed .wrap>nav.top,html.vai-embed .wrap>footer{display:none}
+html.vai-embed .wrap{padding-top:8px}
+html.vai-embed .vai-top{display:none}

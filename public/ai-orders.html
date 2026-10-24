@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 剪片單與開通｜維拓傳媒</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/m/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/ai/editorial.css">
+<style>[hidden]{display:none!important}.two{display:flex;flex-direction:column;gap:28px}</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>AI 剪片單</small></div></a>
+    <div class="tabs"><a href="/admin">回後台</a></div><div class="who" id="who"></div></nav>
+  <section class="sect">
+    <div class="sh"><small>ORDERS</small><h2>AI 剪片單・AI 美編開通</h2><p id="sub">讀取中…</p></div>
+    <div id="gate"></div>
+    <div class="two" id="dash" hidden>
+      <div><h3>AI 剪片：客人送來的單</h3><p class="note">完整剪片由桌機自動剪；這裡看進度，有問題可以手動上傳成品。</p><div id="v"></div></div>
+      <div><h3>AI 美編（修照片）：開通申請</h3><p class="note">AI 美編在客人自己的瀏覽器做圖，不用排單；這裡只處理開通。</p><div id="d"></div></div>
+    </div>
+  </section>
+  <footer><img src="/m/logo.png" alt="" width="36" height="36" style="border-radius:50%"><span>只有管理員看得到</span><a href="/admin">回後台</a></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="/ai/core.js"></script>
+<script>
+(function () {
+  var done = false;
+  VAI.onMe(function (m) {
+    var g = document.getElementById("gate");
+    if (!m || !m.login) { document.getElementById("dash").hidden = true; document.getElementById("sub").textContent = "請用管理員帳號登入。"; VAI.authBox(g, "/ai-orders"); return; }
+    if (!m.admin) { g.innerHTML = '<p class="msg err">這個帳號不是管理員。</p>'; document.getElementById("sub").textContent = ""; return; }
+    g.innerHTML = ""; document.getElementById("sub").textContent = "每 2 分鐘自動更新"; document.getElementById("dash").hidden = false;
+    if (done) return; done = true;
+    var run = function () { VAI.adminPanel(document.getElementById("v"), "video"); VAI.adminPanel(document.getElementById("d"), "design"); };
+    run(); setInterval(run, 120000);
+  });
+})();
+</script>
+</body>
+</html>

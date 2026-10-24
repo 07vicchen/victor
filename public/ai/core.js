@@ -27,6 +27,11 @@
   // Vic 10/24：Google 登入回來網址變成「#member#access_token=…」讀不到，先修成「#access_token=…」
   try { var hh = location.hash; if (/#[^#]*#.*access_token=/.test(hh)) history.replaceState(null, "", location.pathname + location.search + "#" + hh.split("#").pop()); } catch (e) {}
   function backUrl(back) { var i = back.indexOf("#"); if (i >= 0) { try { sessionStorage.setItem("vai-jump", back.slice(i + 1)); } catch (e) {} back = back.slice(0, i); } return location.origin + back; }
+  // Vic 10/25：AI 工具、剪片單、AI 客服都嵌進官網 /admin 後台，嵌入時不顯示自己的選單和頁尾
+  var EMBED = /[?&]embed=1/.test(location.search) && window.parent !== window;
+  if (EMBED) { document.documentElement.classList.add("vai-embed");
+    var lastH = 0, post = function () { var hh = document.documentElement.scrollHeight; if (Math.abs(hh - lastH) > 4) { lastH = hh; try { window.parent.postMessage({ vaiH: hh, path: location.pathname }, location.origin); } catch (e) {} } };
+    setInterval(post, 700); window.addEventListener("load", post); }
   var TOOL = /ai-video/.test(location.pathname) ? "video" : /ai-design/.test(location.pathname) ? "design" : null;
   function memberMode(m) {
     var root = document.documentElement, on = !!(m && m.login && (m.admin || (TOOL ? /^(active|trial)$/.test((m[TOOL] || {}).status) : (/^(active|trial)$/.test((m.video || {}).status) || /^(active|trial)$/.test((m.design || {}).status)))));

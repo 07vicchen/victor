@@ -880,3 +880,6 @@ button.gobtn{border:0;font:inherit;text-align:left}
 .site h1,.site h2,.site h3{text-wrap:balance}
 .shead p,.bignum p,.hero-min p,.dl.center p,.linebox p,.stats p,.pnl a,.btn,.chip,.site p.hx-t,.site .hx-eb{text-align:inherit}
 .site p.hx-t{text-wrap:balance}
+
+.ad-main.wide{max-width:1280px}.ad-embed{margin:0 -16px}.ad-embed-open{display:inline-block;margin:0 16px 8px;color:#d6b46a;font-size:13px}
+@media (min-width:900px){.ad-embed{margin:0}}
