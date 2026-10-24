@@ -78,8 +78,8 @@
       <div class="head"><b id="cnt"></b><button class="btn sm" type="button" id="newBtn" hidden>＋ 新增店家</button></div>
       <div id="newBox" hidden class="pane" style="border:1px solid var(--fg);padding:14px;background:#fff">
         <div class="f2">
-          <label class="fl"><span>店名</span><input id="nName" placeholder="例：逆妍專佳"></label>
-          <label class="fl"><span>代號（英文小寫，網址用）</span><input id="nSlug" placeholder="例：nyzj"></label>
+          <label class="fl"><span>店名</span><input id="nName" placeholder="例：維拓傳媒"></label>
+          <label class="fl"><span>代號（英文小寫，網址用）</span><input id="nSlug" placeholder="例：victor"></label>
           <label class="fl"><span>店家老闆登入信箱（讓他看自己的後台，可之後再填）</span><input id="nMail" type="email" placeholder="boss@gmail.com"></label>
           <label class="fl"><span>對應的問卷</span><select id="nIntake"><option value="">（先不選）</option></select></label>
         </div>
@@ -217,7 +217,7 @@
     var form = '<div class="pane" style="border:1px solid var(--line);padding:12px">' +
       '<b>第 1 步：給 AI 看老闆平常怎麼回客人</b>' +
       '<ol class="steps"><li>老闆在手機 LINE 打開跟客人的聊天室 → 右上角 ≡ → 其他設定 → 傳送聊天記錄 → 存成文字檔（.txt）</li><li>挑 5～20 個有問價、有成交、有處理客訴的聊天室，越多越像</li><li>LINE 官方帳號後台的聊天也可以匯出，一樣是 .txt</li></ol>' +
-      '<div class="f2"><label class="fl"><span>老闆在對話裡顯示的名字</span><input id="lo-' + id + '" placeholder="例：逆妍專佳 Amy"><small>讓 AI 知道哪一邊是老闆</small></label>' +
+      '<div class="f2"><label class="fl"><span>老闆在對話裡顯示的名字</span><input id="lo-' + id + '" placeholder="例：維拓傳媒 Vic"><small>讓 AI 知道哪一邊是老闆</small></label>' +
       '<label class="fl"><span>一起參考的問卷</span><select id="li-' + id + '"><option value="">（不用問卷）</option>' + iq.map(function (q) { return '<option value="' + q.id + '"' + (t.intake_id === q.id ? " selected" : "") + ">" + E((q.store_name || "未命名") + "・" + (q.status === "submitted" ? "已交" : q.status === "invited" ? "還沒填" : q.status)) + "</option>"; }).join("") + "</select></label></div>" +
       '<label class="fl"><span>對話紀錄檔（可以一次選很多個 .txt）</span><input type="file" id="lf-' + id + '" accept=".txt,text/plain" multiple></label>' +
       '<label class="fl"><span>或直接貼上</span><textarea id="lp-' + id + '" placeholder="把對話複製貼在這裡"></textarea><small id="lc-' + id + '"></small></label>' +
