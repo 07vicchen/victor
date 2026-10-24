@@ -100,7 +100,7 @@
     return out; }
 
 
-  // AI 去背（10/25）：照片送到維拓的 AI 去背主機，AI 抓商品、美術總監小老虎檢查過才交回；主機忙線才用簡易去背（只適合純色背景）
+  // AI 去背（10/25）：照片送到維拓的 AI 去背主機，AI 抓出商品去背；主機忙線才用簡易去背（只適合純色背景）
   function useCut(o, note) { rcCache = {}; cutImg = o; prodUp = o; prod = o; $("#uncut").hidden = false; $("#msg").textContent = note; lib(); }
   function localCut(why) { var o = cutout(origImg); if (!o) { $("#msg").textContent = why + "，這張背景也太複雜，換一張背景單純的照片再試。"; return; } useCut(o, why + "，先用簡易去背（背景是純色的才會乾淨）。"); }
   async function aiCut() { var b = $("#cut"), m = $("#msg"); b.disabled = true; m.textContent = "AI 去背中，大約 10～30 秒…";
@@ -116,7 +116,7 @@
       var su = await c.storage.from("ai-videos").createSignedUrl(j.result, 600); if (su.error) throw new Error(su.error.message);
       var bl = await (await fetch(su.data.signedUrl)).blob(), im = new Image();
       await new Promise(function (ok, no) { im.onload = ok; im.onerror = no; im.src = URL.createObjectURL(bl); });
-      useCut(im, "已用 AI 去背（美術總監檢查過）");
+      useCut(im, "已用 AI 去背");
     } catch (e) { localCut("AI 去背暫時連不上"); } finally { b.disabled = false; } }
 
   // ===== 客人自己的顏色（10/25）：一張去背好的商品照，在手機上直接換成每個顏色；皺摺光影保留，可調深淺 =====
