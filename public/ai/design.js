@@ -122,6 +122,9 @@
   // ===== 客人自己的顏色（10/25）：一張去背好的商品照，在手機上直接換成每個顏色；皺摺光影保留，可調深淺 =====
   var CNAME = { "白": "#f4f3ef", "米白": "#efe8d8", "奶白": "#f3eee2", "黑": "#26272b", "灰": "#9a9ca0", "淺灰": "#c9cacc", "深灰": "#55575b", "紅": "#c8322f", "酒紅": "#7a2232", "粉": "#f0b7c4", "蜜桃粉": "#f6b3a6", "橘": "#e8792f", "黃": "#efc73a", "芥末黃": "#c9a227", "綠": "#3e8e57", "橄欖": "#7b8054", "軍綠": "#5a5f3c", "湖水綠": "#5fbcb0", "藍": "#2f6fc0", "霧藍": "#8ea5bf", "天藍": "#8cc4ea", "海軍藍": "#1f2f4f", "深藍": "#22325c", "紫": "#7c5aa6", "淺紫": "#c3b1df", "咖啡": "#6b4a36", "卡其": "#c3a982", "燕麥": "#d6c6ab", "奶茶": "#c8a98b", "杏": "#e6cfae", "駝": "#b68d5c", "銀": "#c0c2c6", "金": "#c9a24a", "玫瑰金": "#d6a08d" };
   window.USERCOLORS = []; var USERCOLORS = window.USERCOLORS;
+  // 10/25 Vic：只點色盤沒打名字也要算進去，名字用最接近的顏色名
+  window.UCNAME = function (hex) { var t = [parseInt(hex.substr(1, 2), 16), parseInt(hex.substr(3, 2), 16), parseInt(hex.substr(5, 2), 16)], best = "", bd = 1e9;
+    Object.keys(CNAME).forEach(function (k) { var c = CNAME[k], d = Math.pow(parseInt(c.substr(1, 2), 16) - t[0], 2) + Math.pow(parseInt(c.substr(3, 2), 16) - t[1], 2) + Math.pow(parseInt(c.substr(5, 2), 16) - t[2], 2); if (d < bd) { bd = d; best = k; } }); return best; };
   function guessHex(n) { n = String(n || "").replace(/色$/, "").trim(); if (CNAME[n]) return CNAME[n]; var k = Object.keys(CNAME).filter(function (x) { return n.indexOf(x) >= 0; }).sort(function (a, b) { return b.length - a.length; })[0]; return k ? CNAME[k] : "#8a8a8a"; }
   function lab(r, g, b) { function f(c) { c /= 255; return c > .04045 ? Math.pow((c + .055) / 1.055, 2.4) : c / 12.92; } r = f(r); g = f(g); b = f(b);
     var x = (r * .4124 + g * .3576 + b * .1805) / .95047, y = r * .2126 + g * .7152 + b * .0722, z = (r * .0193 + g * .1192 + b * .9505) / 1.08883;
@@ -143,7 +146,7 @@
     $$("[data-uch]").forEach(function (x) { x.oninput = function () { var u = USERCOLORS[+x.dataset.uch]; u.hex = x.value; u.picked = true; ucLib(); }; });
     $$("[data-uct]").forEach(function (x) { x.oninput = function () { USERCOLORS[+x.dataset.uct].tone = -(+x.value); ucLib(); }; });
     $$("[data-ucx]").forEach(function (x) { x.onclick = function () { USERCOLORS.splice(+x.dataset.ucx, 1); ucRows(); ucLib(); }; }); }
-  var ucT = 0; function ucLib() { clearTimeout(ucT); ucT = setTimeout(function () { $("#ucMsg").textContent = USERCOLORS.length && !cutImg ? "先按上面的「一鍵去背」，換顏色才不會連背景一起染到。" : USERCOLORS.length ? "「顏色一覽」那張已換成你的商品。有印花或很多顏色的商品，建議每個顏色各拍一張。" : "拍一張就好：先按「一鍵去背」，再打顏色名字、點色盤對到實品的顏色，用拉桿調深淺。"; lib(); }, 120); }
+  var ucT = 0; function ucLib() { clearTimeout(ucT); ucT = setTimeout(function () { $("#ucMsg").textContent = USERCOLORS.length && !cutImg ? "「顏色一覽」先用色塊表示；按上面的「一鍵去背」後，會換成你的商品照片上色。" : USERCOLORS.length ? "「顏色一覽」那張已換成你的商品。有印花或很多顏色的商品，建議每個顏色各拍一張。" : "拍一張就好：先按「一鍵去背」，再打顏色名字、點色盤對到實品的顏色，用拉桿調深淺。"; lib(); }, 120); }
   function ucBind() { if (!$("#ucAdd")) return;
     $("#ucAdd").onclick = function () { if (USERCOLORS.length >= 6) { $("#ucMsg").textContent = "最多 6 個顏色"; return; } USERCOLORS.push({ n: "", hex: "#8a8a8a", tone: 0 }); ucRows(); var l = $$("[data-ucn]"); if (l.length) l[l.length - 1].focus(); };
     $("#ucSpec").onclick = function () { var m = String($("#pSpec").value || "").match(/顏色[:：]\s*([^／/|;；]+)/); if (!m) { $("#ucMsg").textContent = "規格裡沒寫「顏色：白、黑」這種格式，直接按「＋加一個顏色」就好"; return; }

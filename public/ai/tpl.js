@@ -53,10 +53,11 @@ function sizes(g,img){g.fillStyle="#fff";g.fillRect(0,0,S,S);g.fillStyle=col;g.f
   g.fillStyle="#f6f6f4";rr(g,60,830,S-120,180,16);g.fill();
   const sn=P.sizeNotes||["手工測量，誤差 ±1cm","不同螢幕顯示顏色可能略有差異"];txt(g,"・"+sn[0],100,885,`500 32px ${F}`,"#444");txt(g,"・"+sn[1],100,950,`500 32px ${F}`,"#444")}
 function ucNote(g){txt(g,"顏色示意，實際以商品為準",S-60,S-40,`500 26px ${F}`,"#8a8a8a","right")}
-function ucOn(){return window.USERCOLORS&&USERCOLORS.filter(u=>u.n).length&&window.HASCUT&&HASCUT()}
-function ucDraw(g,title){const L=USERCOLORS.filter(u=>u.n),n=L.length,w=(S-120)/n;txt(g,`共 ${n} 色`,S-60,95,`700 34px ${F}`,col,"right");
-  L.forEach((u,i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,170,w-16,700,18);g.fill();const im=RECOLOR(u.hex,u.tone||0);if(im)fit(g,im,x+20,200,w-40,620,"contain");
-    g.fillStyle=u.hex;g.beginPath();g.arc(x+w/2,920,24,0,7);g.fill();g.strokeStyle="#00000030";g.lineWidth=2;g.stroke();txt(g,u.n,x+w/2,990,`700 ${n>4?28:34}px ${F}`,"#1b1b1b","center")});ucNote(g)}
+function ucOn(){return !!(window.USERCOLORS&&USERCOLORS.length)}
+function ucName(u){return u.n||(window.UCNAME?UCNAME(u.hex):"")}
+function ucDraw(g,title){const L=USERCOLORS,n=L.length,w=(S-120)/n;txt(g,`共 ${n} 色`,S-60,95,`700 34px ${F}`,col,"right");
+  L.forEach((u,i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,170,w-16,700,18);g.fill();const im=window.RECOLOR&&RECOLOR(u.hex,u.tone||0);if(im)fit(g,im,x+20,200,w-40,620,"contain");else{g.fillStyle=u.hex;rr(g,x+28,200,w-56,620,14);g.fill();g.strokeStyle="#00000018";g.lineWidth=2;g.stroke()}
+    g.fillStyle=u.hex;g.beginPath();g.arc(x+w/2,920,24,0,7);g.fill();g.strokeStyle="#00000030";g.lineWidth=2;g.stroke();txt(g,ucName(u),x+w/2,990,`700 ${n>4?28:34}px ${F}`,"#1b1b1b","center")});ucNote(g)}
 function colors(g,img){g.fillStyle="#fafafa";g.fillRect(0,0,S,S);txt(g,P.colorTitle||"顏色一覽",60,90,`900 60px ${F}`,"#1b1b1b");if(ucOn()){ucDraw(g);return}txt(g,`共 ${P.colors.length} ${P.colorUnit||"色"}`,S-60,95,`700 34px ${F}`,col,"right");
   const n=P.colors.length,w=(S-120)/n;
   P.colors.forEach(([name,hue],i)=>{const x=60+i*w;g.fillStyle=i%2?"#f1f1ef":"#ececea";rr(g,x+8,170,w-16,760,18);g.fill();
