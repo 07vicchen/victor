@@ -65,7 +65,7 @@
 
   // ===== 工作區 =====
   var booted = false;
-  function boot() { if (booted) { lib(); return; } booted = true; colorsUI(); lib(); bind(); }
+  function boot() { if (booted) { lib(); return; } booted = true; colorsUI(); lib(); bind(); ucBind(); }
   var PAL = [["經典", [["香檳金", "#c8963e"], ["墨黑", "#1b1b1b"], ["海軍藍", "#1f3a5f"], ["酒紅", "#7a1f2b"]]], ["莫蘭迪", [["霧藍", "#7d93ab"], ["灰粉", "#c49a9a"], ["鼠尾草", "#8a9a7b"], ["奶茶", "#a8896c"]]], ["鮮明", [["莓果紅", "#c2185b"], ["珊瑚橘", "#e8664a"], ["寶藍", "#2457d6"], ["薄荷綠", "#1fa38a"]]], ["柔和", [["蜜桃粉", "#e79a8e"], ["薰衣草", "#9b87c5"], ["芥末黃", "#c9a227"], ["森林綠", "#3f5a4a"]]]];
   function colorsUI() { $("#colors").innerHTML = PAL.map(function (g) { return '<div class="cg"><span>' + g[0] + '</span><div class="sws">' + g[1].map(function (c) { return '<button class="sw" type="button" data-c="' + c[1] + '" aria-label="' + c[0] + '" title="' + c[0] + '" aria-pressed="' + (c[1] === col) + '" style="background:' + c[1] + '"></button>'; }).join("") + "</div></div>"; }).join("");
     $("#colors").style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px"; $$("[data-c]").forEach(function (b) { b.onclick = function () { setCol(b.dataset.c); }; }); }
@@ -101,7 +101,7 @@
 
 
   // AI 去背（10/25）：照片送到維拓的 AI 去背主機，AI 抓商品、美術總監小老虎檢查過才交回；主機忙線才用簡易去背（只適合純色背景）
-  function useCut(o, note) { cutImg = o; prodUp = o; prod = o; $("#uncut").hidden = false; $("#msg").textContent = note; lib(); }
+  function useCut(o, note) { rcCache = {}; cutImg = o; prodUp = o; prod = o; $("#uncut").hidden = false; $("#msg").textContent = note; lib(); }
   function localCut(why) { var o = cutout(origImg); if (!o) { $("#msg").textContent = why + "，這張背景也太複雜，換一張背景單純的照片再試。"; return; } useCut(o, why + "，先用簡易去背（背景是純色的才會乾淨）。"); }
   async function aiCut() { var b = $("#cut"), m = $("#msg"); b.disabled = true; m.textContent = "AI 去背中，大約 10～30 秒…";
     try { var c = VAI.client(), u = (await c.auth.getUser()).data.user; if (!u) { localCut("沒登入"); return; }
@@ -118,6 +118,36 @@
       await new Promise(function (ok, no) { im.onload = ok; im.onerror = no; im.src = URL.createObjectURL(bl); });
       useCut(im, "已用 AI 去背（美術總監檢查過）");
     } catch (e) { localCut("AI 去背暫時連不上"); } finally { b.disabled = false; } }
+
+  // ===== 客人自己的顏色（10/25）：一張去背好的商品照，在手機上直接換成每個顏色；皺摺光影保留，可調深淺 =====
+  var CNAME = { "白": "#f4f3ef", "米白": "#efe8d8", "奶白": "#f3eee2", "黑": "#26272b", "灰": "#9a9ca0", "淺灰": "#c9cacc", "深灰": "#55575b", "紅": "#c8322f", "酒紅": "#7a2232", "粉": "#f0b7c4", "蜜桃粉": "#f6b3a6", "橘": "#e8792f", "黃": "#efc73a", "芥末黃": "#c9a227", "綠": "#3e8e57", "橄欖": "#7b8054", "軍綠": "#5a5f3c", "湖水綠": "#5fbcb0", "藍": "#2f6fc0", "霧藍": "#8ea5bf", "天藍": "#8cc4ea", "海軍藍": "#1f2f4f", "深藍": "#22325c", "紫": "#7c5aa6", "淺紫": "#c3b1df", "咖啡": "#6b4a36", "卡其": "#c3a982", "燕麥": "#d6c6ab", "奶茶": "#c8a98b", "杏": "#e6cfae", "駝": "#b68d5c", "銀": "#c0c2c6", "金": "#c9a24a", "玫瑰金": "#d6a08d" };
+  window.USERCOLORS = []; var USERCOLORS = window.USERCOLORS;
+  function guessHex(n) { n = String(n || "").replace(/色$/, "").trim(); if (CNAME[n]) return CNAME[n]; var k = Object.keys(CNAME).filter(function (x) { return n.indexOf(x) >= 0; }).sort(function (a, b) { return b.length - a.length; })[0]; return k ? CNAME[k] : "#8a8a8a"; }
+  function lab(r, g, b) { function f(c) { c /= 255; return c > .04045 ? Math.pow((c + .055) / 1.055, 2.4) : c / 12.92; } r = f(r); g = f(g); b = f(b);
+    var x = (r * .4124 + g * .3576 + b * .1805) / .95047, y = r * .2126 + g * .7152 + b * .0722, z = (r * .0193 + g * .1192 + b * .9505) / 1.08883;
+    function h(t) { return t > .008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116; } var fx = h(x), fy = h(y), fz = h(z); return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)]; }
+  function rgb(L, a, b) { var fy = (L + 16) / 116, fx = fy + a / 500, fz = fy - b / 200; function h(t) { var t3 = t * t * t; return t3 > .008856 ? t3 : (t - 16 / 116) / 7.787; }
+    var x = h(fx) * .95047, y = h(fy), z = h(fz) * 1.08883, R = x * 3.2406 - y * 1.5372 - z * .4986, G = -x * .9689 + y * 1.8758 + z * .0415, B = x * .0557 - y * .204 + z * 1.057;
+    function g(c) { c = c > .0031308 ? 1.055 * Math.pow(c, 1 / 2.4) - .055 : 12.92 * c; return Math.max(0, Math.min(255, Math.round(c * 255))); } return [g(R), g(G), g(B)]; }
+  var rcCache = {}; window.HASCUT = function () { return !!cutImg; };
+  window.RECOLOR = function (hex, tone) { if (!cutImg) return null; var key = hex + "|" + (tone || 0) + "|" + (cutImg.src || cutImg.width); if (rcCache[key]) return rcCache[key];
+    var w = iw(cutImg), h = ih(cutImg), k = Math.min(1, 900 / Math.max(w, h)), c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    var g = c.getContext("2d"); g.drawImage(cutImg, 0, 0, c.width, c.height); var d = g.getImageData(0, 0, c.width, c.height), px = d.data, n = 0, sum = 0, Ls = new Float32Array(px.length / 4);
+    for (var i = 0; i < px.length; i += 4) { if (px[i + 3] < 20) continue; var l = lab(px[i], px[i + 1], px[i + 2])[0]; Ls[i / 4] = l; sum += l; n++; }
+    var mean = n ? sum / n : 50, t = lab(parseInt(hex.substr(1, 2), 16), parseInt(hex.substr(3, 2), 16), parseInt(hex.substr(5, 2), 16)), Lt = t[0] + (tone || 0) * 8;
+    for (i = 0; i < px.length; i += 4) { if (px[i + 3] < 20) continue; var L = Math.max(0, Math.min(100, Lt + (Ls[i / 4] - mean) * .85)), o = rgb(L, t[1], t[2]); px[i] = o[0]; px[i + 1] = o[1]; px[i + 2] = o[2]; }
+    g.putImageData(d, 0, 0); rcCache[key] = c; return c; };
+  function ucRows() { var box = $("#ucRows"); if (!box) return;
+    box.innerHTML = USERCOLORS.map(function (u, i) { return '<div class="bar" style="gap:8px;align-items:center;margin:4px 0"><input type="text" data-ucn="' + i + '" value="' + E(u.n) + '" maxlength="8" placeholder="顏色名字" style="width:110px"><input type="color" data-uch="' + i + '" value="' + u.hex + '" aria-label="' + E(u.n) + ' 的顏色"><label class="note" style="display:flex;gap:6px;align-items:center">淺<input type="range" min="-3" max="3" step="1" data-uct="' + i + '" value="' + (u.tone || 0) + '">深</label><button class="chip" type="button" data-ucx="' + i + '" aria-label="刪掉這個顏色">×</button></div>'; }).join("");
+    $$("[data-ucn]").forEach(function (x) { x.oninput = function () { var u = USERCOLORS[+x.dataset.ucn]; u.n = x.value.trim(); if (!u.picked) { u.hex = guessHex(u.n); var hp = $('[data-uch="' + x.dataset.ucn + '"]'); if (hp) hp.value = u.hex; } ucLib(); }; });
+    $$("[data-uch]").forEach(function (x) { x.oninput = function () { var u = USERCOLORS[+x.dataset.uch]; u.hex = x.value; u.picked = true; ucLib(); }; });
+    $$("[data-uct]").forEach(function (x) { x.oninput = function () { USERCOLORS[+x.dataset.uct].tone = -(+x.value); ucLib(); }; });
+    $$("[data-ucx]").forEach(function (x) { x.onclick = function () { USERCOLORS.splice(+x.dataset.ucx, 1); ucRows(); ucLib(); }; }); }
+  var ucT = 0; function ucLib() { clearTimeout(ucT); ucT = setTimeout(function () { $("#ucMsg").textContent = USERCOLORS.length && !cutImg ? "先按上面的「一鍵去背」，換顏色才不會連背景一起染到。" : USERCOLORS.length ? "「顏色一覽」那張已換成你的商品。有印花或很多顏色的商品，建議每個顏色各拍一張。" : "拍一張就好：先按「一鍵去背」，再打顏色名字、點色盤對到實品的顏色，用拉桿調深淺。"; lib(); }, 120); }
+  function ucBind() { if (!$("#ucAdd")) return;
+    $("#ucAdd").onclick = function () { if (USERCOLORS.length >= 6) { $("#ucMsg").textContent = "最多 6 個顏色"; return; } USERCOLORS.push({ n: "", hex: "#8a8a8a", tone: 0 }); ucRows(); var l = $$("[data-ucn]"); if (l.length) l[l.length - 1].focus(); };
+    $("#ucSpec").onclick = function () { var m = String($("#pSpec").value || "").match(/顏色[:：]\s*([^／/|;；]+)/); if (!m) { $("#ucMsg").textContent = "規格裡沒寫「顏色：白、黑」這種格式，直接按「＋加一個顏色」就好"; return; }
+      USERCOLORS = m[1].split(/[、,，\s]+/).filter(Boolean).slice(0, 6).map(function (n) { return { n: n, hex: guessHex(n), tone: 0 }; }); window.USERCOLORS = USERCOLORS; ucRows(); ucLib(); }; }
   function bind() {
     $("#pick").oninput = function (e) { col = e.target.value; $$("[data-c]").forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); lib(); };
     $("#auto").onclick = function () { var im = prodUp || imgFor(), c = document.createElement("canvas"); c.width = c.height = 64; var g = c.getContext("2d"); g.drawImage(im, 0, 0, 64, 64); var d = g.getImageData(0, 0, 64, 64).data, bins = {}, best = null, bs = -1;
