@@ -113,7 +113,7 @@
       if (!s.data || !s.data.ok) return loc("AI 去背主機忙線中");
       if (say) say("AI 去背中，大約 10～30 秒…");
       var id = s.data.id, t0 = Date.now(), j = null;
-      while (Date.now() - t0 < 120000) { await new Promise(function (r) { setTimeout(r, 2000); }); var q = await c.from("ai_cutout_jobs").select("status,result,note").eq("id", id).maybeSingle(); j = q.data; if (j && (j.status === "done" || j.status === "error")) break; }
+      while (Date.now() - t0 < 180000) { await new Promise(function (r) { setTimeout(r, 2000); }); var q = await c.from("ai_cutout_jobs").select("status,result,note").eq("id", id).maybeSingle(); j = q.data; if (j && (j.status === "done" || j.status === "error")) break; }
       if (!j || j.status !== "done") { if (j && j.status === "error") return { img: null, note: j.note || "這張 AI 抓不乾淨，換一張背景單純的照片試試。" }; return loc("AI 去背排隊比較久"); }
       var su = await c.storage.from("ai-videos").createSignedUrl(j.result, 600); if (su.error) throw new Error(su.error.message);
       var bl = await (await fetch(su.data.signedUrl)).blob(), im = new Image();
