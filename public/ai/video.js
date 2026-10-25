@@ -8,6 +8,28 @@
   var bill = "month", files = [], vlogo = null, pickSt = -1, plan = "basic", mode = "cut", pickMod = "", swWho = "本人", swPhotos = [], swProof = null;
   var savedSticky = null, renderCap = 2, openJob = null, editor = null, busy = {};
   var MODS = window.SUBFX ? SUBFX.list : [], BASIC_MODS = ["pop", "karaoke", "invert", "minimal", "cinema", "marker", "fadeup", "stack"];
+  // ===== 質感特效（Vic 10/26）：id 跟剪片引擎 effects.py 的 type 一樣；photo＝可以放客人的照片；basic＝入門方案可用 =====
+  var FX = [
+    { id: "covers", n: "封面彈出", fit: "新品、作品、系列介紹", d: "一排雜誌封面小卡從上方一張一張浮出來，講者在下面繼續講。放你的照片就變成封面上的圖。", photo: 1, img: "fx_covers_photo", mp4: 1 },
+    { id: "pip", n: "畫中畫", fit: "教學示範、前後對比", d: "角落開一個細框小視窗，放截圖或第二段畫面，講者的畫面不動。", photo: 1, img: "fx_pip", mp4: 1 },
+    { id: "bigword", n: "深藍大字", fit: "金句、轉折", d: "一兩個字的深藍襯線大字蓋滿畫面，影片從字裡透出來，講到重點時用。", img: "fx_bigword" },
+    { id: "material", n: "素材框", fit: "截圖、商品細節", d: "上方滑進一個乾淨的圓角視窗，放你的截圖或商品照；沒放照片就放一句提示。", photo: 1, img: "fx_material_photo" },
+    { id: "featcards", n: "功能卡輪播", fit: "服務項目、商品賣點", d: "深藍圓角卡從側邊滑進來，一張換一張，每張卡可以放一張你的照片。", photo: 1, img: "fx_featcards_photo", mp4: 1 },
+    { id: "grade", n: "暖色系列", fit: "每一支都適合", d: "整支調成溫暖的底片色，膚色好看、白色不刺眼。", basic: 1, img: "fx_grade" },
+    { id: "hang", n: "吊牌字", fit: "重點字、情緒字", d: "一個關鍵字掛在細線上從上面垂下來，輕輕晃一下就停，不會抖。", img: "fx_hang" },
+    { id: "chapters", n: "章節目錄", fit: "教學、清單型內容", d: "右側一排小字列出這支片的段落，講到哪一段就亮哪一段，觀眾知道還有什麼沒看。", basic: 1, img: "fx_chapters" },
+    { id: "logo", n: "品牌 logo", fit: "有品牌的都建議放", d: "你上傳的 logo 放在角落當浮水印，整支都在。logo 在最下面「特別交代和 logo」上傳，或直接打字。", basic: 1, img: "fx_logo" }];
+  var fxOn = [], fxPhotos = [], FXMAX = 12, FXMB = 10;
+  function fxName(id) { var f = FX.filter(function (x) { return x.id === id; })[0]; return f ? f.n : "交給啾咪"; }
+  (function fxCards() { var box = $("#fxCards"); if (!box) return;
+    box.innerHTML = FX.map(function (f, i) { return '<details class="fxc"><summary><img src="/ai/fx/' + f.img + '.jpg" alt="" width="48" height="85" loading="lazy"><span><em>FX.' + String(i + 1).padStart(2, "0") + (f.basic ? "・入門可用" : "・專業以上") + (f.photo ? "・可放照片" : "") + "</em><b>" + E(f.n) + "</b><small>" + E(f.fit) + '</small></span><i aria-hidden="true">▾</i></summary><div class="fxb" data-fxi="' + i + '"></div></details>'; }).join("");
+    var ds = $$("#fxCards details");
+    ds.forEach(function (d, i) { d.addEventListener("toggle", function () { var f = FX[i], b = d.querySelector(".fxb");
+      if (d.open) { ds.forEach(function (x) { if (x !== d) x.open = false; });
+        if (!b.innerHTML) b.innerHTML = (f.mp4 ? '<video src="/ai/fx/' + f.img + '.mp4" poster="/ai/fx/' + f.img + '.jpg" muted loop playsinline preload="none" width="150" height="267" aria-label="' + E(f.n) + ' 示範"></video>' : '<img src="/ai/fx/' + f.img + '.jpg" alt="' + E(f.n) + ' 示範畫面" width="150" height="267" loading="lazy">') + "<div><p>" + E(f.d) + '</p><p class="note">適合：' + E(f.fit) + "。" + (f.basic ? "入門方案以上都能用。" : "專業方案以上可用。") + (f.photo ? "有上傳照片就會用進去。" : "") + "</p><p class=\"note\">示範畫面用的是示範講者。</p></div>";
+        var v = b.querySelector("video"); if (v && !RM) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } }
+      else { var vv = b.querySelector("video"); if (vv) vv.pause(); } }); });
+  })();
   // ===== 字幕模組示範 =====
   if (MODS.length) {
     $("#mods").innerHTML = MODS.map(function (m, i) { return '<div class="st"><canvas width="270" height="480" aria-label="' + E(m.name) + '"></canvas><div class="cap"><em>SUB.' + String(i + 1).padStart(2, "0") + (BASIC_MODS.indexOf(m.id) >= 0 ? "・入門可用" : "・專業以上") + "</em><b>" + E(m.name) + "</b><span>" + E(m.fit) + "：" + E(m.desc) + "</span></div></div>"; }).join("");
@@ -58,6 +80,7 @@
     $("#acc").oninput = function () { accTouched = true; };
     $$("[data-sz]").forEach(function (b) { b.onclick = function () { subSize = b.dataset.sz; $$("[data-sz]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); pvSync(1); }; });
     var swapOk = plan !== "basic" || (window.__vaiAdmin); $("#swapLock").hidden = swapOk; $("#swapBody").hidden = !swapOk;
+    fxPick();
     setMode(mode);
     if (booted) return; booted = true;
     $$("[data-mode]").forEach(function (b) { b.onclick = function () { setMode(b.dataset.mode); }; });
@@ -65,18 +88,41 @@
     $("#swPh").onchange = function (e) { swPhotos = [].slice.call(e.target.files, 0, 3); $("#swPhMsg").textContent = swPhotos.length ? "已選 " + swPhotos.length + " 張：" + swPhotos.map(function (f) { return f.name; }).join("、") : "還沒選照片，不換人就不用選"; };
     $("#swProof").onchange = function (e) { swProof = e.target.files[0] || null; $("#swProofMsg").textContent = swProof ? "已選：" + swProof.name : "建議附上，萬一被檢舉才有證據"; };
     $("#vf").onchange = function (e) { var add = [].slice.call(e.target.files); add.forEach(function (f) { if (files.length < 5) files.push(f); }); e.target.value = ""; listFiles(); };
-    $("#vLogo").onchange = function (e) { vlogo = e.target.files[0] || null; $("#vLogoMsg").textContent = vlogo ? "已選 logo：" + vlogo.name : "有放的話會放在影片角落"; if (logoImg) URL.revokeObjectURL(logoImg.src); logoImg = null; if (vlogo) { logoImg = new Image(); logoImg.src = URL.createObjectURL(vlogo); } $("#pvm").hidden = !vlogo && !$("#vLogoT").value.trim(); pvSync(1); };
+    $("#vLogo").onchange = function (e) { vlogo = e.target.files[0] || null; $("#vLogoMsg").textContent = vlogo ? "已選 logo：" + vlogo.name : "有放的話會放在影片角落"; if (logoImg) URL.revokeObjectURL(logoImg.src); logoImg = null; if (vlogo) { logoImg = new Image(); logoImg.src = URL.createObjectURL(vlogo); } $("#pvm").hidden = !vlogo && !$("#vLogoT").value.trim(); pvSync(1); fxSync(); };
     $$("[data-mus]").forEach(function (b) { b.onclick = function () { $$("[data-mus]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
     $("#voOn").onchange = function () { $("#voBox").hidden = !this.checked; };
-    $("#vLogoT").oninput = function () { var t = this.value.trim(); $("#vLogoMsg").textContent = t ? "會把「" + t + "」放在影片右上角，確認字幕時可以改位置" : "有放的話會放在影片角落"; $("#pvm").hidden = !t && !vlogo; pvSync(1); };
+    $("#vLogoT").oninput = function () { var t = this.value.trim(); $("#vLogoMsg").textContent = t ? "會把「" + t + "」放在影片右上角，確認字幕時可以改位置" : "有放的話會放在影片角落"; $("#pvm").hidden = !t && !vlogo; pvSync(1); fxSync(); };
     $("#send").onclick = send;
+    $("#fxPh").onchange = function (e) { var add = [].slice.call(e.target.files), skip = 0; e.target.value = "";
+      add.forEach(function (f) { if (!/^image\//.test(f.type || "image/") || f.size > FXMB * 1048576 || fxPhotos.length >= FXMAX) { skip++; return; } fxPhotos.push({ f: f, use: "auto", url: URL.createObjectURL(f) }); });
+      fxList(); if (skip) { $("#fxNote").textContent = "有 " + skip + " 張沒加進來：只收照片、每張 " + FXMB + "MB 以內、最多 " + FXMAX + " 張。"; } };
     VAI.client().from("ai_tool_glossary").select("words,sticky,sticky_pos").maybeSingle().then(function (r) { if (r && r.data) { savedSticky = r.data; if (!$("#vGloss").value) $("#vGloss").value = r.data.words || ""; } }, function () {});
     VAI.client().rpc("ai_render_cap").then(function (r) { if (r && !r.error) renderCap = r.data; }, function () {}); }
   function setMode(m) { mode = m; if (m === "subs" && !pickMod) { var f = $$("[data-mod]").filter(function (x) { return x.dataset.mod && !x.disabled; })[0]; if (f) { pickMod = f.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === f)); }); } } $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
-    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "3"; $("#noteNo").textContent = subs ? "3" : "4"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $("#voRow").hidden = subs || (plan !== "max" && plan !== "ent" && !window.__vaiAdmin); $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
+    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#fxPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "4"; $("#noteNo").textContent = subs ? "3" : "5"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $("#voRow").hidden = subs || (plan !== "max" && plan !== "ent" && !window.__vaiAdmin); $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
     
     $("#stNote").textContent = plan === "basic" ? "入門方案可用 3 種剪法，升級專業就能用全部。" : ""; $("#modNote").textContent = plan === "basic" ? "入門方案可用 8 種字幕樣式，升級專業就能用全部 23 種。" : "";
     pvSync(); $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; }
+  // ===== 質感特效挑選＋照片（只有完整剪片用；入門和試用只能用 3 種、不能放照片，伺服器也會再擋一次） =====
+  function fxFull() { return plan !== "basic" || !!window.__vaiAdmin; }
+  function fxPick() { var full = fxFull();
+    fxOn = fxOn.filter(function (id) { return full || FX.filter(function (x) { return x.id === id && x.basic; }).length; });
+    $("#fxPick").innerHTML = '<button class="chip" type="button" data-fx="auto" aria-pressed="' + (!fxOn.length) + '">交給啾咪挑</button>' + FX.map(function (f) { var ok = full || f.basic; return '<button class="chip" type="button" data-fx="' + f.id + '" aria-pressed="' + (fxOn.indexOf(f.id) >= 0) + '"' + (ok ? "" : ' disabled title="專業方案以上可用"') + ">" + E(f.n) + (f.photo && full ? "・可放照片" : "") + "</button>"; }).join("");
+    $$("[data-fx]").forEach(function (b) { b.onclick = function () { var id = b.dataset.fx;
+      if (id === "auto") fxOn = []; else { var k = fxOn.indexOf(id); if (k >= 0) fxOn.splice(k, 1); else fxOn.push(id); }
+      fxSync(); }; });
+    $("#fxLock").hidden = full; $("#fxPhBox").hidden = !full; if (!full && fxPhotos.length) { fxPhotos.forEach(function (p) { URL.revokeObjectURL(p.url); }); fxPhotos = []; }
+    fxList(); }
+  function fxSync() { $$("[data-fx]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.fx === "auto" ? !fxOn.length : fxOn.indexOf(x.dataset.fx) >= 0)); });
+    $("#fxSel").innerHTML = fxOn.map(function (id) { var f = FX.filter(function (x) { return x.id === id; })[0]; return '<img src="/ai/fx/' + f.img + '.jpg" alt="' + E(f.n) + '" title="' + E(f.n) + '" width="40" height="71">'; }).join("");
+    var used = fxUsed(), extra = used.filter(function (id) { return fxOn.indexOf(id) < 0; });
+    $("#fxNote").textContent = (fxOn.length ? "已選 " + fxOn.length + " 種：" + fxOn.map(fxName).join("、") + "。" : "沒指定特效，啾咪會看內容挑合適的，也可能不加。") + (extra.length ? "照片指定了" + extra.map(fxName).join("、") + "，也會一起用上。" : "") + (fxOn.indexOf("logo") >= 0 && !vlogo && !$("#vLogoT").value.trim() ? "選了品牌 logo，記得在下面上傳 logo 或打字。" : ""); }
+  function fxUsed() { var u = []; fxPhotos.forEach(function (p) { if (p.use !== "auto" && u.indexOf(p.use) < 0) u.push(p.use); }); return u; }
+  function fxList() { var opts = FX.filter(function (f) { return f.photo; });
+    $("#fxList").innerHTML = fxPhotos.map(function (p, i) { return '<div class="fxrow"><img src="' + p.url + '" alt="" width="44" height="44"><span title="' + E(p.f.name) + '">' + E(p.f.name) + '</span><select data-fxu="' + i + '" aria-label="這張放在哪個特效"><option value="auto"' + (p.use === "auto" ? " selected" : "") + ">交給啾咪挑位置</option>" + opts.map(function (f) { return '<option value="' + f.id + '"' + (p.use === f.id ? " selected" : "") + ">放在" + E(f.n) + "</option>"; }).join("") + '</select><button class="chip" type="button" data-fxrm="' + i + '">移除</button></div>'; }).join("") + (fxPhotos.length ? '<p class="note">已選 ' + fxPhotos.length + "／" + FXMAX + " 張</p>" : "");
+    $$("[data-fxu]").forEach(function (s) { s.onchange = function () { fxPhotos[+s.dataset.fxu].use = s.value; fxSync(); }; });
+    $$("[data-fxrm]").forEach(function (b) { b.onclick = function () { var p = fxPhotos.splice(+b.dataset.fxrm, 1)[0]; if (p) URL.revokeObjectURL(p.url); fxList(); }; });
+    fxSync(); }
   // ===== 選了馬上預覽（用跟出片一樣的字幕程式畫） =====
   var subSize = "中", logoImg = null, accTouched = false, pvT0 = performance.now(), pvOn = false;
   function curMod() { var id = pickMod; if (!id && mode !== "subs") id = pickSt >= 0 && window.SUBJOB ? SUBJOB.CUTMAP[VSTY[pickSt][0]] : "pop";
@@ -128,15 +174,20 @@
       var sw = null; if (swPhotos.length) { var ph = []; for (var k = 0; k < swPhotos.length; k++) { m.textContent = "上傳換人照片 " + (k + 1) + "/" + swPhotos.length + "…"; var pp = uid + "/" + stamp + "_face" + k + "." + ((swPhotos[k].name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"); var pr = await c.storage.from("ai-videos").upload(pp, swPhotos[k], { contentType: swPhotos[k].type || "image/jpeg" }); if (pr.error) throw new Error("照片上傳失敗：" + pr.error.message); ph.push(pp); }
         var proof = null; if (swProof && swWho === "朋友授權") { proof = uid + "/" + stamp + "_proof." + ((swProof.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"); var qr = await c.storage.from("ai-videos").upload(proof, swProof, { contentType: swProof.type || "image/jpeg" }); if (qr.error) proof = null; }
         sw = { photos: ph, proof: proof, consent: true, who: swWho }; }
+      // 特效照片：跟 logo、換人照片一樣傳到 ai-videos/<自己的 id>/，路徑和指定的特效記在工作的 fx 欄位
+      var fx = null; if (mode === "cut") { var fph = [];
+        if (fxFull()) for (var q = 0; q < fxPhotos.length; q++) { m.textContent = "上傳特效照片 " + (q + 1) + "/" + fxPhotos.length + "…"; var xf = fxPhotos[q].f, xp = uid + "/" + stamp + "_fx" + q + "." + ((xf.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"); var xr = await c.storage.from("ai-videos").upload(xp, xf, { contentType: xf.type || "image/jpeg" }); if (xr.error) throw new Error("照片上傳失敗：" + xr.error.message); fph.push({ path: xp, name: xf.name.slice(0, 120), use: fxPhotos[q].use }); }
+        var effs = fxOn.slice(); fxUsed().forEach(function (id) { if (effs.indexOf(id) < 0) effs.push(id); });
+        fx = { auto: !fxOn.length, effects: effs, photos: fph }; }
       var md = MODS.filter(function (q) { return q.id === pickMod; })[0], st = mode === "subs" ? "只上字幕：" + (md ? md.name : "") : (pickSt < 0 ? "交給 AI 挑" : VSTY[pickSt][0]);
       var mus = ($$("[data-mus]").filter(function (x) { return x.getAttribute("aria-pressed") === "true"; })[0] || {}).dataset; mus = mus ? mus.mus : "原創配樂";
       var note = $("#vNote").value + "（重點字顏色 " + $("#acc").value + "）（字幕大小 " + subSize + "）" + (mode === "subs" ? "" : "（配樂：" + mus + "）") + ($("#voOn").checked && $("#voText").value.trim() ? "【AI 配音稿】" + $("#voText").value.trim() : "");
-      var s = await c.rpc("ai_video_submit2", { p_files: up, p_style: st, p_note: note, p_logo: lp, p_mode: mode, p_module: pickMod || null, p_swap: sw }); if (s.error) throw new Error(s.error.message);
+      var s = await c.rpc("ai_video_submit3", { p_files: up, p_style: st, p_note: note, p_logo: lp, p_mode: mode, p_module: pickMod || null, p_swap: sw, p_fx: fx }); if (s.error) throw new Error(s.error.message);
       var lt = $("#vLogoT").value.trim(); if (lt) { await c.rpc("ai_job_edit", { p_id: s.data, p_edit: { sticky: lt, stickyPos: "tr" } }); }
       var gl = $("#vGloss").value.trim(); VAI.client().rpc("ai_glossary_set", { p_words: gl }).then(function () {}, function () {});
       var newJob = { id: s.data, files: up, mode: mode, module: mode === "subs" ? pickMod : null, note: note, status: "stt", edit: lt ? { sticky: lt, stickyPos: "tr" } : null };
       openJob = s.data; sttRun(newJob, gl);
-      pg.firstChild.style.width = "100%"; m.className = "msg ok"; m.textContent = "送出了！編號 #" + s.data + "，AI 正在打字幕，好了請在下面「我的影片」確認。" + (sw ? "換人的報價會用 LINE 跟你確認。" : ""); files = []; listFiles(); swPhotos = []; swProof = null; $("#swPh").value = ""; $("#swOk").checked = false; $("#swPhMsg").textContent = "還沒選照片，不換人就不用選"; $("#vNote").value = ""; VAI.refresh(); jobs();
+      pg.firstChild.style.width = "100%"; m.className = "msg ok"; m.textContent = "送出了！編號 #" + s.data + "，AI 正在打字幕，好了請在下面「我的影片」確認。" + (sw ? "換人的報價會用 LINE 跟你確認。" : ""); files = []; listFiles(); swPhotos = []; swProof = null; $("#swPh").value = ""; $("#swOk").checked = false; $("#swPhMsg").textContent = "還沒選照片，不換人就不用選"; $("#vNote").value = ""; fxPhotos.forEach(function (p) { URL.revokeObjectURL(p.url); }); fxPhotos = []; fxList(); VAI.refresh(); jobs();
     } catch (e) { m.className = "msg err"; m.textContent = e.message; }
     b.disabled = false; setTimeout(function () { pg.hidden = true; pg.firstChild.style.width = "0"; }, 1500); }
   var ST = { stt: "AI 打字幕中", review: "待你確認字幕", rendering: "待出片", queued: "已收到，24 小時內交片", working: "剪輯中，24 小時內交片", done: "完成", error: "有問題，我們會聯絡你" };

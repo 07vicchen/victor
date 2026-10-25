@@ -187,6 +187,12 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
 .vtop nav a{text-decoration:none;font:700 14px var(--body);color:#14110c;background:var(--gold);padding:7px 14px;border-radius:999px}
 @media (max-width:640px){.vtop nav{margin-left:0;width:100%}.vtop nav a{flex:1 1 auto;text-align:center}}
 .trialtag{display:inline-block;margin:14px 0 18px;padding:6px 14px;border:1px dashed var(--gold);border-radius:999px;color:var(--gold2);font:700 14.5px var(--body)}
+.fxstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 14px;max-width:640px}
+.fxstrip figure{margin:0;min-width:0}
+.fxstrip img{width:100%;height:auto;display:block;border:1px solid var(--line)}
+.fxstrip figcaption{font-size:12.5px;color:var(--mid);margin-top:4px}
+.fxnote{color:var(--mid);font-size:13.5px;margin:10px 0 0}
+@media(max-width:640px){.fxstrip{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -279,8 +285,8 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
 <section class="tool" id="video"><div class="in">
   <div class="thead">
     <div><div class="kick">TOOL 02 · AI 剪片</div><h2>一段素材，<br>剪成一支<em>看得完的片</em></h2>
-      <p>把拍好的影片丟進來，AI 剪片幫你剪掉停頓和口誤、把最抓人的那句放到開頭、排出起承轉合，再上逐字字幕和配樂。存下來就能發 IG、TikTok、YouTube Shorts。</p>
-      <ul class="ticks"><li>不會剪片也沒關係，選一種剪法就好</li><li>照爆款節奏剪，前 3 秒先抓住人</li><li>手機、相機拍的，橫的直的都可以</li><li>字幕專區：自己剪好的片，只上字幕，23 種字幕模組任選</li><li>AI 換人：換成你自己，或朋友授權的臉（專業方案以上加購，15 秒內 499 元起）</li></ul>
+      <p>把拍好的影片丟進來，AI 剪片幫你剪掉停頓和口誤、把最抓人的那句放到開頭、排出起承轉合，每句話都上字幕，再配上乾淨的質感特效和配樂。存下來就能發 IG、TikTok、YouTube Shorts。</p>
+      <ul class="ticks"><li>不會剪片也沒關係，選一種剪法就好</li><li>照爆款節奏剪，前 3 秒先抓住人</li><li>每句話都有字幕，剪完自動再聽一遍，漏的補上</li><li>9 種質感特效，商品照、作品、截圖可以放進去（專業以上；入門 3 種）</li><li>手機、相機拍的，橫的直的都可以</li><li>字幕專區：自己剪好的片，只上字幕，23 種字幕模組任選</li><li>AI 換人：換成你自己，或朋友授權的臉（專業方案以上加購，15 秒內 499 元起）</li></ul>
       <a class="btn" href="/ai-video">前往 AI 剪片，看方案</a></div>
     <div class="vshow"><canvas id="w1" width="270" height="480"></canvas><canvas id="w2" width="270" height="480"></canvas></div>
   </div>
@@ -289,21 +295,26 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
   <div class="fgrid">
     <div class="fi"><i>01</i><b>剪掉停頓和口誤</b><span>嗯、啊、講錯重講、沉默的空白，AI 自動找出來剪掉，一支三分鐘的素材常常剩不到一分鐘，節奏一下就緊了。</span></div>
     <div class="fi"><i>02</i><b>排出起承轉合</b><span>最抓人的那句標 ⭐ 就會放到開頭當鉤子；寫下你要的方向（例如 30 秒內、輕鬆搞笑），AI 會幫你挑該留哪幾句。</span></div>
-    <div class="fi"><i>03</i><b>逐字字幕，不擋臉</b><span>AI 自動聽寫上字幕，重點字換顏色。出片前會先給你確認，錯字直接改；填好品牌名、人名這些常用詞，AI 就不會打錯。</span></div>
-    <div class="fi"><i>04</i><b>原創配樂</b><span>背景音樂是原創配樂，沒有版權問題；也可以選不要配樂，發的時候用平台的熱門歌。不加晃動、閃白這類廉價特效。</span></div>
+    <div class="fi"><i>03</i><b>逐字字幕，不擋臉、不漏句</b><span>AI 自動聽寫上字幕，重點字換顏色，出片前先給你確認。完整剪片剪好後會把成品再聽一遍，有講話沒字幕的地方自動補上重剪；填好品牌名、人名這些常用詞，AI 就不會打錯。</span></div>
+    <div class="fi"><i>04</i><b>質感特效＋原創配樂</b><span>封面彈出、畫中畫、章節目錄這類乾淨的特效，可以放你上傳的照片；不晃、不亂放大、不閃白。背景音樂是原創配樂，沒有版權問題，也可以不要。</span></div>
     <div class="fi"><i>05</i><b>橫的變直的</b><span>橫拍的、多人對話的影片，AI 跟著講話的人臉裁成直式滿版；兩個人一來一往時可以上下分割。</span></div>
     <div class="fi"><i>06</i><b>標題、常駐文字、logo</b><span>上方標題可以設定一直在或只出現前幾秒；店名、IG、優惠可以設成常駐文字整支都在；logo 可以上傳圖片或直接打字。</span></div>
   </div>
 
-  <div class="monthly"><b>每月 1 號</b><div><strong>專業方案以上，每月新增 1～5 種剪法</strong><span>我們每個月研究當月爆款影片怎麼剪、用什麼字幕和轉場，做成新剪法放進去，每月新增 1～5 種（依當月爆款而定，不是固定 5 種）。專業方案（2,499）以上才有，不用另外加錢；入門方案不含；旗艦方案搶先一個月用。</span></div></div>
+  <div class="monthly"><b>每月 1 號</b><div><strong>專業方案以上，每月新增 1～5 種剪法</strong><span>我們每個月研究當月爆款影片怎麼剪、用什麼字幕和轉場，做成新剪法放進去，每月新增 1～5 種（依當月爆款而定，不是固定 5 種）。專業方案（2,999）以上才有，不用另外加錢；入門方案不含；旗艦方案搶先一個月用。</span></div></div>
 
   <h3 class="sub2">12 種剪法，照內容挑（專業以上每月新增 1～5 種）</h3>
   <div class="mods"><span>爆點跳字<em>口播</em></span><span>三段式知識框<em>教學</em></span><span>倒敘懸念<em>故事</em></span><span>聊天泡泡<em>Podcast</em></span><span>柔光質感<em>美業</em></span><span>命理字卡<em>命理</em></span><span>手寫筆記<em>療癒</em></span><span>綜藝爆笑<em>搞笑</em></span><span>直播帶貨<em>賣貨</em></span><span>新聞快報<em>時事</em></span><span>多人對話切鏡<em>Podcast</em></span><span>金句電影字卡<em>個人品牌</em></span></div>
 
+  <h3 class="sub2">9 種質感特效（可以放你的照片）</h3>
+  <div class="fxstrip" aria-label="質感特效示範畫面"><figure><img src="/ai/fx/fx_covers_photo.jpg" alt="封面彈出示範" width="540" height="960" loading="lazy"><figcaption>封面彈出</figcaption></figure><figure><img src="/ai/fx/fx_pip.jpg" alt="畫中畫示範" width="540" height="960" loading="lazy"><figcaption>畫中畫</figcaption></figure><figure><img src="/ai/fx/fx_featcards_photo.jpg" alt="功能卡輪播示範" width="540" height="960" loading="lazy"><figcaption>功能卡輪播</figcaption></figure><figure><img src="/ai/fx/fx_chapters.jpg" alt="章節目錄示範" width="540" height="960" loading="lazy"><figcaption>章節目錄</figcaption></figure></div>
+  <div class="mods"><span>封面彈出<em>可放照片</em></span><span>畫中畫<em>可放照片</em></span><span>深藍大字<em>金句</em></span><span>素材框<em>可放照片</em></span><span>功能卡輪播<em>可放照片</em></span><span>吊牌字<em>重點字</em></span><span>暖色系列<em>入門可用</em></span><span>章節目錄<em>入門可用</em></span><span>品牌 logo<em>入門可用</em></span></div>
+  <p class="fxnote">入門方案可用暖色系列、章節目錄、品牌 logo；專業方案以上 9 種全開，還能上傳照片放進特效（一次最多 12 張）。示範畫面用的是示範講者。</p>
+
   <h3 class="sub2">怎麼用</h3>
   <div class="steps">
     <div><b>STEP 1</b><strong>上傳素材</strong><span>最多 5 支，每支 500MB 以內（手機 1080p 大約 5～8 分鐘）。</span></div>
-    <div><b>STEP 2</b><strong>選剪法</strong><span>挑剪法或字幕模組，有特別交代寫在備註。</span></div>
+    <div><b>STEP 2</b><strong>選剪法和特效</strong><span>挑剪法、質感特效或字幕模組，想放進影片的照片一起傳，有特別交代寫在備註。</span></div>
     <div><b>STEP 3</b><strong>確認字幕、決定剪法</strong><span>AI 先打好字幕，你改錯字、剪掉不要的句子、標重點，預覽滿意再送出。</span></div>
     <div><b>STEP 4</b><strong>存下來就能發</strong><span>只上字幕馬上出片；完整剪片 24 小時內交片（旗艦 12 小時），下載 1080p 成品。</span></div>
   </div>
@@ -375,9 +386,11 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
     <details><summary>我完全不會修圖、不會剪片，用得來嗎？</summary><p>可以。你只要上傳照片或影片、選好想要的樣子，剩下 AI 會做。每一步畫面上都有說明，不用學任何軟體。</p></details>
     <details><summary>做出來的圖和影片，可以用在哪裡？</summary><p>都可以。成品存在你的手機或電腦，要上購物平台、官網、IG、Facebook、TikTok、YouTube 都行，沒有綁定任何平台。</p></details>
     <details><summary>有免費試用嗎？</summary><p>有。用 Google 登入會員，就送 3 次免費試用：AI 剪片 3 支（完整剪片 2 支、只上字幕 1 支，每支 60 秒內），AI 美編 3 件商品。試用的成品會有「免費試用」浮水印，不含 AI 換人。滿意再開通方案，最低 999 元一個月，不需要了下個月不續就好。AI 數據艙有免費版，比分、行情、討論區都不用錢，新會員再送 30 點。</p></details>
-    <details><summary>做好的影片會保存多久？</summary><p>AI 剪片的成品和你上傳的原始素材，完成後保存 3 天，請在 3 天內下載；「我的影片」會顯示倒數，最後 24 小時會變紅色提醒。超過 3 天系統會自動刪除，刪了就救不回來。AI 換人用的照片做完 24 小時內刪除，不留你的臉部資料。AI 美編的商品照是在你自己的手機或電腦上處理，不會存在我們這邊。</p></details>
+    <details><summary>做好的影片會保存多久？</summary><p>AI 剪片的成品、你上傳的原始素材和放進特效的照片，完成後只保留 3 天，請在 3 天內下載；「我的影片」會顯示倒數，最後 24 小時會變紅色提醒。超過 3 天系統會自動刪除，刪了就救不回來。AI 換人用的照片做完 24 小時內刪除，不留你的臉部資料。AI 美編的商品照是在你自己的手機或電腦上處理，不會存在我們這邊。</p></details>
     <details><summary>一定要放 logo 嗎？</summary><p>不用，logo 是選填。有上傳的話，AI 美編會放在每張圖的角落，AI 剪片會放在影片角落當浮水印，位置可以自己選。</p></details>
-    <details><summary>模組和剪法會更新嗎？</summary><p>會，但只有專業方案（2,499）以上有。每個月 1 號新增 1～5 款模組或剪法，數量看當月爆款而定，不是每個月固定 5 款。專業以上訂閱期間都能用，不用另外付錢；旗艦方案比別人早一個月用到。入門方案不含每月新增。</p></details>
+    <details><summary>可以把自己的照片放進影片裡嗎？</summary><p>可以，專業方案以上就能用。上傳商品照、作品、截圖或店面照片（一次最多 12 張），每張可以指定放在封面彈出、畫中畫、素材框或功能卡輪播；不指定就交給剪輯師挑合適的位置。照片跟影片一樣保留 3 天後自動刪除。入門方案可以用暖色系列、章節目錄、品牌 logo 三種特效，不能放照片。</p></details>
+    <details><summary>字幕會不會漏掉某幾句？</summary><p>完整剪片剪好之後，系統會把成品重新聽一遍，跟畫面上的字幕逐字對時間；有講話卻沒字幕的地方會自動補上再剪一次，確認每句都有字幕才交片。你有貼台詞的話，台詞沒寫到的話也會補上。</p></details>
+    <details><summary>模組和剪法會更新嗎？</summary><p>會，但只有專業方案（AI 美編 2,499、AI 剪片 2,999）以上有。每個月 1 號新增 1～5 款模組或剪法，數量看當月爆款而定，不是每個月固定 5 款。專業以上訂閱期間都能用，不用另外付錢；旗艦方案比別人早一個月用到。入門方案不含每月新增。</p></details>
     <details><summary>方案可以中途升級嗎？</summary><p>可以，隨時升級，立刻能用到更多模組或更多支數。</p></details>
     <details><summary>AI 換人可以換成明星或網紅嗎？</summary><p>不行。只能用你本人，或朋友同意給你用的照片。送出前要勾同意聲明，朋友的話建議附上他同意的對話截圖。成品會標示「AI 生成」，換人用的照片做完 24 小時內自動刪除。</p></details>
     <details><summary>AI 剪片的配樂會不會有版權問題？</summary><p>內建配樂是原創的，可以放心用。也可以選不要配樂，發的時候用平台內建的熱門歌。</p></details>
@@ -398,7 +411,7 @@ footer{border-top:1px solid var(--line);color:var(--dim);font-size:13px;padding-
 <script src="/ai/tpl.js"></script>
 <script src="/ai/vid.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="/ai/core.js"></script>
+<script src="/ai/core.js?v=1026"></script>
 <script>
 (function(){
 "use strict";

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AI 剪片｜維拓傳媒 AI 工具</title>
-<meta name="description" content="維拓 AI 剪片：素材丟進來，剪掉停頓口誤、排出起承轉合、上逐字字幕和配樂，拿到一支看得完的短影音。月租 999 元起。">
+<meta name="description" content="維拓 AI 剪片：素材丟進來，剪掉停頓口誤、排出起承轉合、每句話都上字幕，再加乾淨的質感特效和你自己的照片，拿到一支看得完的短影音。月租 999 元起。">
 <meta property="og:title" content="AI 剪片｜一段素材，剪成一支看得完的片">
 <meta property="og:description" content="剪停頓、排重點、上字幕配樂，存下來直接發。月租 999 元起。">
 <meta name="theme-color" content="#f6f5f1">
@@ -33,6 +33,32 @@
 .flist div span{color:var(--mid)}
 .pick2{display:flex;flex-wrap:wrap;gap:8px}
 [hidden]{display:none!important}
+.fxg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:start}
+.fxc{border:1px solid var(--line);background:#fff;min-width:0}
+.fxc[open]{border-color:var(--fg)}
+.fxc summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px}
+.fxc summary::-webkit-details-marker{display:none}
+.fxc summary img{width:48px;height:85px;object-fit:cover;display:block;background:#eee}
+.fxc summary b{font:700 15px var(--body);display:block}
+.fxc summary small{display:block;font-size:12.5px;color:var(--mid);line-height:1.5}
+.fxc summary em{font-style:normal;font:600 11px var(--num);color:var(--gold)}
+.fxc summary i{font-style:normal;color:var(--mid);transition:transform .2s}
+.fxc[open] summary i{transform:rotate(180deg)}
+.fxb{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;padding:0 12px 14px;align-items:start}
+.fxb img,.fxb video{width:150px;max-width:100%;aspect-ratio:9/16;object-fit:cover;display:block;background:#eee}
+.fxb p{margin:0 0 6px;font-size:14px;line-height:1.7}
+.ew{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:26px;align-items:center}
+.ew img{width:100%;height:auto;display:block;border:1px solid var(--line)}
+.ew ul{margin:10px 0 0;padding-left:20px;line-height:1.9}
+.fxsel{display:flex;gap:6px;flex-wrap:wrap}
+.fxsel img{width:40px;height:71px;object-fit:cover;border:1px solid var(--line)}
+.drop.sm{padding:14px}.fxrow .chip{white-space:nowrap}.drop.sm b{font-size:16px}
+.flist .fxrow{display:grid;justify-content:stretch;grid-template-columns:44px minmax(0,1fr) minmax(0,160px) auto;gap:10px;align-items:center;border:1px solid var(--line);background:#fff;padding:6px 10px}
+.flist .fxrow img{width:44px;height:44px;object-fit:cover;display:block}
+.flist .fxrow span{color:var(--fg);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.flist .fxrow select{padding:7px;border:1px solid var(--line);font:inherit;background:#fff;min-width:0;width:100%}
+@media(max-width:900px){.fxg{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.fxg{grid-template-columns:1fr}.ew{grid-template-columns:1fr}.flist .fxrow{grid-template-columns:44px minmax(0,1fr) auto}.flist .fxrow select{grid-column:1/-1}.flist .fxrow .chip{grid-column:3;grid-row:1}}
 .pickw{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:20px;align-items:start}
 .pickl{min-width:0;display:grid;gap:12px}
 .pk{margin:6px 0 0;font-size:15px}.pk .note{font-weight:400;margin-left:4px}
@@ -62,7 +88,7 @@
 <body>
 <div class="wrap">
   <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>AI TOOLS</small></div></a>
-    <div class="tabs"><a href="/ai-tools">AI 工具</a><a href="/ai-design">AI 美編</a><a href="/ai-video" aria-current="page">AI 剪片</a><a href="#subs">字幕專區</a></div>
+    <div class="tabs"><a href="/ai-tools">AI 工具</a><a href="/ai-design">AI 美編</a><a href="/ai-video" aria-current="page">AI 剪片</a><a href="#fx">質感特效</a><a href="#subs">字幕專區</a></div>
     <div class="who" id="who"><a class="btn sm" href="#member">登入會員</a></div></nav>
 
   <section class="hero" id="top">
@@ -70,7 +96,7 @@
       <div class="kicker">VICTOR MEDIA // AI 剪片</div>
       <div class="oc"><i>⚡</i>一鍵完成</div>
       <h1>一段素材，<br><span>一鍵</span>剪成看得完的片</h1>
-      <p class="lead">把拍好的影片丟進來，AI 剪片幫你剪掉停頓和口誤、把最抓人的那句放到開頭、排出起承轉合，再上逐字字幕和配樂。存下來就能發 IG、TikTok、YouTube Shorts。</p>
+      <p class="lead">把拍好的影片丟進來，AI 剪片幫你剪掉停頓和口誤、把最抓人的那句放到開頭、排出起承轉合，每句話都上字幕，再配上乾淨的質感特效。你的商品照和 logo 也能一起放進去，存下來就能發 IG、TikTok、YouTube Shorts。</p>
       <div class="ocs" aria-label="三步驟"><div><b>STEP 1</b><strong>丟進素材</strong><small>手機、相機都可以</small></div><span>→</span><div class="go"><b>STEP 2</b><strong>按一下</strong><small>剪停頓、排重點、上字幕配樂</small></div><span>→</span><div><b>STEP 3</b><strong>確認字幕就出片</strong><small>只上字幕當場出片</small></div></div>
       <div class="cta"><a class="btn" href="#plans">看方案</a><a class="btn gh" href="#member">會員登入開始用</a></div>
       <div class="stats"><div><b>12</b><span>種剪法</span></div><div><b>3</b><span>秒抓住注意力</span></div><div><b>150</b><span>支／月（旗艦）</span></div></div>
@@ -83,16 +109,27 @@
     <div class="feats">
       <div class="feat"><span class="ic">01</span><b>剪掉停頓和口誤</b><span>嗯、啊、講錯重講、沉默空白自動剪掉，節奏一下就緊了。</span></div>
       <div class="feat"><span class="ic">02</span><b>排出起承轉合</b><span>最精彩那句放開頭，再照因果排好，觀眾才會看完。</span></div>
-      <div class="feat"><span class="ic">03</span><b>字幕先給你確認</b><span>AI 聽寫上字幕，出片前先給你確認：改錯字、✂ 剪掉句子、⭐ 重點放開頭。</span></div>
-      <div class="feat"><span class="ic">04</span><b>原創配樂、不加廉價特效</b><span>配樂是原創的，沒有版權問題，也可以不要。不加晃動、閃白這類特效。</span></div>
+      <div class="feat"><span class="ic">03</span><b>每句話都有字幕</b><span>出片前先給你確認字幕；剪好之後再把成品聽一遍，有講話沒字幕的地方自動補上重剪。</span></div>
+      <div class="feat"><span class="ic">04</span><b>質感特效，不吵不亂</b><span>封面彈出、畫中畫、章節目錄這類乾淨的特效，可以放你的照片。不晃、不亂放大、不閃白；配樂是原創的，沒有版權問題。</span></div>
       <div class="feat"><span class="ic">05</span><b>橫的變直的</b><span>橫拍、多人對話也行，跟著講話的人臉裁成直式滿版。</span></div>
-      <div class="feat"><span class="ic">06</span><b>每月新增剪法</b><span>專業方案（2,499）以上，每月 1 號新增 1～5 種，照當月爆款影片的剪法更新。入門方案不含。</span></div>
+      <div class="feat"><span class="ic">06</span><b>每月新增剪法</b><span>專業方案（2,999）以上，每月 1 號新增 1～5 種，照當月爆款影片的剪法更新。入門方案不含。</span></div>
     </div>
   </section>
 
   <section class="sect">
     <div class="sh"><small>12 STYLES</small><h2>12 種剪法，照內容挑</h2><p>每種的字幕和節奏都不一樣，也可以交給 AI 挑。入門方案可用爆點跳字、三段式知識框、直播帶貨 3 種，專業以上 12 種全開，而且每月新增 1～5 種。</p></div>
     <div class="styles" id="styles"></div>
+  </section>
+
+  <section class="sect" id="fx">
+    <div class="sh"><small>9 EFFECTS</small><h2>9 種質感特效，可以放你的照片</h2><p>米白底、深藍字，乾淨不吵：不震、不突然放大、不加吵的音效。標「可放照片」的，上傳商品照、作品或截圖就會用進去；沒放照片也有乾淨的預設樣子。入門方案可用暖色系列、章節目錄、品牌 logo 3 種，專業以上 9 種全開。點一張看示範。</p></div>
+    <div class="fxg" id="fxCards"></div>
+  </section>
+
+  <section class="sect" id="everyword">
+    <div class="ew"><div class="sh" style="margin:0"><small>EVERY WORD</small><h2>每一句話都有字幕</h2><p>很多人關靜音在滑，漏一句就少一個人看完。完整剪片剪好之後，會把成品重新聽一遍，跟畫面上的字幕逐字對時間；有講話卻沒字幕的地方，自動補上再剪一次（最多重剪 2 次），確認每句都有字幕才交給你。</p>
+      <ul><li>你貼了台詞，台詞沒寫到的話也會補上字幕</li><li>字幕放在臉下方的安全位置，不擋臉</li><li>只上字幕的影片，出片前你可以逐句確認</li></ul></div>
+      <figure style="margin:0"><img src="/ai/fx/fx_subfix.jpg" width="540" height="480" alt="左邊是漏字的畫面，右邊是自動補上字幕之後" loading="lazy"><figcaption class="note" style="margin-top:6px">左：漏了一句沒字幕。右：自動補上之後。（示範講者）</figcaption></figure></div>
   </section>
 
   <section class="sect" id="subs">
@@ -117,7 +154,7 @@
   </section>
 
   <section class="sect" id="plans">
-    <div class="sh"><small>PLANS</small><h2>方案：月租 999 起</h2><p>登入就送 3 次免費試用：完整剪片 2 支、只上字幕 1 支（60 秒內，有試用浮水印），滿意再開通。按月付費，隨時升級。年繳付 10 個月用 12 個月。沒用完的支數不累積到下個月。成品和素材保存 3 天，請在 3 天內下載。</p></div>
+    <div class="sh"><small>PLANS</small><h2>方案：月租 999 起</h2><p>登入就送 3 次免費試用：完整剪片 2 支、只上字幕 1 支（60 秒內，有試用浮水印），滿意再開通。按月付費，隨時升級。年繳付 10 個月用 12 個月。沒用完的支數不累積到下個月。<b>上傳的影片、照片和剪好的成品都只保留 3 天</b>，第 3 天自動刪除，請在 3 天內下載。</p></div>
     <div class="bar" style="margin-bottom:14px"><span class="note">付款方式</span><button class="chip" type="button" data-bill="month" aria-pressed="true">月繳</button><button class="chip" type="button" data-bill="year" aria-pressed="false">年繳（送 2 個月）</button></div>
     <div class="plans" id="planCards"></div>
     <div id="extras"></div>
@@ -138,11 +175,23 @@
           <div class="flist" id="flist"></div>
         </div>
         <div class="panel" id="cutPanel">
-          <div class="ph"><b>2</b><div><h3>選剪法</h3><p>決定影片怎麼剪、節奏怎麼走。不知道選哪個，就選「交給 AI 挑」。</p></div></div>
+          <div class="ph"><b>2</b><div><h3>選剪法</h3><p>決定影片怎麼剪、節奏怎麼走。不知道選哪個，就選「交給 AI 挑」。剪好之後會再聽一遍成品，每句話都有字幕才交片。</p></div></div>
           <div class="pickw"><div class="pickl">
           <div class="pick2" id="stPick"></div>
           <p class="note" id="stNote"></p>
           </div><div class="pvb"><canvas id="pvA" width="270" height="480" aria-label="剪法預覽"></canvas><p class="note" id="pvCapA"></p></div></div>
+        </div>
+        <div class="panel" id="fxPanel">
+          <div class="ph"><b>3</b><div><h3>質感特效和照片（選填）</h3><p>可以多選；都不選就交給啾咪看內容決定。想讓影片裡出現你的商品、作品、截圖或店面，就把照片丟進來。</p></div></div>
+          <div class="pick2" id="fxPick"></div>
+          <p class="note" id="fxNote"></p>
+          <div class="fxsel" id="fxSel" aria-live="polite"></div>
+          <div id="fxPhBox">
+            <div class="drop sm"><input type="file" id="fxPh" accept="image/jpeg,image/png,image/webp,image/heic,image/*" multiple aria-label="選擇要放進特效的照片"><b>點這裡選照片，可以一次選很多張</b><span class="note">jpg、png 都可以，最多 12 張、每張 10MB 以內。每張可以指定放在哪個特效，不指定就交給啾咪挑位置。</span></div>
+            <div class="flist" id="fxList"></div>
+          </div>
+          <p class="note" id="fxLock" hidden>入門方案可以用暖色系列、章節目錄、品牌 logo 3 種；升級專業方案就能用全部 9 種，還能放自己的照片。</p>
+          <p class="note">照片跟影片一樣只保留 3 天，第 3 天自動刪除，之後要再用請重新上傳。</p>
         </div>
         <div class="panel" id="subPanel">
           <div class="ph"><b id="subNo">3</b><div><h3>選字幕樣式</h3><p id="subP">決定字幕長什麼樣子。不選就用剪法配好的那款。</p></div></div>
@@ -174,7 +223,7 @@
         </div>
         <div class="bar"><button class="btn" type="button" id="send">交給 AI 剪（用掉 1 支）</button><span class="msg" id="sendMsg"></span></div>
         <div class="prog" id="prog" hidden><i></i></div>
-        <div class="sh" style="margin-top:20px"><h2 style="font-size:24px">我的影片</h2><p>AI 會先把字幕打好給你確認，確認後才出片。做好會顯示「完成」，按下載就能存下來（請直接上傳到平台，不要先用 LINE 傳，會被壓糊）。<b>成品和素材完成後保存 3 天</b>，下面會顯示倒數，過了會自動刪除。</p></div>
+        <div class="sh" style="margin-top:20px"><h2 style="font-size:24px">我的影片</h2><p>AI 會先把字幕打好給你確認，確認後才出片。做好會顯示「完成」，按下載就能存下來（請直接上傳到平台，不要先用 LINE 傳，會被壓糊）。<b>影片、照片和成品完成後只保留 3 天</b>，下面會顯示倒數，過了會自動刪除。</p></div>
         <div class="jobs" id="jobs"></div>
       </div>
     </div>
@@ -187,8 +236,8 @@
 <script>var F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif',N='"Roboto","Noto Sans TC",sans-serif';</script>
 <script src="/ai/vid.js"></script>
 <script src="/ai/subfx.js"></script>
-<script src="/ai/core.js"></script>
+<script src="/ai/core.js?v=1026"></script>
 <script src="/ai/subjob.js?v=1025b"></script>
-<script src="/ai/video.js"></script>
+<script src="/ai/video.js?v=1026"></script>
 </body>
 </html>
