@@ -43,6 +43,7 @@
   function bgFill(ctx, W, H, st, col) { if (st.bg) { ctx.fillStyle = col || "#0c0c0c"; ctx.fillRect(0, 0, W, H); } }
   function dark(st) { return st.bg ? "#ffffff" : "#ffffff"; }
 
+  function lumOf(c) { var m = /^#([0-9a-f]{6})/i.exec(c || ""); if (!m) return 0; var n = parseInt(m[1], 16); return (.299 * (n >> 16) + .587 * (n >> 8 & 255) + .114 * (n & 255)) / 255; }
   var M = [];
   function add(id, name, fit, desc, draw, opt) { M.push(Object.assign({ id: id, name: name, fit: fit, desc: desc, draw: draw, accent: "#FF3B30" }, opt || {})); }
 
@@ -219,6 +220,31 @@
       ctx.textAlign = "left"; if (now) colorRun(ctx, L, tx, y, "#fff", st.accent, { align: "left" }); else { ctx.fillStyle = "#fff"; ctx.fillText(t, tx, y); }
       if (done) { var sp = eo((st.t - L.e) / .3); ctx.strokeStyle = st.accent; ctx.lineWidth = 5 * u; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(tx - 4 * u, y); ctx.lineTo(tx - 4 * u + (tw + 8 * u) * sp, y); ctx.stroke(); } });
     ctx.restore(); }, { accent: "#FFE14D" });
+  // 25 彩色膠囊底框（2026-11 新增，專業以上）
+  add("capsule", "彩色膠囊底框", "品牌店家、美業、電商", "每個詞組墊一塊圓角膠囊色塊，一次最多兩組，重點詞換成黑底白字，品牌色帶得進去。", function (ctx, W, H, st) {
+    var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) return; var L = st.lines[i], ps = parts(L), d = (L.e - L.s) / ps.length, n = clamp(Math.floor((st.t - L.s) / d) + 1, 1, ps.length), from = Math.max(0, n - 2);
+    var px = font(ctx, 800, 56 * u), padX = 20 * u, padY = 10 * u, h = px + padY * 2, gap = 12 * u, ws = [], tot = 0;
+    for (var k = from; k < n; k++) { var w = ctx.measureText(ps[k]).width + padX * 2; ws.push(w); tot += w; } tot += gap * (ws.length - 1);
+    if (tot > W * .9) { var sc = W * .9 / tot; px *= sc; ctx.font = "800 " + Math.round(px) + "px " + SANS; h = px + padY * 2; tot = 0; ws = []; for (k = from; k < n; k++) { w = ctx.measureText(ps[k]).width + padX * 2; ws.push(w); tot += w; } tot += gap * (ws.length - 1); }
+    var x = (W - tot) / 2, y = H * .70; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    for (k = from; k < n; k++) { var a = eo((st.t - (L.s + k * d)) / .15), hl = isHL(L, ps[k]), bw = ws[k - from]; ctx.globalAlpha = clamp(a, 0, 1);
+      if (!st.bg) { ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowBlur = 10 * u; ctx.shadowOffsetY = 3 * u; }
+      ctx.fillStyle = hl ? "#111111" : st.accent; rrect(ctx, x, y - h / 2, bw, h, h / 2); ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; if (hl) { ctx.lineWidth = 3 * u; ctx.strokeStyle = st.accent; ctx.stroke(); }
+      ctx.fillStyle = hl ? "#ffffff" : (lumOf(st.accent) > .6 ? "#111111" : "#ffffff"); ctx.fillText(ps[k], x + bw / 2, y + u); x += bw + gap; }
+    ctx.globalAlpha = 1; }, { accent: "#FFD400" });
+
+  // 26 一卡一句（2026-11 新增，專業以上；剪法「一卡一句清單」用這個）
+  add("cardlist", "一卡一句", "顧問、老師、理財、觀念分享", "一句話一張卡，大字放畫面中間偏上，左上角有「01／05」編號，背景壓暗，換句慢慢淡入，好讀又好存。", function (ctx, W, H, st) {
+    var u = W / 720, i = cur(st); bgFill(ctx, W, H, st, "#141414"); if (i < 0) return; var L = st.lines[i], a = eo((st.t - L.s) / .4) * clamp((L.e - st.t) / .25 + .3, 0, 1);
+    if (!st.bg) { ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.fillRect(0, 0, W, H); }
+    ctx.globalAlpha = clamp(a, 0, 1); var t = plain(L), px = font(ctx, 900, 64 * u), lines = wrap(ctx, t, W * .8);
+    while (lines.length > 2 && px > 20 * u) { px *= .92; ctx.font = "900 " + Math.round(px) + "px " + SANS; lines = wrap(ctx, t, W * .8); }
+    ctx.textAlign = "center"; ctx.textBaseline = "middle"; var lh = px * 1.3, y0 = H * .42 - (lines.length - 1) * lh / 2, m = marks(L), at = 0;
+    lines.forEach(function (ln, r) { var lw = ctx.measureText(ln).width, cx = W / 2 - lw / 2; ctx.textAlign = "left";
+      for (var q = 0; q < ln.length; q++) { var c = ln[q]; if (!st.bg) { ctx.lineJoin = "round"; ctx.lineWidth = 6 * u; ctx.strokeStyle = "rgba(0,0,0,.55)"; ctx.strokeText(c, cx, y0 + r * lh); }
+        ctx.fillStyle = m[at + q] ? "#ffffff" : st.accent; ctx.fillText(c, cx, y0 + r * lh); cx += ctx.measureText(c).width; } at += ln.length; });
+    var num = String(i + 1).padStart(2, "0") + "／" + String(st.lines.length).padStart(2, "0"); ctx.font = "700 " + Math.round(30 * u) + "px " + SANS; ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.fillText(num, 44 * u, 120 * u);
+    ctx.globalAlpha = 1; }, { accent: "#F5D76E" });
 
   root.SUBFX = { size: function (k) { var o = SIZE; SIZE = +k > 0 ? +k : 0.9; return o; }, list: M, SANS: SANS, SERIF: SERIF,
     demo: [{ s: 0, e: 1.2, t: "這種字幕|怎麼做？", hl: ["字幕"] }, { s: 1.2, e: 2.2, t: "很多人問我", hl: [] }, { s: 2.2, e: 3.6, t: "是不是要|一格一格調", hl: ["一格一格"] }, { s: 3.6, e: 4.4, t: "不用！", hl: ["不用"] },
