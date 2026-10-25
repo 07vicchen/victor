@@ -196,8 +196,8 @@
     var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) return; var L = st.lines[i], p = eb((st.t - L.s) / .2); font(ctx, 900, 54 * u, null, plain(st.lines[i])); ctx.textBaseline = "middle"; var t = plain(L), w = ctx.measureText(t).width, x = (W - w) / 2, y = H * .72;
     ctx.save(); ctx.translate(W / 2, y); ctx.scale(p, p); ctx.translate(-W / 2, -y); ctx.fillStyle = "rgba(0,0,0,.85)"; rrect(ctx, x - 24 * u, y - 44 * u, w + 48 * u, 88 * u, 16 * u); ctx.fill(); colorRun(ctx, L, x, y, "#fff", st.accent, { align: "left" }); ctx.restore(); }, { accent: "#FFD400" });
 
-  // 25 彩色膠囊底框（2026-11 新增，專業以上）
-  add("capsule", "彩色膠囊底框", "品牌店家、美業、電商", "每個詞組墊一塊圓角膠囊色塊，一次最多兩組，重點詞換成黑底白字，品牌色帶得進去。", function (ctx, W, H, st) {
+  // 25 彩色膠囊底色（2026-11 新增，專業以上）
+  add("capsule", "彩色膠囊底色", "品牌店家、美業、電商", "每個詞組墊一塊膠囊形色塊，一次最多兩組，重點詞換成黑底白字，顏色可以換成你的品牌色。", function (ctx, W, H, st) {
     var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) return; var L = st.lines[i], ps = parts(L), d = (L.e - L.s) / ps.length, n = clamp(Math.floor((st.t - L.s) / d) + 1, 1, ps.length), from = Math.max(0, n - 2);
     var px = font(ctx, 800, 56 * u), padX = 20 * u, padY = 10 * u, h = px + padY * 2, gap = 12 * u, ws = [], tot = 0;
     for (var k = from; k < n; k++) { var w = ctx.measureText(ps[k]).width + padX * 2; ws.push(w); tot += w; } tot += gap * (ws.length - 1);
@@ -209,8 +209,8 @@
       ctx.fillStyle = hl ? "#ffffff" : (lumOf(st.accent) > .6 ? "#111111" : "#ffffff"); ctx.fillText(ps[k], x + bw / 2, y + u); x += bw + gap; }
     ctx.globalAlpha = 1; }, { accent: "#FFD400" });
 
-  // 26 一卡一句（2026-11 新增，專業以上；剪法「一卡一句清單」用這個）
-  add("cardlist", "一卡一句", "顧問、老師、理財、觀念分享", "一句話一張卡，大字放畫面中間偏上，左上角有「01／05」編號，背景壓暗，換句慢慢淡入，好讀又好存。", function (ctx, W, H, st) {
+  // 26 一卡一句（2026-11 新增，專業以上；剪法「編號字卡」用這個）
+  add("cardlist", "一卡一句", "顧問、老師、理財、觀念分享", "一句話一張卡，大字放畫面中間偏上，左上角有 01／05 編號，背景壓暗，換句慢慢淡入，一眼就看得清楚。", function (ctx, W, H, st) {
     var u = W / 720, i = cur(st); bgFill(ctx, W, H, st, "#141414"); if (i < 0) return; var L = st.lines[i], a = eo((st.t - L.s) / .4) * clamp((L.e - st.t) / .25 + .3, 0, 1);
     if (!st.bg) { ctx.fillStyle = "rgba(0,0,0,.4)"; ctx.fillRect(0, 0, W, H); }
     ctx.globalAlpha = clamp(a, 0, 1); var t = plain(L), px = font(ctx, 900, 64 * u), lines = wrap(ctx, t, W * .8);
