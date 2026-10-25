@@ -118,7 +118,7 @@
       var su = await c.storage.from("ai-videos").createSignedUrl(j.result, 600); if (su.error) throw new Error(su.error.message);
       var bl = await (await fetch(su.data.signedUrl)).blob(), im = new Image();
       await new Promise(function (ok, no) { im.onload = ok; im.onerror = no; im.src = URL.createObjectURL(bl); });
-      return { img: im, note: "已用 AI 去背" };
+      return { img: im, note: j.note || "已用 AI 去背" };
     } catch (e) { return loc("AI 去背暫時連不上"); } }
   async function aiCut() { var b = $("#cut"), m = $("#msg"); b.disabled = true; m.textContent = "AI 去背中，大約 10～30 秒…";
     try { var r = await cutImage(origImg, function (t) { m.textContent = t; }); if (r.img) useCut(r.img, r.note); else m.textContent = r.note; } finally { b.disabled = false; } }
