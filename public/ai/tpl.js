@@ -7,15 +7,16 @@ var P={name:"不鏽鋼真空保溫瓶 500ml",head:"冰塊放一天都還在",bad
 // ---------- 示範商品：畫一個保溫瓶（透明背景） ----------
 function sampleProduct(){const c=document.createElement("canvas");c.width=600;c.height=1000;const g=c.getContext("2d");
   const body=g.createLinearGradient(150,0,450,0);body.addColorStop(0,"#3a3d44");body.addColorStop(.35,"#6b707b");body.addColorStop(.5,"#8b909b");body.addColorStop(1,"#2a2d33");
-  rr(g,150,250,300,700,60);g.fillStyle=body;g.fill();
-  g.fillStyle="#ffffff22";rr(g,190,300,26,600,13);g.fill();
+  rr0(g,150,250,300,700,60);g.fillStyle=body;g.fill();
+  g.fillStyle="#ffffff22";rr0(g,190,300,26,600,13);g.fill();
   const lid=g.createLinearGradient(170,0,430,0);lid.addColorStop(0,"#1c1d21");lid.addColorStop(.5,"#45474e");lid.addColorStop(1,"#141518");
-  rr(g,175,110,250,150,30);g.fillStyle=lid;g.fill();rr(g,210,60,180,70,22);g.fill();
+  rr0(g,175,110,250,150,30);g.fillStyle=lid;g.fill();rr0(g,210,60,180,70,22);g.fill();
   g.strokeStyle="#2a2b30";g.lineWidth=26;g.beginPath();g.arc(300,70,70,Math.PI*1.1,Math.PI*1.9);g.stroke();
   g.fillStyle="#c8963e";g.fillRect(150,262,300,10);
   g.fillStyle="#ffffffcc";g.font=`700 34px ${N}`;g.textAlign="center";g.fillText("VICTOR",300,640);g.font=`500 18px ${N}`;g.fillText("THERMO 500",300,672);
   return c}
-function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+function rr(g,x,y,w,h,r){const sk=typeof sty==="undefined"?"s":sty;r=Math.max(0,Math.min(r*(sk==="k"?1.5:sk==="st"?.15:1),w/2,h/2));rr0(g,x,y,w,h,r)}
+function rr0(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
 const iw=i=>i.naturalWidth||i.width,ih=i=>i.naturalHeight||i.height;
 function fit(g,img,x,y,w,h,mode){const r=mode==="cover"?Math.max(w/iw(img),h/ih(img)):Math.min(w/iw(img),h/ih(img)),W=iw(img)*r,H=ih(img)*r;g.drawImage(img,x+(w-W)/2,y+(h-H)/2,W,H);return [x+(w-W)/2,y+(h-H)/2,W,H]}
 function shadow(g,cx,y,w){const gr=g.createRadialGradient(cx,y,0,cx,y,w/2);gr.addColorStop(0,"#00000033");gr.addColorStop(1,"#00000000");g.save();g.scale(1,.18);g.fillStyle=gr;g.beginPath();g.arc(cx,y/.18,w/2,0,7);g.fill();g.restore()}
@@ -54,6 +55,10 @@ function motif(g,t){const a=t.dark?.10:.07;g.save();
   g.globalAlpha=1;g.strokeStyle=col;g.lineWidth=5;[[24,24,1,1],[S-24,24,-1,1],[24,S-24,1,-1],[S-24,S-24,-1,-1]].forEach(([x,y,dx,dy])=>{g.beginPath();g.moveTo(x,y+dy*46);g.lineTo(x,y);g.lineTo(x+dx*46,y);g.stroke()})}
  else if(t.motif==="paper"){let sd=7;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;g.fillStyle=t.dark?"#ffffff":"#8a5a2b";for(let i=0;i<900;i++){g.globalAlpha=rnd()*(t.dark?.08:.10);g.fillRect(rnd()*S,rnd()*S,1.6,1.6)}
   g.globalAlpha=t.dark?.45:.55;g.strokeStyle=col;g.lineWidth=3;g.setLineDash([14,10]);rr(g,22,22,S-44,S-44,t.r+10);g.stroke();g.setLineDash([])}
+ else if(t.motif==="none"&&t.hdr==="tape"){let sd=11;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;g.fillStyle="#ffffff";for(let i=0;i<1400;i++){g.globalAlpha=rnd()*.07;g.fillRect(rnd()*S,rnd()*S,1.5,1.5)}
+  g.globalAlpha=1;g.save();g.beginPath();g.moveTo(S-230,S);g.lineTo(S,S-230);g.lineTo(S,S-150);g.lineTo(S-150,S);g.closePath();g.clip();for(let k=-10;k<20;k++){g.fillStyle=k%2?col:"#111214";g.beginPath();g.moveTo(S-300+k*26,S);g.lineTo(S-300+k*26+26,S);g.lineTo(S+k*26+26,S-300);g.lineTo(S+k*26,S-300);g.closePath();g.fill()}g.restore()}
+ else if(t.motif==="none"&&t.hdr==="serif"){g.globalAlpha=.55;g.fillStyle=t.bg2;g.beginPath();g.moveTo(250,S-40);g.lineTo(250,470);g.arc(540,470,290,Math.PI,0);g.lineTo(830,S-40);g.closePath();g.fill();g.globalAlpha=1;g.strokeStyle=t.line;g.lineWidth=2;rr0(g,28,28,S-56,S-56,30);g.stroke();
+  txt(g,"daily",S-74,S-60,`italic 500 40px "Playfair Display",Georgia,serif`,mix(col,t.bg,.35),"right")}
  else if(t.motif==="geo"){g.globalAlpha=t.dark?.22:.16;g.strokeStyle=col;g.lineWidth=3;for(let k=0;k<7;k++){g.beginPath();g.moveTo(S-260+k*40,S);g.lineTo(S,S-260+k*40);g.stroke()}
   g.fillStyle=col;for(let x=0;x<5;x++)for(let y=0;y<3;y++){g.beginPath();g.arc(S-210+x*30,52+y*30,3.2,0,7);g.fill()}}
  g.restore();
@@ -172,7 +177,11 @@ function shirt(color){if(shirtCache[color])return shirtCache[color];var c=docume
 var shirtImg=()=>prodUp||shirt(CP.colors[0][1]==="#f2f1ed"?"#e9e7e1":CP.colors[0][1]);
 function Z(){const t=TH();return {name:(STS[sty]||STS.s).name,bg:t.bg,panel:t.bg2,ink:t.ink,mute:t.sub,w:t.tw,tf:t.tf}}
 function bgFill(g){bgPaint(g)}
-function hdA(g,t,x,y,size,color,align){var z=Z();txt(g,t,x,y,`${z.w} ${size}px ${z.tf||F}`,color||z.ink,align)}
+function clothTitle(g,t){const T=TH();
+ if(T.hdr==="serif"){txt(g,t,S/2,88,`${T.tw} 58px ${T.tf}`,T.ink,"center");g.strokeStyle=col;g.lineWidth=2;g.beginPath();g.moveTo(S/2-110,138);g.lineTo(S/2-18,138);g.moveTo(S/2+18,138);g.lineTo(S/2+110,138);g.stroke();g.fillStyle=col;g.beginPath();g.arc(S/2,138,5,0,7);g.fill();return}
+ if(T.hdr==="tape"){g.font=`900 60px ${T.tf}`;const w=Math.min(S-300,g.measureText(t).width+56);g.save();g.translate(44,36);g.rotate(-.03);g.fillStyle=col;g.fillRect(0,0,w,100);g.restore();txt(g,t,70,88,`900 60px ${T.tf}`,lum(col)>.62?"#111":"#fff");return}
+ txt(g,t,60,90,`${T.tw} 64px ${T.tf}`,T.ink)}
+function hdA(g,t,x,y,size,color,align){var z=Z();if(x===60&&y===90&&!color&&size>=56)return clothTitle(g,t);txt(g,t,x,y,`${z.w} ${size}px ${z.tf||F}`,color||z.ink,align)}
 function bars(g,label,v,x,y,w){var z=Z();txt(g,label,x,y,`700 34px ${F}`,z.ink);for(let i=0;i<5;i++){rr(g,x+210+i*(w-210)/5,y-16,(w-210)/5-10,32,8);g.fillStyle=i<v?col:z.panel;g.fill()}}
 function tableAt(g,rows,x,y,w,rh){var z=Z(),cw=w/rows[0].length;rows.forEach((r,ri)=>r.forEach((c,ci)=>{g.fillStyle=ri===0?col:(ri%2?z.panel:z.bg);g.fillRect(x+ci*cw,y+ri*rh,cw,rh);g.strokeStyle=z.mute+"55";g.lineWidth=2;g.strokeRect(x+ci*cw,y+ri*rh,cw,rh);
   txt(g,c,x+ci*cw+cw/2,y+ri*rh+rh/2,`${ri===0||ci===0?800:500} ${ri===0?34:32}px ${F}`,ri===0?"#fff":z.ink,"center")}))}
@@ -278,17 +287,17 @@ var IND={
 };
 function useInd(k){const d=IND[k]||IND.gen;["name","head","badges","price","orig","sizes","colors","spots","sizeTitle","sizeEn","sizeNotes","colorTitle","colorUnit","ba"].forEach(f=>{P[f]=JSON.parse(JSON.stringify(d[f]))})}
 function sampleFor(k){if(k==="gen"||!IND[k])return sampleProduct();const c=document.createElement("canvas");c.width=600;c.height=1000;const g=c.getContext("2d");
- if(k==="beauty"){const gl=g.createLinearGradient(170,0,430,0);gl.addColorStop(0,"#6b3f2a");gl.addColorStop(.4,"#b07a55");gl.addColorStop(.55,"#c99a74");gl.addColorStop(1,"#5a3322");rr(g,170,420,260,520,50);g.fillStyle=gl;g.fill();
-  g.fillStyle="#ffffff2a";rr(g,200,460,22,440,11);g.fill();g.fillStyle="#f5efe6";rr(g,210,580,180,220,10);g.fill();g.fillStyle="#6b3f2a";g.font="700 30px sans-serif";g.textAlign="center";g.fillText("HYALURONIC",300,650);g.font="500 22px sans-serif";g.fillText("SERUM 30ml",300,700);
-  const cap=g.createLinearGradient(220,0,380,0);cap.addColorStop(0,"#c9a36a");cap.addColorStop(.5,"#f1dcae");cap.addColorStop(1,"#a8834c");rr(g,220,330,160,100,14);g.fillStyle=cap;g.fill();
-  g.fillStyle="#1f1f1f";rr(g,245,120,110,220,55);g.fill();g.fillStyle="#3a3a3a";rr(g,262,140,24,170,12);g.fill()}
- else if(k==="tech"){const cs=g.createLinearGradient(100,0,500,0);cs.addColorStop(0,"#1a1b1f");cs.addColorStop(.5,"#3b3e46");cs.addColorStop(1,"#121316");rr(g,100,520,400,300,120);g.fillStyle=cs;g.fill();
+ if(k==="beauty"){const gl=g.createLinearGradient(170,0,430,0);gl.addColorStop(0,"#6b3f2a");gl.addColorStop(.4,"#b07a55");gl.addColorStop(.55,"#c99a74");gl.addColorStop(1,"#5a3322");rr0(g,170,420,260,520,50);g.fillStyle=gl;g.fill();
+  g.fillStyle="#ffffff2a";rr0(g,200,460,22,440,11);g.fill();g.fillStyle="#f5efe6";rr0(g,210,580,180,220,10);g.fill();g.fillStyle="#6b3f2a";g.font="700 30px sans-serif";g.textAlign="center";g.fillText("HYALURONIC",300,650);g.font="500 22px sans-serif";g.fillText("SERUM 30ml",300,700);
+  const cap=g.createLinearGradient(220,0,380,0);cap.addColorStop(0,"#c9a36a");cap.addColorStop(.5,"#f1dcae");cap.addColorStop(1,"#a8834c");rr0(g,220,330,160,100,14);g.fillStyle=cap;g.fill();
+  g.fillStyle="#1f1f1f";rr0(g,245,120,110,220,55);g.fill();g.fillStyle="#3a3a3a";rr0(g,262,140,24,170,12);g.fill()}
+ else if(k==="tech"){const cs=g.createLinearGradient(100,0,500,0);cs.addColorStop(0,"#1a1b1f");cs.addColorStop(.5,"#3b3e46");cs.addColorStop(1,"#121316");rr0(g,100,520,400,300,120);g.fillStyle=cs;g.fill();
   g.strokeStyle="#55585f";g.lineWidth=4;g.beginPath();g.moveTo(110,640);g.lineTo(490,640);g.stroke();g.fillStyle="#7CF29C";g.beginPath();g.arc(300,720,9,0,7);g.fill();
-  [[200,300,-.25],[400,300,.25]].forEach(([x,y,r])=>{g.save();g.translate(x,y);g.rotate(r);const b=g.createLinearGradient(-60,0,60,0);b.addColorStop(0,"#202227");b.addColorStop(.5,"#4a4d55");b.addColorStop(1,"#17181b");g.fillStyle=b;g.beginPath();g.ellipse(0,0,70,85,0,0,7);g.fill();rr(g,-22,40,44,170,22);g.fill();g.fillStyle="#ffffff22";g.beginPath();g.ellipse(-20,-25,18,26,0,0,7);g.fill();g.restore()})}
- else {const jar=g.createLinearGradient(130,0,470,0);jar.addColorStop(0,"#d9c9a8");jar.addColorStop(.5,"#f4ead6");jar.addColorStop(1,"#c9b691");rr(g,130,300,340,640,40);g.fillStyle=jar;g.fill();
+  [[200,300,-.25],[400,300,.25]].forEach(([x,y,r])=>{g.save();g.translate(x,y);g.rotate(r);const b=g.createLinearGradient(-60,0,60,0);b.addColorStop(0,"#202227");b.addColorStop(.5,"#4a4d55");b.addColorStop(1,"#17181b");g.fillStyle=b;g.beginPath();g.ellipse(0,0,70,85,0,0,7);g.fill();rr0(g,-22,40,44,170,22);g.fill();g.fillStyle="#ffffff22";g.beginPath();g.ellipse(-20,-25,18,26,0,0,7);g.fill();g.restore()})}
+ else {const jar=g.createLinearGradient(130,0,470,0);jar.addColorStop(0,"#d9c9a8");jar.addColorStop(.5,"#f4ead6");jar.addColorStop(1,"#c9b691");rr0(g,130,300,340,640,40);g.fillStyle=jar;g.fill();
   for(let i=0;i<70;i++){const x=160+((i*73)%280),y=360+((i*131)%540);g.fillStyle=["#b9853f","#8a5a2b","#d9a85b","#6e4423"][i%4];g.beginPath();g.ellipse(x,y,14,9,i,0,7);g.fill()}
-  g.fillStyle="#fffaf0";rr(g,170,520,260,220,16);g.fill();g.fillStyle="#7a4a20";g.font="800 34px sans-serif";g.textAlign="center";g.fillText("GRANOLA",300,600);g.font="500 24px sans-serif";g.fillText("堅果燕麥脆片",300,650);g.fillText("300g",300,695);
-  const lid=g.createLinearGradient(140,0,460,0);lid.addColorStop(0,"#5a3a1c");lid.addColorStop(.5,"#8a5e33");lid.addColorStop(1,"#4a2f16");rr(g,140,230,320,90,18);g.fillStyle=lid;g.fill()}
+  g.fillStyle="#fffaf0";rr0(g,170,520,260,220,16);g.fill();g.fillStyle="#7a4a20";g.font="800 34px sans-serif";g.textAlign="center";g.fillText("GRANOLA",300,600);g.font="500 24px sans-serif";g.fillText("堅果燕麥脆片",300,650);g.fillText("300g",300,695);
+  const lid=g.createLinearGradient(140,0,460,0);lid.addColorStop(0,"#5a3a1c");lid.addColorStop(.5,"#8a5e33");lid.addColorStop(1,"#4a2f16");rr0(g,140,230,320,90,18);g.fillStyle=lid;g.fill()}
  return c}
 
 // ---------- 各行業專屬版型（資料驅動，用客人上傳的商品照，不用付費生圖） ----------
