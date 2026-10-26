@@ -190,7 +190,7 @@
       pg.firstChild.style.width = "100%"; m.className = "msg ok"; m.textContent = "送出了！編號 #" + s.data + "，AI 正在打字幕，好了請在下面「我的影片」確認。" + (sw ? "換人的報價會用 LINE 跟你確認。" : ""); files = []; listFiles(); swPhotos = []; swProof = null; $("#swPh").value = ""; $("#swOk").checked = false; $("#swPhMsg").textContent = "還沒選照片，不換人就不用選"; $("#vNote").value = ""; fxPhotos.forEach(function (p) { URL.revokeObjectURL(p.url); }); fxPhotos = []; fxList(); VAI.refresh(); jobs();
     } catch (e) { m.className = "msg err"; m.textContent = e.message; }
     b.disabled = false; setTimeout(function () { pg.hidden = true; pg.firstChild.style.width = "0"; }, 1500); }
-  var ST = { stt: "AI 打字幕中", review: "待你確認字幕", rendering: "待出片", queued: "已收到，24 小時內交片", working: "剪輯中，24 小時內交片", done: "完成", error: "有問題，我們會聯絡你" };
+  var ST = { stt: "AI 打字幕中", review: "待你確認字幕", rendering: "待出片", queued: "已收到，通常 15 分鐘內交片", working: "剪輯中，快好了", done: "完成", error: "有問題，我們會聯絡你" };
   var JOBS = [];
   async function sttRun(job, gl) { busy[job.id] = "AI 正在聽影片、打字幕…"; jobs(); try { await SUBJOB.startStt(job, gl == null ? $("#vGloss").value.trim() : gl, function (t) { busy[job.id] = t; }); delete busy[job.id]; openJob = job.id; } catch (e) { busy[job.id] = e.message; } jobs(); }
   async function renderRun(job) { busy[job.id] = "出片中 0%…（請不要關掉這頁）"; draw(); try { await SUBJOB.render(job, function (p, t) { busy[job.id] = t || "出片中 " + Math.round(p * 100) + "%…（請不要關掉這頁）"; var el = document.querySelector('[data-busy="' + job.id + '"]'); if (el) el.textContent = busy[job.id]; }); busy[job.id] = "做好了！按「下載成品」存下來。"; } catch (e) { busy[job.id] = "出片失敗：" + e.message; } jobs(); }
