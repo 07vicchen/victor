@@ -90,7 +90,6 @@
     $("#vf").onchange = function (e) { var add = [].slice.call(e.target.files); add.forEach(function (f) { if (files.length < 5) files.push(f); }); e.target.value = ""; listFiles(); };
     $("#vLogo").onchange = function (e) { vlogo = e.target.files[0] || null; $("#vLogoMsg").textContent = vlogo ? "已選 logo：" + vlogo.name : "有放的話會放在影片角落"; if (logoImg) URL.revokeObjectURL(logoImg.src); logoImg = null; if (vlogo) { logoImg = new Image(); logoImg.src = URL.createObjectURL(vlogo); } $("#pvm").hidden = !vlogo && !$("#vLogoT").value.trim(); pvSync(1); fxSync(); };
     $$("[data-mus]").forEach(function (b) { b.onclick = function () { $$("[data-mus]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
-    $("#voOn").onchange = function () { $("#voBox").hidden = !this.checked; };
     $("#vLogoT").oninput = function () { var t = this.value.trim(); $("#vLogoMsg").textContent = t ? "會把「" + t + "」放在影片右上角，確認字幕時可以改位置" : "有放的話會放在影片角落"; $("#pvm").hidden = !t && !vlogo; pvSync(1); fxSync(); };
     $("#send").onclick = send;
     $("#fxPh").onchange = function (e) { var add = [].slice.call(e.target.files), skip = 0; e.target.value = "";
@@ -99,7 +98,7 @@
     VAI.client().from("ai_tool_glossary").select("words,sticky,sticky_pos").maybeSingle().then(function (r) { if (r && r.data) { savedSticky = r.data; if (!$("#vGloss").value) $("#vGloss").value = r.data.words || ""; } }, function () {});
     VAI.client().rpc("ai_render_cap").then(function (r) { if (r && !r.error) renderCap = r.data; }, function () {}); }
   function setMode(m) { mode = m; if (m === "subs" && !pickMod) { var f = $$("[data-mod]").filter(function (x) { return x.dataset.mod && !x.disabled; })[0]; if (f) { pickMod = f.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === f)); }); } } $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
-    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#fxPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "4"; $("#noteNo").textContent = subs ? "3" : "5"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $("#voRow").hidden = subs || (plan !== "max" && plan !== "ent" && !window.__vaiAdmin); $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
+    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#fxPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "4"; $("#noteNo").textContent = subs ? "3" : "5"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
     
     $("#stNote").textContent = plan === "basic" ? "入門方案可用 3 種剪法，升級專業就能用全部。" : ""; $("#modNote").textContent = plan === "basic" ? "入門方案可用 8 種字幕樣式，升級專業就能用全部 23 種。" : "";
     pvSync(); $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; }
@@ -181,7 +180,7 @@
         fx = { auto: !fxOn.length, effects: effs, photos: fph }; }
       var md = MODS.filter(function (q) { return q.id === pickMod; })[0], st = mode === "subs" ? "只上字幕：" + (md ? md.name : "") : (pickSt < 0 ? "交給 AI 挑" : VSTY[pickSt][0]);
       var mus = ($$("[data-mus]").filter(function (x) { return x.getAttribute("aria-pressed") === "true"; })[0] || {}).dataset; mus = mus ? mus.mus : "原創配樂";
-      var note = $("#vNote").value + "（重點字顏色 " + $("#acc").value + "）（字幕大小 " + subSize + "）" + (mode === "subs" ? "" : "（配樂：" + mus + "）") + ($("#voOn").checked && $("#voText").value.trim() ? "【AI 配音稿】" + $("#voText").value.trim() : "");
+      var note = $("#vNote").value + "（重點字顏色 " + $("#acc").value + "）（字幕大小 " + subSize + "）" + (mode === "subs" ? "" : "（配樂：" + mus + "）");
       var s = await c.rpc("ai_video_submit3", { p_files: up, p_style: st, p_note: note, p_logo: lp, p_mode: mode, p_module: pickMod || null, p_swap: sw, p_fx: fx }); if (s.error) throw new Error(s.error.message);
       var lt = $("#vLogoT").value.trim(); if (lt) { await c.rpc("ai_job_edit", { p_id: s.data, p_edit: { sticky: lt, stickyPos: "tr" } }); }
       var gl = $("#vGloss").value.trim(); VAI.client().rpc("ai_glossary_set", { p_words: gl }).then(function () {}, function () {});
