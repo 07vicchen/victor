@@ -98,7 +98,7 @@
     lines.forEach(function (L) { var t = String(L.t || "").replace(/\|/g, ""); if (t.length <= maxc) { out.push(Object.assign({}, L, { t: t })); return; }
       var ws = WSEG ? Array.from(WSEG.segment(t)).map(function (x) { return x.segment; }) : t.split(""), n = Math.ceil(t.length / maxc), tg = Math.ceil(t.length / n), ps = [], c = "";
       ws.forEach(function (w) { while (w.length > maxc) { if (c) { ps.push(c); c = ""; } ps.push(w.slice(0, maxc)); w = w.slice(maxc); } if (c && c.length + w.length > Math.min(maxc, tg + 2)) { ps.push(c); c = w; } else c += w; }); if (c) ps.push(c);
-      var at = L.s, tot = t.length; ps.forEach(function (pc, i) { var e = i === ps.length - 1 ? L.e : Math.round((at + (L.e - L.s) * pc.length / tot) * 100) / 100; var q = Object.assign({}, L, { t: pc, s: at, e: e, hl: (L.hl || []).filter(function (h) { return h && pc.indexOf(h) >= 0; }) }); if (i) delete q.star; out.push(q); at = e; }); });
+      var at = L.s, tot = t.length; ps.forEach(function (pc, i) { var e = i === ps.length - 1 ? L.e : Math.round((at + (L.e - L.s) * pc.length / tot) * 100) / 100; var q = Object.assign({}, L, { t: pc, s: at, e: e, hl: (L.hl || []).filter(function (h) { return h && (pc.indexOf(h) >= 0 || (i === 0 && t.indexOf(h) < 0)); }) }); if (i) delete q.star; out.push(q); at = e; }); });
     return out; }
   function openEditor(box, job, opt) {
     opt = opt || {}; var lines = JSON.parse(JSON.stringify(job.lines || [])), edit = defEdit(job); if (!job.edit && opt.sticky) { edit.sticky = opt.sticky.sticky || ""; edit.stickyPos = opt.sticky.sticky_pos || "tl"; }
@@ -111,7 +111,7 @@
       '<div class="bar"><label class="f" style="flex:1;min-width:180px"><span>常駐文字（整支一直在，選填，會記住下次自動帶入）</span><input type="text" data-sticky maxlength="40" placeholder="例如：IG @niangniang・全館 8 折" value="' + E(edit.sticky) + '"></label><label class="f"><span>位置</span><select data-spos><option value="tl"' + (edit.stickyPos === "tl" ? " selected" : "") + '>左上</option><option value="tr"' + (edit.stickyPos === "tr" ? " selected" : "") + '>右上</option><option value="top"' + (edit.stickyPos === "top" ? " selected" : "") + '>上方中間</option><option value="bottom"' + (edit.stickyPos === "bottom" ? " selected" : "") + '>下方</option></select></label></div>' +
       '<label class="f"><span>這支想剪成怎樣（選填）</span><input type="text" data-dir maxlength="200" placeholder="例如：30 秒內、輕鬆搞笑、最後叫大家留言" value="' + E(edit.direction) + '"></label>' +
       '<div class="bar"><button class="btn sm gh" type="button" data-ai>AI 照這個方向幫我挑</button><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-gap' + (edit.trimGaps ? " checked" : "") + '>自動剪掉句子中間的停頓</label><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-hook' + (edit.hook ? " checked" : "") + '>⭐ 重點句放開頭當鉤子</label></div>' +
-      '<p class="note">每句可以改字、填重點字。按 ✂ 剪掉這句，按 ⭐ 標成重點。用空格把一句切成幾塊，大字會照這樣分行。</p><div class="sed-rows"></div>' +
+      '<p class="note">每句可以改字、填重點字（句子裡有的字會上重點色；也可以打一個關鍵詞，有選功能卡、章節目錄就會用它當大字）。按 ✂ 剪掉這句，按 ⭐ 標成重點。用空格把一句切成幾塊，大字會照這樣分行。</p><div class="sed-rows"></div>' +
       '<div class="bar"><button class="btn sm gh" type="button" data-add>＋在目前播放的時間加一句</button></div>' +
       '<div class="bar sed-act"><button class="btn sm gh" type="button" data-save>先存起來</button><button class="btn" type="button" data-ok>' + (job.mode === "subs" ? "沒問題，開始出片" : "沒問題，送去剪輯") + '</button></div><p class="msg" data-msg></p></div></div>';
     var vid = box.querySelector("video"), cv = box.querySelector("canvas"), rowsEl = box.querySelector(".sed-rows"), msg = box.querySelector("[data-msg]");
@@ -141,7 +141,7 @@
         if (!j.ok) throw new Error(j.why || "AI 忙線中");
         lines.forEach(function (L, i) { L.cut = j.cut.indexOf(i) >= 0; L.star = j.star.indexOf(i) >= 0; }); draw(); say("AI 挑好了" + (j.why ? "：" + j.why : "") + "。不滿意可以自己再按 ✂ ⭐ 調整。", true);
       } catch (e) { say(e.message); } b.disabled = false; };
-    function clean(keepCut) { return lines.filter(function (L) { return L.t.replace(/\|/g, "").trim() && (keepCut || true); }).map(function (L) { var p = L.t.replace(/\|/g, ""), o = { s: L.s, e: L.e, t: L.t, hl: (L.hl || []).filter(function (h) { return p.indexOf(h) >= 0; }), src: L.src || 0 }; if (L.cut) o.cut = true; if (L.star) o.star = true; return o; }); }
+    function clean(keepCut) { return lines.filter(function (L) { return L.t.replace(/\|/g, "").trim() && (keepCut || true); }).map(function (L) { var p = L.t.replace(/\|/g, ""), o = { s: L.s, e: L.e, t: L.t, hl: (L.hl || []).filter(function (h) { return h && String(h).trim(); }), src: L.src || 0 }; if (L.cut) o.cut = true; if (L.star) o.star = true; return o; }); }
     // 預覽剪完的樣子
     function stopPv() { if (pv) { pv.stop = true; pv = null; vid.pause(); box.querySelector("[data-pv]").textContent = "▶ 預覽剪完的樣子"; } }
     box.querySelector("[data-pv]").onclick = async function () { if (pv) return stopPv(); var tl = timeline(clean(true), readEdit(), durs); if (!tl.segs.length) return say("全部剪光了，至少留一句");
