@@ -216,7 +216,7 @@
           <div class="ph"><b id="noteNo">4</b><div><h3>特別交代和 logo（選填）</h3><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
           <label class="f"><span>常用詞（品牌名、產品名、人名，用空格隔開，AI 打字幕時會照這個寫）</span><input type="text" id="vGloss" maxlength="1000" placeholder="例如：維拓傳媒 AI剪片 Vic"></label>
           <label class="f"><span>備註</span><textarea id="vNote" rows="3" maxlength="500"></textarea></label>
-          <div class="bar" id="musRow"><span class="note">配樂</span><button class="chip" type="button" data-mus="原創配樂" aria-pressed="true">原創配樂</button><button class="chip" type="button" data-mus="不要配樂" aria-pressed="false">不要配樂（發的時候用平台熱門歌）</button></div>
+          <div id="musRow"><div class="bar"><span class="note">背景音樂</span><button class="chip" type="button" data-mus="原創配樂" aria-pressed="true">幫我配音樂</button><button class="chip" type="button" data-mus="不要配樂" aria-pressed="false">不要音樂</button></div><p class="note" style="margin:4px 0 0">幫我配音樂：我們放一段沒有版權問題的背景音樂，講話時自動調小聲。不要音樂：成品只有你的聲音，發 IG、抖音時可以自己加平台上的熱門歌。</p></div>
           <div class="bar"><label class="up">上傳 logo（選填）<input type="file" accept="image/*" id="vLogo" hidden></label><span class="note">或直接打字</span><input type="text" id="vLogoT" maxlength="20" placeholder="例如：維拓傳媒" style="padding:9px 12px;border:1px solid var(--line);font:inherit;min-width:0;flex:1;max-width:240px"><span class="note" id="vLogoMsg">有放的話會放在影片角落</span></div>
           <div class="pvm" id="pvm" hidden><canvas id="pv2" width="270" height="480" aria-label="logo 預覽"></canvas><span class="note">打字或換 logo，這裡馬上就會變</span></div>
         </div>
