@@ -92,7 +92,7 @@ nav.top{display:flex;align-items:center;gap:14px;padding-block:18px;border-botto
 .tile:hover{transform:translateY(-3px);box-shadow:0 14px 30px #2b22101a}
 .tile.sel{border-color:var(--fg)}
 .tile canvas{width:100%;height:auto;aspect-ratio:1/1;max-width:100%;display:block}
-.tile .tier{display:inline-block;margin-left:8px;font:700 11px var(--num);padding:1px 7px;color:var(--gold2);border:1px solid var(--line2);vertical-align:middle}
+.tile .tier{display:inline-block;margin-left:8px;font:700 12.5px var(--num);padding:1px 7px;color:var(--gold2);border:1px solid var(--line2);vertical-align:middle}
 .tile .cap{padding:10px 12px}
 .tile .cap b{font:700 14px var(--body)}
 .tile .pick{display:flex;gap:8px;align-items:center;padding:9px 12px;border-top:1px solid var(--line);font-weight:700;font-size:13.5px;cursor:pointer}
@@ -117,7 +117,7 @@ nav.top{display:flex;align-items:center;gap:14px;padding-block:18px;border-botto
 .plan:last-child{border-right:0}
 .plan.hot{background:var(--fg);color:#fff}
 .plan.hot ul,.plan.hot .m{color:#d9d4c8}.plan.hot .p{color:#fff}.plan.hot .btn{background:#fff;color:var(--fg);border-color:#fff}
-.plan .badge{font:600 11px var(--num);letter-spacing:.24em;color:var(--gold)}
+.plan .badge{font:700 12.5px var(--num);letter-spacing:.24em;color:var(--gold)}
 .plan.hot .badge{color:#e3c487}
 .plan h3{margin:0;font:900 20px var(--serif)}
 .plan .p{font:500 58px/1 var(--it);color:var(--fg)}.plan .p small{font:500 14px var(--body);color:var(--dim);margin-left:4px}
