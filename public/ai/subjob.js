@@ -99,7 +99,7 @@
       '<div class="bar"><button class="btn sm gh" type="button" data-ai>AI 照這個方向幫我挑</button><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-gap' + (edit.trimGaps ? " checked" : "") + '>自動剪掉句子中間的停頓</label><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-hook' + (edit.hook ? " checked" : "") + '>⭐ 重點句放開頭當鉤子</label></div>' +
       '<p class="note">每句可以改字、填重點字。按 ✂ 剪掉這句，按 ⭐ 標成重點。用空格把一句切成幾塊，大字會照這樣分行。</p><div class="sed-rows"></div>' +
       '<div class="bar"><button class="btn sm gh" type="button" data-add>＋在目前播放的時間加一句</button></div>' +
-      '<div class="bar"><button class="btn sm gh" type="button" data-save>先存起來</button><button class="btn" type="button" data-ok>' + (job.mode === "subs" ? "沒問題，開始出片" : "沒問題，送去剪輯") + '</button></div><p class="msg" data-msg></p></div></div>';
+      '<div class="bar sed-act"><button class="btn sm gh" type="button" data-save>先存起來</button><button class="btn" type="button" data-ok>' + (job.mode === "subs" ? "沒問題，開始出片" : "沒問題，送去剪輯") + '</button></div><p class="msg" data-msg></p></div></div>';
     var vid = box.querySelector("video"), cv = box.querySelector("canvas"), rowsEl = box.querySelector(".sed-rows"), msg = box.querySelector("[data-msg]");
     function say(t, ok) { msg.textContent = t; msg.className = "msg" + (ok ? " ok" : t ? " err" : ""); }
     async function useSrc(k) { if (curSrc === k) return; curSrc = k; if (!urls[k]) urls[k] = await signed(job.files[k].path, 7200); vid.src = urls[k]; await new Promise(function (ok) { if (vid.readyState >= 1) ok(); else vid.onloadedmetadata = function () { ok(); }; }); }

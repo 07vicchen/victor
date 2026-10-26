@@ -78,7 +78,7 @@
 .sed-rows{display:flex;flex-direction:column;gap:6px;max-height:520px;overflow:auto}
 .sed-r{display:grid;grid-template-columns:auto minmax(0,1fr) 110px auto;gap:6px;align-items:center}
 .sed-r input{padding:8px;border:1px solid var(--line);font:inherit;min-width:0}
-.sed-b{display:flex;gap:4px}.sed select,.sed .f input{padding:8px;border:1px solid var(--line);font:inherit;background:#fff}.sed-r.cut input{text-decoration:line-through;opacity:.45}.sed-r.star input[data-t]{border-color:var(--gold);background:#fffaf0}
+.sed-act{position:sticky;bottom:0;z-index:5;background:var(--paper);padding:10px 0;border-top:1px solid var(--line);margin:0}.todo{border:1px solid var(--gold);background:var(--goldSoft,#fbf5e8);padding:12px 14px;display:flex;flex-direction:column;gap:8px}.todo b{font:900 15px var(--serif)}.todo .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.panel.fold>*:not(.ph){display:none}.panel[data-fold] .ph{cursor:pointer}.panel[data-fold] .ph::after{content:"▾";margin-left:auto;color:var(--mid);font-size:18px;transition:transform .2s}.panel.fold .ph::after{transform:rotate(-90deg)}.sed-b{display:flex;gap:4px}.sed select,.sed .f input{padding:8px;border:1px solid var(--line);font:inherit;background:#fff}.sed-r.cut input{text-decoration:line-through;opacity:.45}.sed-r.star input[data-t]{border-color:var(--gold);background:#fffaf0}
 .jobw{display:flex;flex-direction:column}
 @media (max-width:760px){.sed{grid-template-columns:1fr}.sed-stage{max-width:260px;margin:0 auto}.sed-r{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tm hl bt" "tx tx tx";padding:8px 0;border-bottom:1px solid var(--line)}.sed-r>[data-play]{grid-area:tm}.sed-r>input[data-t]{grid-area:tx;font-size:17px;padding:10px}.sed-r>input[data-h]{grid-area:hl;font-size:14px}.sed-r>.sed-b{grid-area:bt}}
 @media (max-width:1000px){.styles{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -167,6 +167,7 @@
     <div id="memBox"><p class="note">讀取中…</p></div>
     <div id="work" hidden>
       <div class="col">
+        <div class="todo" id="todo" hidden></div>
         <div class="usage" id="usage"></div>
         <div class="bar"><span class="note">要做什麼</span><button class="chip" type="button" data-mode="cut" aria-pressed="true">完整剪片</button><button class="chip" type="button" data-mode="subs" aria-pressed="false">只上字幕</button></div>
         <div class="panel">
@@ -181,7 +182,7 @@
           <p class="note" id="stNote"></p>
           </div><div class="pvb"><canvas id="pvA" width="270" height="480" aria-label="剪法預覽"></canvas><p class="note" id="pvCapA"></p></div></div>
         </div>
-        <div class="panel" id="fxPanel">
+        <div class="panel fold" id="fxPanel" data-fold>
           <div class="ph"><b>3</b><div><h3>質感特效和照片（選填）</h3><p>可以多選；都不選就交給我們看內容決定。想讓影片裡出現你的商品、作品、截圖或店面，就把照片丟進來。</p></div></div>
           <div class="pick2" id="fxPick"></div>
           <p class="note" id="fxNote"></p>
@@ -202,7 +203,7 @@
           <p class="note" id="modNote"></p>
           </div><div class="pvb"><canvas id="pv" width="270" height="480" aria-label="字幕預覽"></canvas><p class="note" id="pvCap"></p></div></div>
         </div>
-        <div class="panel" id="swapPanel">
+        <div class="panel fold" id="swapPanel" data-fold>
           <div class="ph"><b>＋</b><div><h3>AI 換人（選填，專業方案以上）</h3><p>把影片裡的人換成照片裡的人。加購價：15 秒內 499 元、30 秒內 899 元、60 秒內 1,599 元，或 3 支包 1,299 元（每支 15 秒內）。送出後我們會先用 LINE 跟你確認費用，付款後才開始換。</p></div></div>
           <div id="swapLock" class="note" hidden>入門方案沒有這個功能，升級專業方案就能用。</div>
           <div id="swapBody">
@@ -212,7 +213,7 @@
             <label class="note" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="swOk" style="margin-top:4px"><span>我確認照片是我本人，或已取得照片中本人同意使用，並了解成品會標示「AI 生成」。</span></label>
           </div>
         </div>
-        <div class="panel">
+        <div class="panel fold" data-fold>
           <div class="ph"><b id="noteNo">4</b><div><h3>特別交代和 logo（選填）</h3><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
           <label class="f"><span>常用詞（品牌名、產品名、人名，用空格隔開，AI 打字幕時會照這個寫）</span><input type="text" id="vGloss" maxlength="1000" placeholder="例如：維拓傳媒 AI剪片 Vic"></label>
           <label class="f"><span>備註</span><textarea id="vNote" rows="3" maxlength="500"></textarea></label>
@@ -236,7 +237,7 @@
 <script src="/ai/vid.js"></script>
 <script src="/ai/subfx.js?v=1026f"></script>
 <script src="/ai/core.js?v=1026f"></script>
-<script src="/ai/subjob.js?v=1026f"></script>
-<script src="/ai/video.js?v=1026f"></script>
+<script src="/ai/subjob.js?v=1026g"></script>
+<script src="/ai/video.js?v=1026g"></script>
 </body>
 </html>

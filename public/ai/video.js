@@ -195,7 +195,14 @@
   async function renderRun(job) { busy[job.id] = "出片中 0%…（請不要關掉這頁）"; draw(); try { await SUBJOB.render(job, function (p, t) { busy[job.id] = t || "出片中 " + Math.round(p * 100) + "%…（請不要關掉這頁）"; var el = document.querySelector('[data-busy="' + job.id + '"]'); if (el) el.textContent = busy[job.id]; }); busy[job.id] = "做好了！按「下載成品」存下來。"; } catch (e) { busy[job.id] = "出片失敗：" + e.message; } jobs(); }
   // Vic 10/24：成品和素材保存 3 天
   function keep(j) { if (!j.done_at) return ""; var end = new Date(new Date(j.done_at).getTime() + 3 * 864e5), h = Math.max(0, Math.round((end - Date.now()) / 36e5)); return '<span class="keep' + (h <= 24 ? " soon" : "") + '" style="flex-basis:100%">請在 ' + end.toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) + " 前下載（還有 " + (h >= 24 ? Math.floor(h / 24) + " 天 " + (h % 24) + " 小時" : h + " 小時") + "），過了檔案會自動刪除</span>"; }
-  function draw() { var box = $("#jobs"), c = VAI.client();
+  // Vic 10/26：選填的區塊先收起來，按標題才展開；最上面「待你處理」直接列出要確認字幕、可以下載的影片
+  $$("[data-fold] .ph").forEach(function (h) { h.onclick = function () { h.parentNode.classList.toggle("fold"); }; });
+  function todo() { var t = $("#todo"); if (!t) return; var rows = JOBS.filter(function (j) { return !j.purged_at && (j.status === "review" || j.status === "rendering" || (j.status === "done" && j.result && j.result.path && Date.now() - new Date(j.done_at || 0).getTime() < 864e5)); }).slice(0, 4);
+    var wait = JOBS.filter(function (j) { return /^(stt|queued|working)$/.test(j.status); }).length;
+    if (!rows.length && !wait) { t.hidden = true; return; } t.hidden = false;
+    t.innerHTML = "<b>待你處理</b>" + rows.map(function (j) { var w = j.status === "review" ? "字幕打好了，請確認" : j.status === "rendering" ? "字幕確認好了，按開始出片" : "剪好了，可以下載"; return '<div class="row"><span>#' + j.id + "　" + w + '</span><button class="btn sm" type="button" data-go="' + j.id + '">' + (j.status === "done" ? "去下載" : "去確認") + "</button></div>"; }).join("") + (wait ? '<span class="note">另外有 ' + wait + " 支正在處理中，好了會出現在這裡（不用一直重新整理）。</span>" : "");
+    $$("[data-go]").forEach(function (b) { b.onclick = function () { var j = JOBS.filter(function (x) { return x.id === +b.dataset.go; })[0]; if (!j) return; if (j.status === "review" || j.status === "rendering") openEd(j.id); else { var el = document.querySelector('[data-ed="' + j.id + '"]'); if (el) el.parentNode.scrollIntoView({ behavior: "smooth", block: "center" }); } }; }); }
+  function draw() { var box = $("#jobs"), c = VAI.client(); todo();
     if (editor) { editor.close(); editor = null; }
     if (!JOBS.length) { box.innerHTML = '<p class="note">還沒有影片。上面選好素材送出就會出現在這裡。</p>'; return; }
     box.innerHTML = JOBS.map(function (j) { var sub = j.mode === "subs", left = Math.max(0, renderCap - (j.renders || 0)), btn = "";
@@ -220,6 +227,6 @@
     if (r.error) { $("#jobs").innerHTML = '<p class="msg err">' + E(r.error.message) + "</p>"; return; }
     var editing = editor && openJob && JOBS.some(function (x) { return x.id === openJob && (x.status === "review" || x.status === "rendering" || x.status === "done"); }) && !busy[openJob];
     JOBS = r.data; if (editing && document.querySelector('[data-ed="' + openJob + '"] .sed')) return; draw(); }
-  setInterval(function () { if (!$("#work").hidden && !editor) jobs(); }, 60000);
+  var tick = 0; setInterval(function () { tick++; if ($("#work").hidden || editor) return; var act = JOBS.some(function (j) { return /^(stt|queued|working)$/.test(j.status); }); if (act || tick % 4 === 0) jobs(); }, 15000);   // 有影片在處理就每 15 秒更新一次
   VAI.onMe(onMeFn);
 })();
