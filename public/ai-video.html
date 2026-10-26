@@ -80,7 +80,7 @@
 .sed-r input{padding:8px;border:1px solid var(--line);font:inherit;min-width:0}
 .sed-act{position:sticky;bottom:0;z-index:5;background:var(--paper);padding:10px 0;border-top:1px solid var(--line);margin:0}.todo{border:1px solid var(--gold);background:var(--goldSoft,#fbf5e8);padding:12px 14px;display:flex;flex-direction:column;gap:8px}.todo b{font:900 15px var(--serif)}.todo .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.panel.fold>*:not(.ph){display:none}.panel[data-fold] .ph{cursor:pointer}.panel[data-fold] .ph::after{content:"▾";margin-left:auto;color:var(--mid);font-size:18px;transition:transform .2s}.panel.fold .ph::after{transform:rotate(-90deg)}.sed-b{display:flex;gap:4px}.sed select,.sed .f input{padding:8px;border:1px solid var(--line);font:inherit;background:#fff}.sed-r.cut input{text-decoration:line-through;opacity:.45}.sed-r.star input[data-t]{border-color:var(--gold);background:#fffaf0}
 .jobw{display:flex;flex-direction:column}
-@media (max-width:760px){.sed{grid-template-columns:1fr}.sed-stage{max-width:260px;margin:0 auto}.sed-r{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tm hl bt" "tx tx tx";padding:8px 0;border-bottom:1px solid var(--line)}.sed-r>[data-play]{grid-area:tm}.sed-r>input[data-t]{grid-area:tx;font-size:17px;padding:10px}.sed-r>input[data-h]{grid-area:hl;font-size:14px}.sed-r>.sed-b{grid-area:bt}}
+@media (max-width:760px){.sed{grid-template-columns:1fr}.sed-stage{max-width:260px;margin:0 auto}.sed-r{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tm . bt" "tx tx tx" "hl hl hl";row-gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}.sed-r>[data-play]{grid-area:tm}.sed-r>input[data-t]{grid-area:tx;font-size:17px;padding:10px}.sed-r>input[data-h]{grid-area:hl;font-size:15px;padding:8px 10px}.sed-r>.sed-b{grid-area:bt}}
 @media (max-width:1000px){.styles{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:640px){.styles{grid-template-columns:repeat(2,minmax(0,1fr))}.vframes canvas{width:160px}.vframes figure+figure canvas{width:120px}}
 </style>
@@ -237,7 +237,7 @@
 <script src="/ai/vid.js"></script>
 <script src="/ai/subfx.js?v=1026i"></script>
 <script src="/ai/core.js?v=1026f"></script>
-<script src="/ai/subjob.js?v=1026m"></script>
+<script src="/ai/subjob.js?v=1026n"></script>
 <script src="/ai/video.js?v=1026l"></script>
 </body>
 </html>
