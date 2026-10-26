@@ -229,3 +229,15 @@ html.vai-in.vai-tool:not(.vai-all) .wrap{gap:28px}
 html.vai-embed .wrap>nav.top,html.vai-embed .wrap>footer{display:none}
 html.vai-embed .wrap{padding-top:8px}
 html.vai-embed .vai-top{display:none}
+
+/* AI 美編手機版（Vic 10/26）：模組先顯示 6 款、下面固定一條「已選幾張／看成品／一鍵存」 */
+.lib-more{display:none;margin-top:10px;width:100%}
+.mbar{display:none}
+@media (max-width:860px){
+  .lib.short>*:nth-child(n+7){display:none}
+  .lib-more{display:block}
+  html:not(.vai-embed) .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;gap:8px;align-items:center;justify-content:space-between;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--gold);box-shadow:0 -4px 14px rgba(0,0,0,.08)}
+  .mbar span{font:700 14px var(--body);color:var(--gold2)}
+  #work[hidden] ~ * .mbar,#work[hidden] .mbar{display:none!important}
+  body.has-mbar{padding-bottom:70px}
+}

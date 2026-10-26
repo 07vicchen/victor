@@ -197,5 +197,13 @@
   prod = sampleProduct(); heroAll(); plans();
   if (!RM) setInterval(heroSwap, 3200);
   (document.fonts && document.fonts.load ? Promise.all([document.fonts.load('900 60px "Noto Sans TC"', "商品圖版型尺寸顏色涼感棉寬版短T"), document.fonts.load('900 60px "Noto Serif TC"', "六大設計重點每一滴都有用這樣擦最有感常見問題"), document.fonts.load('italic 500 34px "Playfair Display"', "Features"), document.fonts.load('400 46px "Bebas Neue"', "FEATURES"), document.fonts.load('700 26px "Space Grotesk"', "FEATURES")]) : Promise.resolve()).then(function () { setTimeout(function () { heroAll(); if (booted) lib(); }, 60); });
+  // 手機版：模組先收成 6 款、底下固定操作列
+  (function () { var lib = $("#lib"), more = $("#libMore"), bar = $("#mbar"); if (!lib || !more || !bar) return;
+    more.onclick = function () { var s = lib.classList.toggle("short"); more.textContent = s ? "看全部模組" : "收起來，只看前 6 款"; if (s) lib.scrollIntoView({ block: "start" }); };
+    $("#mbarPv").onclick = function () { var p = document.querySelector(".phone-wrap"); if (p) p.scrollIntoView({ behavior: "smooth", block: "center" }); };
+    $("#mbarDl").onclick = function () { $("#dlAll").click(); };
+    var sync = function () { var w = $("#work"), on = w && !w.hidden; bar.style.visibility = on ? "visible" : "hidden"; document.body.classList.toggle("has-mbar", on);
+      var b = document.querySelector("#sum b"); $("#mbarN").textContent = "已選 " + (b ? b.textContent : 0) + " 張"; };
+    setInterval(sync, 800); sync(); })();
   VAI.onMe(onMeFn);
 })();
