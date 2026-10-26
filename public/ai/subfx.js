@@ -186,10 +186,12 @@
     ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.fillRect(-60 * u, -bh / 2 - 14 * u, 120 * u, 30 * u); ctx.fillStyle = "#3B2A1E"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; lines.forEach(function (ln, q) { ctx.fillText(ln, 0, -bh / 2 + 66 * u + q * 62 * u); }); ctx.restore(); }, { accent: "#FFE873" });
 
   // 22 彈幕
-  add("danmaku", "直播彈幕", "直播、遊戲、熱鬧感", "主字幕在下面，上面一直有彈幕飛過，很熱鬧。", function (ctx, W, H, st) {
-    var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); font(ctx, 700, 34 * u); ctx.textBaseline = "middle"; var all = st.lines;
-    for (var k = 0; k < all.length; k++) { var lt = st.t - all[k].s + .5; if (lt < 0 || lt > 4) continue; var t = plain(all[k]), x = W - lt * (W + ctx.measureText(t).width) / 3.5, y = H * (.14 + (k % 5) * .07);
-      ctx.lineWidth = 6 * u; ctx.strokeStyle = "rgba(0,0,0,.6)"; ctx.strokeText(t, x, y); ctx.fillStyle = ["#fff", "#FFE14D", "#9EE6FF", "#FF9BD0"][k % 4]; ctx.fillText(t, x, y); }
+  add("danmaku", "直播彈幕", "直播、遊戲、熱鬧感", "主字幕在下面，上面一直有「哈哈哈」「好可愛」這種觀眾反應飛過去，很熱鬧。", function (ctx, W, H, st) {
+    // Vic 10/26：飛過去的是觀眾反應，不再重複字幕
+    var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); font(ctx, 700, 34 * u); ctx.textBaseline = "middle"; var all = st.lines, GAP = .8, FLY = 4.2;
+    var RX = ["哈哈哈哈", "笑死", "好可愛", "+1", "真的假的", "推推", "我也想要", "羨慕", "太扯了吧", "讚讚讚", "哇～", "好好笑", "期待", "666", "有夠真實", "😂😂"];
+    if (all.length) for (var k = Math.max(0, Math.floor((st.t - FLY) / GAP)); k <= Math.floor(st.t / GAP); k++) { var lt = st.t - k * GAP; if (lt < 0 || lt > FLY) continue; var hsh = (k * 2654435761) >>> 0, t = RX[hsh % RX.length], tw = ctx.measureText(t).width, x = W - lt * (W + tw) / FLY, y = H * (.16 + ((hsh >>> 8) % 4) * .065);
+      ctx.lineWidth = 6 * u; ctx.strokeStyle = "rgba(0,0,0,.6)"; ctx.strokeText(t, x, y); ctx.fillStyle = ["#fff", "#FFE14D", "#9EE6FF", "#FF9BD0"][(hsh >>> 4) % 4]; ctx.fillText(t, x, y); }
     if (i < 0) return; var L = all[i]; font(ctx, 900, 58 * u, null, plain(L)); ctx.textAlign = "center"; colorRun(ctx, L, W / 2, H * .78, "#fff", st.accent, { stroke: 10 * u }); ctx.textAlign = "left"; }, { accent: "#FFE14D" });
 
   // 23 逐行淡入
