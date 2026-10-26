@@ -84,8 +84,8 @@
   // Vic 10/26：預覽只畫字幕，客人選的質感特效和照片要講清楚「出片時會加上」，不然以為沒放進去
   var FXN = { covers: "封面彈出", pip: "畫中畫", bigword: "深藍大字", material: "素材框", featcards: "功能卡輪播", grade: "暖色系列", hang: "吊牌字", chapters: "章節目錄", logo: "品牌 logo" };
   function fxNote(job) { var f = job.fx; if (!f || job.mode !== "cut") return ""; var ef = (f.effects || []).map(function (x) { return FXN[x] || x; }), np = (f.photos || []).length;
-    if (!ef.length && !np) return f.auto ? '<p class="note">質感特效：交給啾咪挑，出片時加上。</p>' : "";
-    return '<p class="note" style="border-left:3px solid var(--gold);padding-left:8px">質感特效：' + E(ef.join("、") || "交給啾咪挑") + (np ? "，你的照片 " + np + " 張會放進" + (ef.length ? "特效" : "功能卡") + "裡" : "") + "。這裡的預覽只看字幕，特效和照片在出片時一起加上。</p>"; }
+    if (!ef.length && !np) return f.auto ? '<p class="note">質感特效：交給我們挑，出片時加上。</p>' : "";
+    return '<p class="note" style="border-left:3px solid var(--gold);padding-left:8px">質感特效：' + E(ef.join("、") || "交給我們挑") + (np ? "，你的照片 " + np + " 張會放進" + (ef.length ? "特效" : "功能卡") + "裡" : "") + "。這裡的預覽只看字幕，特效和照片在出片時一起加上。</p>"; }
   function openEditor(box, job, opt) {
     opt = opt || {}; var lines = JSON.parse(JSON.stringify(job.lines || [])), edit = defEdit(job); if (!job.edit && opt.sticky) { edit.sticky = opt.sticky.sticky || ""; edit.stickyPos = opt.sticky.sticky_pos || "tl"; }
     var mod = modOf(job), acc = accentOf(job) || (mod && mod.accent) || "#FF3B30";

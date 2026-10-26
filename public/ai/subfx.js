@@ -195,6 +195,22 @@
     var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) return; var L = st.lines[i], p = eb((st.t - L.s) / .2); font(ctx, 900, 54 * u, null, plain(st.lines[i])); ctx.textBaseline = "middle"; var t = plain(L), w = ctx.measureText(t).width, x = (W - w) / 2, y = H * .72;
     ctx.save(); ctx.translate(W / 2, y); ctx.scale(p, p); ctx.translate(-W / 2, -y); ctx.fillStyle = "rgba(0,0,0,.85)"; rrect(ctx, x - 24 * u, y - 44 * u, w + 48 * u, 88 * u, 16 * u); ctx.fill(); colorRun(ctx, L, x, y, "#fff", st.accent, { align: "left" }); ctx.restore(); }, { accent: "#FFD400" });
 
+  // 24 清單劃掉（Vic 10/26）：一次列 4 句，講完一句就打勾、劃一條線，接著亮下一句
+  add("checklist", "清單劃掉", "教學、步驟、懶人包", "畫面列出接下來要講的幾點，講完一點就打勾劃掉，觀眾會想看到全部劃完。", function (ctx, W, H, st) {
+    var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) { var all = st.lines; for (var q = all.length - 1; q >= 0; q--) if (st.t >= all[q].e) { i = q; break; } if (i < 0) return; }
+    var N = 4, pg = Math.floor(i / N), rows = st.lines.slice(pg * N, pg * N + N), rh = 74 * u, pw = W * .86, ph = rows.length * rh + 34 * u, px = (W - pw) / 2, py = H * .80 - ph;
+    var a0 = eo((st.t - st.lines[pg * N].s) / .35); ctx.save(); ctx.globalAlpha = a0;
+    ctx.fillStyle = "rgba(10,14,28,.78)"; rrect(ctx, px, py, pw, ph, 20 * u); ctx.fill(); ctx.textBaseline = "middle";
+    rows.forEach(function (L, k) { var idx = pg * N + k, y = py + 17 * u + rh * k + rh / 2, done = st.t >= L.e, now = idx === i && !done, cx = px + 44 * u, r = 19 * u;
+      var t = plain(L); font(ctx, now ? 900 : 700, 40 * u, null, t, .66); var tw = ctx.measureText(t).width, tx = px + 84 * u;
+      ctx.globalAlpha = a0 * (done ? .55 : now ? 1 : .42);
+      ctx.beginPath(); ctx.arc(cx, y, r, 0, 7); ctx.fillStyle = done ? st.accent : now ? "#fff" : "rgba(255,255,255,.18)"; ctx.fill();
+      if (done) { ctx.strokeStyle = "#111"; ctx.lineWidth = 5 * u; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(cx - 9 * u, y); ctx.lineTo(cx - 2 * u, y + 7 * u); ctx.lineTo(cx + 10 * u, y - 8 * u); ctx.stroke(); }
+      else { ctx.fillStyle = now ? "#111" : "#fff"; ctx.textAlign = "center"; font(ctx, 900, 22 * u); ctx.fillText(String(idx + 1), cx, y + 1 * u); font(ctx, now ? 900 : 700, 40 * u, null, t, .66); }
+      ctx.textAlign = "left"; if (now) colorRun(ctx, L, tx, y, "#fff", st.accent, { align: "left" }); else { ctx.fillStyle = "#fff"; ctx.fillText(t, tx, y); }
+      if (done) { var sp = eo((st.t - L.e) / .3); ctx.strokeStyle = st.accent; ctx.lineWidth = 5 * u; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(tx - 4 * u, y); ctx.lineTo(tx - 4 * u + (tw + 8 * u) * sp, y); ctx.stroke(); } });
+    ctx.restore(); }, { accent: "#FFE14D" });
+
   root.SUBFX = { size: function (k) { var o = SIZE; SIZE = +k > 0 ? +k : 0.9; return o; }, list: M, SANS: SANS, SERIF: SERIF,
     demo: [{ s: 0, e: 1.2, t: "這種字幕|怎麼做？", hl: ["字幕"] }, { s: 1.2, e: 2.2, t: "很多人問我", hl: [] }, { s: 2.2, e: 3.6, t: "是不是要|一格一格調", hl: ["一格一格"] }, { s: 3.6, e: 4.4, t: "不用！", hl: ["不用"] },
       { s: 4.4, e: 5.8, t: "上傳影片|選個模組", hl: ["模組"] }, { s: 5.8, e: 7.2, t: "剩下的|交給 AI", hl: ["AI"] }, { s: 7.2, e: 8.7, t: "三分鐘|字幕全上好", hl: ["三分鐘"] }],
