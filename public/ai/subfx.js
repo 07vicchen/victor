@@ -12,7 +12,14 @@
   function bounce(x) { x = clamp(x, 0, 1); var n = 7.5625, d = 2.75; if (x < 1 / d) return n * x * x; if (x < 2 / d) return n * (x -= 1.5 / d) * x + .75; if (x < 2.5 / d) return n * (x -= 2.25 / d) * x + .9375; return n * (x -= 2.625 / d) * x + .984375; }
   function plain(L) { return L.t.replace(/\|/g, ""); }
   function parts(L) { var p = L.t.split("|").filter(Boolean); return p.length > 1 ? p : chunk(L); }
-  function chunk(L) { var t = plain(L), out = [], hl = (L.hl || []).filter(function (h) { return h && t.indexOf(h) >= 0; }), i = 0;
+  // Vic 10/26：瀏覽器會斷詞就照詞切成 2～4 字一塊（不要把「這個」切成「這／個」），跟桌機剪出來一樣
+  var SEG = null; try { SEG = new Intl.Segmenter("zh-Hant", { granularity: "word" }); } catch (e) {}
+  function chunk(L) { var t0 = plain(L);
+    if (SEG && !(L.hl || []).length) { var ws = Array.from(SEG.segment(t0)).map(function (x) { return x.segment; }), o = [], c = "";
+      ws.forEach(function (w) { var tail = w.length === 1 && "的了啊哦喔嗎呢吧啦耶呀，。！？、,.!?…～~".indexOf(w) >= 0; if (c && c.length + w.length > 4 && !(tail && c.length + w.length <= 5)) { o.push(c); c = w; } else c += w; });
+      if (c) o.push(c); if (o.length) return o; }
+    return chunk3(L); }
+  function chunk3(L) { var t = plain(L), out = [], hl = (L.hl || []).filter(function (h) { return h && t.indexOf(h) >= 0; }), i = 0;
     while (i < t.length) { var h = hl.filter(function (x) { return t.indexOf(x, i) === i; })[0]; if (h) { out.push(h); i += h.length; continue; }
       var j = i; while (j < t.length && j - i < 3 && !hl.some(function (x) { return t.indexOf(x, j) === j; })) j++; out.push(t.slice(i, j)); i = j; }
     // 標點黏在前一塊，不要自己一塊
