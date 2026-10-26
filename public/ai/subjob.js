@@ -57,7 +57,7 @@
     segs.forEach(function (g) { g.out = out;
       lines.forEach(function (L) { if (L.cut || (L.src || 0) !== g.src || L.e <= g.s || L.s >= g.e) return; outLines.push({ s: out + Math.max(L.s, g.s) - g.s, e: out + Math.min(L.e, g.e) - g.s, t: L.t, hl: L.hl || [] }); });
       out += g.e - g.s; });
-    return { segs: segs, lines: outLines, dur: out };
+    return { segs: segs, lines: oneLine(outLines), dur: out };
   }
   function durations(job) { return Promise.all((job.files || []).map(function (f) { return signed(f.path, 3600).then(function (u) { return new Promise(function (ok) { var v = document.createElement("video"); v.preload = "metadata"; v.onloadedmetadata = function () { ok(v.duration || 0); }; v.onerror = function () { ok(0); }; v.src = u; }); }, function () { return 0; }); })); }
 
@@ -75,6 +75,7 @@
       (j.lines || []).forEach(function (L) { L.src = k; all.push(L); });
     }
     if (needKey) throw new Error("聽寫服務設定中，我們會盡快幫你把字幕打好，好了會在這裡顯示「待確認字幕」");
+    all = oneLine(await toTW(all));
     var s = await VAI.client().rpc("ai_job_lines", { p_id: job.id, p_lines: all, p_action: "stt" }); if (s.error) throw new Error(s.error.message);
     onMsg(all.length ? "字幕打好了，請確認一下，順便決定要剪掉哪些句子。" : "影片裡沒有聽到講話，可以自己加字幕。");
     return all;
@@ -86,6 +87,19 @@
   function fxNote(job) { var f = job.fx; if (!f || job.mode !== "cut") return ""; var ef = (f.effects || []).map(function (x) { return FXN[x] || x; }), np = (f.photos || []).length;
     if (!ef.length && !np) return f.auto ? '<p class="note">質感特效：交給我們挑，出片時加上。</p>' : "";
     return '<p class="note" style="border-left:3px solid var(--gold);padding-left:8px">質感特效：' + E(ef.join("、") || "交給我們挑") + (np ? "，你的照片 " + np + " 張會放進" + (ef.length ? "特效" : "功能卡") + "裡" : "") + "。這裡的預覽只看字幕，特效和照片在出片時一起加上。</p>"; }
+  // Vic 10/26：聽寫偶爾回簡體字，一律轉成台灣繁體再存（看到簡體字才載入轉換表，平常不多花流量）
+  var SIMP = /[们这个说时来会对没为过还后发现开关门问间国东车见长马语学习经书买卖张电话钱样头脑网页选择录丢乐动让应该从现实点热爱觉听写边进认识难验视频软亲]/;
+  function loadCC() { return new Promise(function (ok, no) { if (window.OpenCC) return ok(); var sc = document.createElement("script"); sc.src = "/ai/opencc-cn2t.js"; sc.onload = function () { ok(); }; sc.onerror = no; document.head.appendChild(sc); }); }
+  async function toTW(lines) { if (!lines.some(function (L) { return SIMP.test(L.t || ""); })) return lines;
+    try { await loadCC(); var cv = window.OpenCC.Converter({ from: "cn", to: "tw" }); lines.forEach(function (L) { L.t = cv(L.t || ""); L.hl = (L.hl || []).map(function (h) { return cv(h); }); }); } catch (e) {} return lines; }
+  // Vic 10/26：字幕只能一行，放不下就換下一個字幕（照詞切，時間照字數分；跟桌機一樣）
+  var WSEG = null; try { WSEG = new Intl.Segmenter("zh-Hant", { granularity: "word" }); } catch (e) {}
+  function oneLine(lines, maxc) { maxc = maxc || 12; var out = [];
+    lines.forEach(function (L) { var t = String(L.t || "").replace(/\|/g, ""); if (t.length <= maxc) { out.push(Object.assign({}, L, { t: t })); return; }
+      var ws = WSEG ? Array.from(WSEG.segment(t)).map(function (x) { return x.segment; }) : t.split(""), n = Math.ceil(t.length / maxc), tg = Math.ceil(t.length / n), ps = [], c = "";
+      ws.forEach(function (w) { while (w.length > maxc) { if (c) { ps.push(c); c = ""; } ps.push(w.slice(0, maxc)); w = w.slice(maxc); } if (c && c.length + w.length > Math.min(maxc, tg + 2)) { ps.push(c); c = w; } else c += w; }); if (c) ps.push(c);
+      var at = L.s, tot = t.length; ps.forEach(function (pc, i) { var e = i === ps.length - 1 ? L.e : Math.round((at + (L.e - L.s) * pc.length / tot) * 100) / 100; var q = Object.assign({}, L, { t: pc, s: at, e: e, hl: (L.hl || []).filter(function (h) { return h && pc.indexOf(h) >= 0; }) }); if (i) delete q.star; out.push(q); at = e; }); });
+    return out; }
   function openEditor(box, job, opt) {
     opt = opt || {}; var lines = JSON.parse(JSON.stringify(job.lines || [])), edit = defEdit(job); if (!job.edit && opt.sticky) { edit.sticky = opt.sticky.sticky || ""; edit.stickyPos = opt.sticky.sticky_pos || "tl"; }
     var mod = modOf(job), acc = accentOf(job) || (mod && mod.accent) || "#FF3B30";
