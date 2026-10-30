@@ -41,7 +41,23 @@
     x.restore(); }
 
   // ===== 剪法：句子 → 片段和新的字幕時間 =====
-  function timeline(lines, edit, durs) {
+  // ===== 沒講話的素材（畫面素材）也要接進去（Vic 10/30）：跟桌機 cutbot.py 的 weave_broll 同一套算法 =====
+  var BROLL_MAX = 12;
+  function silentSrcs(lines, n) { var talk = {}; lines.forEach(function (L) { if (!L.cut && String(L.t || "").replace(/\|/g, "").trim()) talk[L.src || 0] = 1; }); var o = []; for (var i = 0; i < n; i++) if (!talk[i]) o.push(i); return o; }
+  function brollDefault(durs, silent) { return silent.filter(function (i) { return durs[i] > 0; }).map(function (i) { var D = durs[i], w = BROLL_MAX / 3; return { src: i, segs: D <= BROLL_MAX ? [[0, D]] : [.2, .5, .8].map(function (f) { return [Math.max(0, D * f - w / 2), Math.min(D, D * f + w / 2)]; }), after: null }; }); }
+  function brollFor(lines, durs, broll) { var sil = silentSrcs(lines, durs.length), have = {}; (broll || []).forEach(function (b) { have[b.src] = b; }); var def = brollDefault(durs, sil); return sil.map(function (i) { return have[i] || def.filter(function (b) { return b.src === i; })[0]; }).filter(Boolean); }
+  function weave(segs, br) {
+    if (!br.length) return segs; segs = segs.map(function (g) { return Object.assign({}, g); }); br = br.map(function (b) { return Object.assign({}, b); });
+    function blocks(b) { return b.segs.map(function (p) { return { src: b.src, s: +p[0], e: +p[1], broll: true }; }); }
+    var start = []; br.forEach(function (b) { if (b.after && b.after.start) start = start.concat(blocks(b)); });
+    br.forEach(function (b) { var af = b.after || {}; if (af.start || af.src == null) return; var t = +af.t, done = false;
+      for (var k = 0; k < segs.length; k++) { var g = segs[k]; if (g.broll || g.hook || g.src !== +af.src) continue;
+        if (g.s - .05 <= t && t <= g.e + .3) { var cut = Math.min(g.e, t + .15), head = Object.assign({}, g, { e: cut }), tail = Object.assign({}, g, { s: cut }); var nw = [head].concat(blocks(b)); if (tail.e - tail.s > .15) nw.push(tail); segs.splice.apply(segs, [k, 1].concat(nw)); done = true; break; } }
+      if (!done) b.after = null; });
+    br.filter(function (b) { return !b.after; }).sort(function (a, b) { return a.src - b.src; }).forEach(function (b) { var pos = 0; segs.forEach(function (g, k) { if (!g.hook && g.src < b.src) pos = k + 1; }); segs.splice.apply(segs, [pos, 0].concat(blocks(b))); });
+    return start.concat(segs);
+  }
+  function timeline(lines, edit, durs, broll) {
     var by = {}; lines.forEach(function (L) { var k = L.src || 0; (by[k] = by[k] || []).push(L); });
     var segs = [];
     Object.keys(by).map(Number).sort(function (a, b) { return a - b; }).forEach(function (src) {
@@ -52,6 +68,7 @@
       var m = []; part.forEach(function (p) { if (m.length && p[0] - m[m.length - 1][1] < 0.25) m[m.length - 1][1] = Math.max(m[m.length - 1][1], p[1]); else m.push(p.slice()); });
       m.forEach(function (p) { if (p[1] - p[0] > 0.05) segs.push({ src: src, s: p[0], e: p[1] }); });
     });
+    if (durs && durs.length > 1) segs = weave(segs, brollFor(lines, durs, broll));
     if (edit.hook) { var hk = lines.filter(function (L) { return L.star && !L.cut; }).slice(0, 2).map(function (L) { return { src: L.src || 0, s: Math.max(0, L.s - PAD), e: L.e + PAD, hook: true }; }); segs = hk.concat(segs); }
     var out = 0, outLines = [];
     segs.forEach(function (g) { g.out = out;
@@ -112,6 +129,7 @@
       '<label class="f"><span>這支想剪成怎樣（選填）</span><input type="text" data-dir maxlength="200" placeholder="例如：30 秒內、輕鬆搞笑、最後叫大家留言" value="' + E(edit.direction) + '"></label>' +
       '<div class="bar"><button class="btn sm gh" type="button" data-ai>AI 照這個方向幫我挑</button><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-gap' + (edit.trimGaps ? " checked" : "") + '>自動剪掉句子中間的停頓</label><label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-hook' + (edit.hook ? " checked" : "") + '>⭐ 重點句放開頭當鉤子</label></div>' +
       '<p class="note">每句可以改字、填重點字（句子裡有的字會上重點色；也可以打一個關鍵詞，有選功能卡、章節目錄就會用它當大字）。按 ✂ 剪掉這句，按 ⭐ 標成重點' + (job.mode !== "subs" ? "，那句畫面歪了、橫倒了就按 ↻ 轉正（每按一次轉 90 度，播放時看得到轉完的樣子）" : "") + '。用空格把一句切成幾塊，大字會照這樣分行。</p><div class="sed-rows"></div>' +
+      '<div data-broll></div>' +
       '<div class="bar"><button class="btn sm gh" type="button" data-add>＋在目前播放的時間加一句</button></div>' +
       '<div class="bar sed-act"><button class="btn sm gh" type="button" data-save>先存起來</button><button class="btn" type="button" data-ok>' + (job.mode === "subs" ? "沒問題，開始出片" : "沒問題，送去剪輯") + '</button></div><p class="msg" data-msg></p></div></div>';
     var vid = box.querySelector("video"), cv = box.querySelector("canvas"), rowsEl = box.querySelector(".sed-rows"), msg = box.querySelector("[data-msg]");
@@ -120,10 +138,17 @@
     function say(t, ok) { msg.textContent = t; msg.className = "msg" + (ok ? " ok" : t ? " err" : ""); }
     async function useSrc(k) { if (curSrc === k) return; curSrc = k; if (!urls[k]) urls[k] = await signed(job.files[k].path, 7200); vid.src = urls[k]; await new Promise(function (ok) { if (vid.readyState >= 1) ok(); else vid.onloadedmetadata = function () { ok(); }; }); }
     useSrc(0).catch(function (e) { say(e.message); });
-    durations(job).then(function (d) { durs = d; len(); });
+    durations(job).then(function (d) { durs = d; len(); brPoll(); });
     function toText(t) { return String(t || "").replace(/\|/g, " "); }
     function fromText(t) { return String(t || "").trim().replace(/\s+/g, "|"); }
-    function len() { var tl = timeline(clean(true), readEdit(), durs), orig = durs.reduce(function (a, b) { return a + b; }, 0); box.querySelector("[data-len]").textContent = "剪完約 " + tl.dur.toFixed(1) + " 秒" + (orig ? "（原本 " + orig.toFixed(1) + " 秒）" : ""); }
+    function brNote() { var el = box.querySelector("[data-broll]"); if (!el || !durs.length) return; var br = brollFor(clean(true), durs, job.broll);
+      if (!br.length) { el.innerHTML = ""; return; }
+      el.innerHTML = br.map(function (b) { var sec = b.segs.reduce(function (a, p) { return a + (p[1] - p[0]); }, 0), af = b.after || {};
+        return '<p class="note" style="margin:4px 0"><b>第 ' + (b.src + 1) + ' 支素材沒講話</b>：放 ' + sec.toFixed(1) + ' 秒畫面' + (af.start ? "，放在最前面" : af.line ? "，接在「" + E(af.line) + "」後面" : "，照上傳順序接") + (b.by === "ai" ? "（AI 看過畫面挑的" + (b.why ? "：" + E(b.why) : "") + "）" : "（AI 正在看畫面，先照上傳順序接）") + "</p>"; }).join(""); }
+    var brTimer = 0;
+    function brPoll() { if (job.broll || !box.isConnected) return; if (!durs.length || !brollFor(clean(true), durs, null).length) { brTimer = setTimeout(brPoll, 10000); return; }
+      VAI.client().from("ai_video_jobs").select("broll").eq("id", job.id).maybeSingle().then(function (r) { if (r && r.data && r.data.broll) { job.broll = r.data.broll; brNote(); len(); } else brTimer = setTimeout(brPoll, 10000); }, function () { brTimer = setTimeout(brPoll, 15000); }); }
+    function len() { brNote(); var tl = timeline(clean(true), readEdit(), durs, job.broll), orig = durs.reduce(function (a, b) { return a + b; }, 0); box.querySelector("[data-len]").textContent = "剪完約 " + tl.dur.toFixed(1) + " 秒" + (orig ? "（原本 " + orig.toFixed(1) + " 秒）" : ""); }
     function readEdit() { return { direction: box.querySelector("[data-dir]").value.trim(), trimGaps: box.querySelector("[data-gap]").checked, hook: box.querySelector("[data-hook]").checked, title: box.querySelector("[data-title]").value.trim(), titleSec: +box.querySelector("[data-tsec]").value, sticky: box.querySelector("[data-sticky]").value.trim(), stickyPos: box.querySelector("[data-spos]").value, titleStyle: box.querySelector("[data-tsty]").value, subSize: +box.querySelector("[data-size]").value, tag: box.querySelector("[data-tag]").value.trim(), tagSize: +box.querySelector("[data-tagsz]").value }; }
     function draw() {
       var lastSrc = -1;
@@ -147,7 +172,7 @@
     function clean(keepCut) { return lines.filter(function (L) { return L.t.replace(/\|/g, "").trim() && (keepCut || true); }).map(function (L) { var p = L.t.replace(/\|/g, ""), o = { s: L.s, e: L.e, t: L.t, hl: (L.hl || []).filter(function (h) { return h && String(h).trim(); }), src: L.src || 0 }; if (L.cut) o.cut = true; if (L.star) o.star = true; if (L.rot) o.rot = L.rot; return o; }); }
     // 預覽剪完的樣子
     function stopPv() { if (pv) { pv.stop = true; pv = null; vid.pause(); box.querySelector("[data-pv]").textContent = "▶ 預覽剪完的樣子"; } }
-    box.querySelector("[data-pv]").onclick = async function () { if (pv) return stopPv(); var tl = timeline(clean(true), readEdit(), durs); if (!tl.segs.length) return say("全部剪光了，至少留一句");
+    box.querySelector("[data-pv]").onclick = async function () { if (pv) return stopPv(); var tl = timeline(clean(true), readEdit(), durs, job.broll); if (!tl.segs.length) return say("全部剪光了，至少留一句");
       pv = { tl: tl, stop: false }; var me = pv; this.textContent = "■ 停止預覽";
       for (var i = 0; i < tl.segs.length && !me.stop; i++) { var g = tl.segs[i]; me.g = g; await useSrc(g.src); vid.currentTime = g.s; await new Promise(function (ok) { vid.onseeked = function () { vid.onseeked = null; ok(); }; }); if (me.stop) break; await vid.play();
         await new Promise(function (ok) { (function chk() { if (me.stop || vid.currentTime >= g.e || vid.ended) return ok(); requestAnimationFrame(chk); })(); }); }
@@ -183,7 +208,7 @@ async function render(job, onProg) {
       if (ac) { try { ac.createMediaElementSource(v).connect(dst); } catch (e) { v.muted = true; } } else v.muted = true;
       vids.push(v); durs.push(v.duration || 0);
     }
-    var ED = defEdit(job), tl = (job.lines && job.lines.length) ? timeline(job.lines, ED, durs) : { segs: vids.map(function (v, i) { return { src: i, s: 0, e: durs[i] }; }), lines: [], dur: 0 };
+    var ED = defEdit(job), tl = (job.lines && job.lines.length) ? timeline(job.lines, ED, durs, job.broll) : { segs: vids.map(function (v, i) { return { src: i, s: 0, e: durs[i] }; }), lines: [], dur: 0 };
     if (!job.lines || !job.lines.length) { var o = 0; tl.segs.forEach(function (g) { g.out = o; o += g.e - g.s; }); tl.dur = o; }
     var stream = cv.captureStream(30); if (dst) dst.stream.getAudioTracks().forEach(function (t) { stream.addTrack(t); });
     var rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 10000000, audioBitsPerSecond: 160000 }), chunks = [], started = false;
