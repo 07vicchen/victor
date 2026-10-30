@@ -47,7 +47,7 @@
     who.innerHTML = '<span>' + E(me.email) + '</span><button class="btn sm gh" type="button" id="out">登出</button>';
     $("#out").onclick = async function () { await VAI.client().auth.signOut(); VAI.refresh(); };
     var d = me.design || {};
-    if (me.admin) $("#memSub").textContent = "管理員帳號：全部功能免費使用。";
+    if (me.admin) $("#memSub").textContent = "管理員帳號：全部功能免費使用。"; else if (me.free) $("#memSub").textContent = "免費帳號：全部功能免費使用。";
     TRIAL = d.status === "trial";
     if (d.status === "active" || TRIAL) { box.innerHTML = TRIAL ? '<div class="state trial"><h3>免費試用中：還可以做 ' + ((d.left || {}).design || 0) + ' 件商品</h3><p class="note">試用可以用全部入門模組，做好的圖會有「免費試用」浮水印。每件商品要先按「AI 寫文案」（用掉 1 件），才能存整組圖。滿意的話開通方案，浮水印就拿掉。</p><a class="btn sm" href="#plans" onclick="document.documentElement.classList.add(\'vai-all\')">看方案</a></div>' : ""; plan = TIER[d.plan] || 1; work.hidden = false; usage(d); boot(); }
     else {
@@ -61,7 +61,7 @@
     if (me.admin) VAI.adminPanel($("#admin"), "design");
   };
   function usage(d) { var lim = d.limit >= 1000000 ? "不限" : d.limit, pct = d.limit >= 1000000 ? 4 : Math.min(100, d.used / d.limit * 100);
-    $("#usage").innerHTML = '<span>' + (d.status === "trial" ? "免費試用已做" : "本月已做") + ' <b>' + d.used + "</b> 件／" + lim + (d.free ? "（管理員免費）" : "") + '</span><span class="bar2"><i style="width:' + pct + '%"></i></span><span class="note">方案：' + E((VAI.PRICE.design.plans.filter(function (x) { return x.id === d.plan; })[0] || {}).n || "") + (d.period_end ? "，到 " + d.period_end : "") + "</span>"; }
+    $("#usage").innerHTML = '<span>' + (d.status === "trial" ? "免費試用已做" : "本月已做") + ' <b>' + d.used + "</b> 件／" + lim + (d.free ? "（免費帳號）" : "") + '</span><span class="bar2"><i style="width:' + pct + '%"></i></span><span class="note">方案：' + E((VAI.PRICE.design.plans.filter(function (x) { return x.id === d.plan; })[0] || {}).n || "") + (d.period_end ? "，到 " + d.period_end : "") + "</span>"; }
 
   // ===== 工作區 =====
   var booted = false;

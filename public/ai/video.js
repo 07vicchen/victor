@@ -58,7 +58,7 @@
     if (!me || !me.login) { who.innerHTML = '<a class="btn sm" href="#member">登入會員</a>'; work.hidden = true; $("#admin").innerHTML = ""; VAI.authBox(box, "/ai-video#member"); return; }
     who.innerHTML = "<span>" + E(me.email) + '</span><button class="btn sm gh" type="button" id="out">登出</button>'; $("#out").onclick = async function () { await VAI.client().auth.signOut(); VAI.refresh(); };
     var d = me.video || {};
-    window.__vaiAdmin = !!me.admin; if (me.admin) $("#memSub").textContent = "管理員帳號：全部功能免費使用。";
+    window.__vaiAdmin = !!me.admin; if (me.admin) $("#memSub").textContent = "管理員帳號：全部功能免費使用。"; else if (me.free) $("#memSub").textContent = "免費帳號：全部功能免費使用。";
     TRIAL = d.status === "trial"; TLEFT = d.left || {};
     if (d.status === "active" || TRIAL) { box.innerHTML = TRIAL ? '<div class="state trial"><h3>免費試用中：只上字幕 ' + (TLEFT.subs || 0) + ' 支、完整剪片 ' + (TLEFT.cut || 0) + ' 支</h3><p class="note">試用每次放 1 支影片、60 秒以內，成品角落有「免費試用」浮水印，不含 AI 換人。滿意的話開通方案，浮水印就拿掉。</p><a class="btn sm" href="#plans" onclick="document.documentElement.classList.add(\'vai-all\')">看方案</a></div>' : ""; plan = d.plan; work.hidden = false; usage(d); boot(); jobs(); trialModes(); }
     else { work.hidden = true; var p = d.plan && VAI.PRICE.video.plans.filter(function (x) { return x.id === d.plan; })[0];
@@ -69,7 +69,7 @@
     if (me.admin) VAI.adminPanel($("#admin"), "video");
   };
   function usage(d) { var lim = d.limit >= 1000000 ? "不限" : d.limit, pct = d.limit >= 1000000 ? 4 : Math.min(100, d.used / d.limit * 100);
-    $("#usage").innerHTML = "<span>" + (d.status === "trial" ? "免費試用已交" : "本月已交") + " <b>" + d.used + "</b> 支／" + lim + (d.free ? "（管理員免費）" : "") + '</span><span class="bar2"><i style="width:' + pct + '%"></i></span><span class="note">方案：' + E((VAI.PRICE.video.plans.filter(function (x) { return x.id === d.plan; })[0] || {}).n || "") + (d.period_end ? "，到 " + d.period_end : "") + "</span>"; }
+    $("#usage").innerHTML = "<span>" + (d.status === "trial" ? "免費試用已交" : "本月已交") + " <b>" + d.used + "</b> 支／" + lim + (d.free ? "（免費帳號）" : "") + '</span><span class="bar2"><i style="width:' + pct + '%"></i></span><span class="note">方案：' + E((VAI.PRICE.video.plans.filter(function (x) { return x.id === d.plan; })[0] || {}).n || "") + (d.period_end ? "，到 " + d.period_end : "") + "</span>"; }
   var booted = false;
   function boot() { var allowAll = plan !== "basic";
     $("#stPick").innerHTML = '<button class="chip" type="button" data-st="-1" aria-pressed="' + (pickSt === -1) + '">交給 AI 挑</button>' + VSTY.map(function (s, i) { var ok = allowAll || BASIC.indexOf(i) >= 0; return '<button class="chip" type="button" data-st="' + i + '" aria-pressed="' + (pickSt === i) + '"' + (ok ? "" : " disabled") + ">" + s[0] + "</button>"; }).join("");
