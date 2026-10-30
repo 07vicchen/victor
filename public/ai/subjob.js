@@ -46,13 +46,13 @@
   function silentSrcs(lines, n) { var talk = {}; lines.forEach(function (L) { if (!L.cut && String(L.t || "").replace(/\|/g, "").trim()) talk[L.src || 0] = 1; }); var o = []; for (var i = 0; i < n; i++) if (!talk[i]) o.push(i); return o; }
   function brollDefault(durs, silent) { return silent.filter(function (i) { return durs[i] > 0; }).map(function (i) { var D = durs[i], w = BROLL_MAX / 3; return { src: i, segs: D <= BROLL_MAX ? [[0, D]] : [.2, .5, .8].map(function (f) { return [Math.max(0, D * f - w / 2), Math.min(D, D * f + w / 2)]; }), after: null }; }); }
   function brollFor(lines, durs, broll) { var sil = silentSrcs(lines, durs.length), have = {}; (broll || []).forEach(function (b) { have[b.src] = b; }); var def = brollDefault(durs, sil); return sil.map(function (i) { return have[i] || def.filter(function (b) { return b.src === i; })[0]; }).filter(Boolean); }
-  function weave(segs, br) {
+  function weave(segs, br, lines) {
     if (!br.length) return segs; segs = segs.map(function (g) { return Object.assign({}, g); }); br = br.map(function (b) { return Object.assign({}, b); });
     function blocks(b) { return b.segs.map(function (p) { return { src: b.src, s: +p[0], e: +p[1], broll: true }; }); }
     var start = []; br.forEach(function (b) { if (b.after && b.after.start) start = start.concat(blocks(b)); });
     br.forEach(function (b) { var af = b.after || {}; if (af.start || af.src == null) return; var t = +af.t, done = false;
       for (var k = 0; k < segs.length; k++) { var g = segs[k]; if (g.broll || g.hook || g.src !== +af.src) continue;
-        if (g.s - .05 <= t && t <= g.e + .3) { var cut = Math.min(g.e, t + .15), head = Object.assign({}, g, { e: cut }), tail = Object.assign({}, g, { s: cut }); var nw = [head].concat(blocks(b)); if (tail.e - tail.s > .15) nw.push(tail); segs.splice.apply(segs, [k, 1].concat(nw)); done = true; break; } }
+        if (g.s - .05 <= t && t <= g.e + .3) { var nx = (lines || []).filter(function (L) { return (L.src || 0) === +af.src && !L.cut && L.s >= t - .01; }).map(function (L) { return L.s; }), cut = Math.min(g.e, t + .15); if (nx.length) cut = Math.max(t, Math.min(cut, Math.min.apply(null, nx) - .03)); var head = Object.assign({}, g, { e: cut }), tail = Object.assign({}, g, { s: cut }); var nw = [head].concat(blocks(b)); if (tail.e - tail.s > .15) nw.push(tail); segs.splice.apply(segs, [k, 1].concat(nw)); done = true; break; } }
       if (!done) b.after = null; });
     br.filter(function (b) { return !b.after; }).sort(function (a, b) { return a.src - b.src; }).forEach(function (b) { var pos = 0; segs.forEach(function (g, k) { if (!g.hook && g.src < b.src) pos = k + 1; }); segs.splice.apply(segs, [pos, 0].concat(blocks(b))); });
     return start.concat(segs);
@@ -68,7 +68,7 @@
       var m = []; part.forEach(function (p) { if (m.length && p[0] - m[m.length - 1][1] < 0.25) m[m.length - 1][1] = Math.max(m[m.length - 1][1], p[1]); else m.push(p.slice()); });
       m.forEach(function (p) { if (p[1] - p[0] > 0.05) segs.push({ src: src, s: p[0], e: p[1] }); });
     });
-    if (durs && durs.length > 1) segs = weave(segs, brollFor(lines, durs, broll));
+    if (durs && durs.length > 1) segs = weave(segs, brollFor(lines, durs, broll), lines);
     if (edit.hook) { var hk = lines.filter(function (L) { return L.star && !L.cut; }).slice(0, 2).map(function (L) { return { src: L.src || 0, s: Math.max(0, L.s - PAD), e: L.e + PAD, hook: true }; }); segs = hk.concat(segs); }
     var out = 0, outLines = [];
     segs.forEach(function (g) { g.out = out;
