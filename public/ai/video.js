@@ -78,6 +78,7 @@
     $("#modPick").innerHTML = '<button class="chip" type="button" data-mod="" data-auto="1" aria-pressed="' + (pickMod === "") + '">跟剪法搭配</button>' + MODS.map(function (m) { var ok = allowAll || BASIC_MODS.indexOf(m.id) >= 0; return '<button class="chip" type="button" data-mod="' + m.id + '" aria-pressed="' + (pickMod === m.id) + '"' + (ok ? "" : " disabled") + ">" + E(m.name) + "</button>"; }).join("");
     $$("[data-mod]").forEach(function (b) { b.onclick = function () { pickMod = b.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); pvSync(); }; });
     $("#acc").oninput = function () { accTouched = true; };
+    $$("[data-bty]").forEach(function (b) { b.onclick = function () { bty = b.dataset.bty; $$("[data-bty]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
     $$("[data-sz]").forEach(function (b) { b.onclick = function () { subSize = b.dataset.sz; $$("[data-sz]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); pvSync(1); }; });
     var swapOk = plan !== "basic" || (window.__vaiAdmin); $("#swapLock").hidden = swapOk; $("#swapBody").hidden = !swapOk;
     fxPick();
@@ -98,7 +99,7 @@
     VAI.client().from("ai_tool_glossary").select("words,sticky,sticky_pos").maybeSingle().then(function (r) { if (r && r.data) { savedSticky = r.data; if (!$("#vGloss").value) $("#vGloss").value = r.data.words || ""; } }, function () {});
     VAI.client().rpc("ai_render_cap").then(function (r) { if (r && !r.error) renderCap = r.data; }, function () {}); }
   function setMode(m) { mode = m; if (m === "subs" && !pickMod) { var f = $$("[data-mod]").filter(function (x) { return x.dataset.mod && !x.disabled; })[0]; if (f) { pickMod = f.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === f)); }); } } $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
-    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#fxPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "4"; $("#noteNo").textContent = subs ? "3" : "5"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
+    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#fxPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "4"; $("#noteNo").textContent = subs ? "3" : "5"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $("#beautyRow").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
     
     $("#stNote").textContent = plan === "basic" ? "入門方案可用 3 種剪法，升級專業就能用全部。" : ""; $("#modNote").textContent = plan === "basic" ? "入門方案可用 8 種字幕樣式，升級專業就能用全部 24 種。" : "";
     pvSync(); $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; }
@@ -126,7 +127,7 @@
     $$("[data-fxrm]").forEach(function (b) { b.onclick = function () { var p = fxPhotos.splice(+b.dataset.fxrm, 1)[0]; if (p) URL.revokeObjectURL(p.url); fxList(); }; });
     fxSync(); }
   // ===== 選了馬上預覽（用跟出片一樣的字幕程式畫） =====
-  var subSize = "中", logoImg = null, accTouched = false, pvT0 = performance.now(), pvOn = false;
+  var subSize = "中", bty = "不要", logoImg = null, accTouched = false, pvT0 = performance.now(), pvOn = false;
   function curMod() { var id = pickMod; if (!id && mode !== "subs") id = pickSt >= 0 && window.SUBJOB ? SUBJOB.CUTMAP[VSTY[pickSt][0]] : "pop";
     return MODS.filter(function (q) { return q.id === id; })[0] || MODS[0]; }
   function pvSync(keep) { var c = $("#pv"); if (!c || !MODS.length) return; var m = curMod();
@@ -183,7 +184,7 @@
         fx = { auto: !fxOn.length, effects: effs, photos: fph }; }
       var md = MODS.filter(function (q) { return q.id === pickMod; })[0], st = mode === "subs" ? "只上字幕：" + (md ? md.name : "") : (pickSt < 0 ? "交給 AI 挑" : VSTY[pickSt][0]);
       var mus = ($$("[data-mus]").filter(function (x) { return x.getAttribute("aria-pressed") === "true"; })[0] || {}).dataset; mus = mus ? mus.mus : "原創配樂";
-      var note = $("#vNote").value + "（重點字顏色 " + $("#acc").value + "）（字幕大小 " + subSize + "）" + (mode === "subs" ? "" : "（配樂：" + mus + "）");
+      var note = $("#vNote").value + "（重點字顏色 " + $("#acc").value + "）（字幕大小 " + subSize + "）" + (mode === "subs" ? "" : "（配樂：" + mus + "）" + (bty === "不要" ? "" : "（美顏 " + bty + "）"));
       var s = await c.rpc("ai_video_submit3", { p_files: up, p_style: st, p_note: note, p_logo: lp, p_mode: mode, p_module: pickMod || null, p_swap: sw, p_fx: fx }); if (s.error) throw new Error(s.error.message);
       var lt = $("#vLogoT").value.trim(); if (lt) { await c.rpc("ai_job_edit", { p_id: s.data, p_edit: { sticky: lt, stickyPos: "tr" } }); }
       var gl = $("#vGloss").value.trim(); VAI.client().rpc("ai_glossary_set", { p_words: gl }).then(function () {}, function () {});

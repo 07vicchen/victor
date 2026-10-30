@@ -158,7 +158,7 @@
     <div class="bar" style="margin-bottom:14px"><span class="note">付款方式</span><button class="chip" type="button" data-bill="month" aria-pressed="true">月繳</button><button class="chip" type="button" data-bill="year" aria-pressed="false">年繳（送 2 個月）</button></div>
     <div class="plans" id="planCards"></div>
     <div id="extras"></div>
-    <div class="feats" style="margin-top:14px"><div class="feat"><span class="ic">⏱</span><b>多久拿到</b><span>只上字幕：確認字幕後網頁直接出片，1 分鐘影片約 1 分鐘。完整剪片：確認字幕後通常 15 分鐘內交片（影片越長越久），旗艦排隊時優先剪。</span></div><div class="feat"><span class="ic">✎</span><b>可以改幾次</b><span>出片前改字幕不限次數。出片後：入門再改 1 次、專業 3 次、旗艦不限。</span></div><div class="feat"><span class="ic">▦</span><b>一次丟好幾支</b><span>講話的、沒講話的都可以一起丟。完整剪片會看沒講話那幾支的畫面，挑最好看的幾段，接在對的那句話後面，剪成一支完整的片；預覽看到的就是成品的接法。</span></div><div class="feat"><span class="ic">♪</span><b>人聲自動加清楚</b><span>完整剪片會自動壓掉冷氣、風聲這類背景雜音，咬字調清楚、音量調到短影音平台的標準；有配樂時，講話那幾秒配樂會自動降低。</span></div><div class="feat"><span class="ic">✓</span><b>買到什麼</b><span>方案卡上寫的就是全部內容；AI 換人、加購支數、急件另外加購。</span></div></div>
+    <div class="feats" style="margin-top:14px"><div class="feat"><span class="ic">⏱</span><b>多久拿到</b><span>只上字幕：確認字幕後網頁直接出片，1 分鐘影片約 1 分鐘。完整剪片：確認字幕後通常 15 分鐘內交片（影片越長越久），旗艦排隊時優先剪。</span></div><div class="feat"><span class="ic">✎</span><b>可以改幾次</b><span>出片前改字幕不限次數。出片後：入門再改 1 次、專業 3 次、旗艦不限。</span></div><div class="feat"><span class="ic">▦</span><b>一次丟好幾支</b><span>講話的、沒講話的都可以一起丟。完整剪片會看沒講話那幾支的畫面，挑最好看的幾段，接在對的那句話後面，剪成一支完整的片；預覽看到的就是成品的接法。</span></div><div class="feat"><span class="ic">♪</span><b>人聲自動加清楚</b><span>完整剪片會自動壓掉冷氣、風聲這類背景雜音，咬字調清楚、音量調到短影音平台的標準；有配樂時，講話那幾秒配樂會自動降低。</span></div><div class="feat"><span class="ic">✧</span><b>想美顏可以自己選</b><span>美顏分「不要／輕／中」，預設不要。只磨臉上皮膚、提一點氣色，背景不會糊；前後對比的影片會自動不開。</span></div><div class="feat"><span class="ic">✓</span><b>買到什麼</b><span>方案卡上寫的就是全部內容；AI 換人、加購支數、急件另外加購。</span></div></div>
     <p class="fine">價格為目前方案，如有調整以網站公告為準。</p>
   </section>
 
@@ -217,6 +217,7 @@
           <div class="ph"><b id="noteNo">4</b><div><h3>特別交代和 logo（選填）</h3><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
           <label class="f"><span>常用詞（品牌名、產品名、人名，用空格隔開，AI 打字幕時會照這個寫）</span><input type="text" id="vGloss" maxlength="1000" placeholder="例如：維拓傳媒 AI剪片 Vic"></label>
           <label class="f"><span>備註</span><textarea id="vNote" rows="3" maxlength="500"></textarea></label>
+          <div id="beautyRow"><div class="bar"><span class="note">美顏</span><button class="chip" type="button" data-bty="不要" aria-pressed="true">不要</button><button class="chip" type="button" data-bty="輕" aria-pressed="false">輕</button><button class="chip" type="button" data-bty="中" aria-pressed="false">中</button></div><p class="note">臉上皮膚磨細一點、氣色亮一點，背景和頭髮不會糊。前後對比的影片（美容、美甲、整骨這類）請選「不要」，不然對比會不準；影片有寫 BEFORE／AFTER 或「前後對比」，系統也會自動不開。預覽看不到美顏，成品才有。</p></div>
           <div id="musRow"><div class="bar"><span class="note">背景音樂</span><button class="chip" type="button" data-mus="原創配樂" aria-pressed="true">幫我配音樂</button><button class="chip" type="button" data-mus="不要配樂" aria-pressed="false">不要音樂</button></div><p class="note" style="margin:4px 0 0">幫我配音樂：我們放一段沒有版權問題的背景音樂，講話時自動調小聲。不要音樂：成品只有你的聲音，發 IG、抖音時可以自己加平台上的熱門歌。</p></div>
           <div class="bar"><label class="up">上傳 logo（選填）<input type="file" accept="image/*" id="vLogo" hidden></label><span class="note">或直接打字</span><input type="text" id="vLogoT" maxlength="20" placeholder="例如：維拓傳媒" style="padding:9px 12px;border:1px solid var(--line);font:inherit;min-width:0;flex:1;max-width:240px"><span class="note" id="vLogoMsg">有放的話會放在影片角落</span></div>
           <div class="pvm" id="pvm" hidden><canvas id="pv2" width="270" height="480" aria-label="logo 預覽"></canvas><span class="note">打字或換 logo，這裡馬上就會變</span></div>
@@ -238,6 +239,6 @@
 <script src="/ai/subfx.js?v=1026i"></script>
 <script src="/ai/core.js?v=1026f"></script>
 <script src="/ai/subjob.js?v=1030b"></script>
-<script src="/ai/video.js?v=1026l"></script>
+<script src="/ai/video.js?v=1030c"></script>
 </body>
 </html>
