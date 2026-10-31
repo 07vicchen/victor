@@ -150,16 +150,18 @@
   function vidDur(f) { return new Promise(function (ok) { var v = document.createElement("video"); v.preload = "metadata"; v.onloadedmetadata = function () { ok(v.duration || 0); URL.revokeObjectURL(v.src); }; v.onerror = function () { ok(0); }; v.src = URL.createObjectURL(f); }); }
   function loadTus() { return window.tus ? Promise.resolve() : new Promise(function (ok, no) { var s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/tus-js-client@4.1.0/dist/tus.min.js"; s.onload = ok; s.onerror = function () { no(new Error("上傳元件載不進來，重新整理再試一次")); }; document.head.appendChild(s); }); }
   async function bigUpload(c, path, f, prog) {
-    if (f.size <= 6 * 1048576) { var r = await c.storage.from("ai-videos").upload(path, f, { contentType: f.type || "video/mp4" }); if (r.error) throw new Error("上傳失敗：" + r.error.message); prog(1); return; }
+    if (f.size <= 6 * 1048576) { var r = await c.storage.from("ai-videos").upload(path, f, { contentType: f.type || "video/mp4" }); if (r.error) throw new Error("上傳失敗：" + r.error.message); prog(1); return path; }
     await loadTus(); var tk = await VAI.token();
+    var real = path;   // Vic 10/31 #43：接著上次沒傳完的檔案續傳時，檔案存在上次的名字，要記真正的名字
     await new Promise(function (ok, no) {
       var u = new window.tus.Upload(f, { endpoint: "https://cswhroimywfyokxxogis.supabase.co/storage/v1/upload/resumable", retryDelays: [0, 2000, 5000, 10000, 20000],
         headers: { authorization: "Bearer " + tk }, uploadDataDuringCreation: true, removeFingerprintOnSuccess: true, chunkSize: 6 * 1024 * 1024,
         metadata: { bucketName: "ai-videos", objectName: path, contentType: f.type || "video/mp4", cacheControl: "3600" },
         onError: function (e) { var t = String(e && e.message || e); no(new Error(/413|too large|exceeded/i.test(t) ? "影片太大，系統收不下，請剪短一點或用 1080p 重新匯出" : "上傳失敗：" + t.slice(0, 160))); },
         onProgress: function (a, b) { prog(b ? a / b : 0); }, onSuccess: function () { prog(1); ok(); } });
-      u.findPreviousUploads().then(function (prev) { if (prev.length) u.resumeFromPreviousUpload(prev[0]); u.start(); });
+      u.findPreviousUploads().then(function (prev) { var mine = prev.filter(function (x) { return x.metadata && x.metadata.bucketName === "ai-videos" && String(x.metadata.objectName || "").indexOf(path.split("/")[0] + "/") === 0; }); if (mine.length) { u.resumeFromPreviousUpload(mine[0]); real = mine[0].metadata.objectName; } u.start(); });
     });
+    return real;
   }
   function listFiles() { $("#flist").innerHTML = files.map(function (f, i) { var big = f.size > MAXMB * 1048576; return "<div><b>" + E(f.name) + "</b><span" + (big ? ' style="color:#b23b2e"' : "") + ">" + (f.size / 1048576).toFixed(1) + " MB" + (big ? "（超過 " + MAXMB + "MB）" : "") + '</span><button class="chip" type="button" data-rm="' + i + '">移除</button></div>' + (/^result_\d+_/i.test(f.name) ? '<p class="msg err" style="margin:2px 0 8px">這支看起來是我們剪好的成品，畫面上已經有字幕了，再剪一次會出現兩層字幕。要重剪請丟原始影片，或在「我的影片」按改字幕重出。</p>' : ""); }).join("");
     $$("[data-rm]").forEach(function (b) { b.onclick = function () { files.splice(+b.dataset.rm, 1); listFiles(); }; }); }
@@ -173,7 +175,7 @@
     try {
       for (var i = 0; i < files.length; i++) { m.textContent = "上傳中 " + (i + 1) + "/" + files.length + "…"; pg.firstChild.style.width = (i / files.length * 90) + "%";
         var f = files[i], path = uid + "/" + stamp + "_" + i + "." + ((f.name.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, "") || "mp4");
-        await bigUpload(c, path, f, function (q) { pg.firstChild.style.width = ((i + q) / files.length * 90) + "%"; m.textContent = "上傳中 " + (i + 1) + "/" + files.length + "… " + Math.round(q * 100) + "%"; }); up.push({ path: path, name: f.name, size: f.size }); }
+        path = await bigUpload(c, path, f, function (q) { pg.firstChild.style.width = ((i + q) / files.length * 90) + "%"; m.textContent = "上傳中 " + (i + 1) + "/" + files.length + "… " + Math.round(q * 100) + "%"; }); up.push({ path: path, name: f.name, size: f.size }); }
       var lp = null; if (vlogo) { lp = uid + "/" + stamp + "_logo." + ((vlogo.name.split(".").pop() || "png").toLowerCase()); var lr = await c.storage.from("ai-videos").upload(lp, vlogo, { contentType: vlogo.type || "image/png" }); if (lr.error) lp = null; }
       var sw = null; if (swPhotos.length) { var ph = []; for (var k = 0; k < swPhotos.length; k++) { m.textContent = "上傳換人照片 " + (k + 1) + "/" + swPhotos.length + "…"; var pp = uid + "/" + stamp + "_face" + k + "." + ((swPhotos[k].name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"); var pr = await c.storage.from("ai-videos").upload(pp, swPhotos[k], { contentType: swPhotos[k].type || "image/jpeg" }); if (pr.error) throw new Error("照片上傳失敗：" + pr.error.message); ph.push(pp); }
         var proof = null; if (swProof && swWho === "朋友授權") { proof = uid + "/" + stamp + "_proof." + ((swProof.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"); var qr = await c.storage.from("ai-videos").upload(proof, swProof, { contentType: swProof.type || "image/jpeg" }); if (qr.error) proof = null; }
