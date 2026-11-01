@@ -94,6 +94,8 @@
     $$("[data-mus]").forEach(function (b) { b.onclick = function () { $$("[data-mus]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
     $("#vLogoT").oninput = function () { var t = this.value.trim(); $("#vLogoMsg").textContent = t ? "會把「" + t + "」放在影片右上角，確認字幕時可以改位置" : "有放的話會放在影片角落"; $("#pvm").hidden = !t && !vlogo; pvSync(1); fxSync(); };
     $("#send").onclick = send;
+    try { var left = Object.keys(localStorage).filter(function (k) { return k.indexOf("tus::") === 0 && localStorage.getItem(k).indexOf("ai-videos") >= 0; }).map(function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }).filter(function (x) { return x && Date.now() - new Date(x.creationTime).getTime() < 864e5; });
+      if (left.length) { var sm = $("#sendMsg"); sm.className = "msg err"; sm.textContent = "你有 " + left.length + " 支影片上次沒傳完。選同一支影片再送出，會從斷掉的地方接著傳，不用重來（24 小時內有效）。"; } } catch (e) {}
     $("#fxPh").onchange = function (e) { var add = [].slice.call(e.target.files), skip = 0; e.target.value = "";
       add.forEach(function (f) { if (!/^image\//.test(f.type || "image/") || f.size > FXMB * 1048576 || fxPhotos.length >= FXMAX) { skip++; return; } fxPhotos.push({ f: f, use: "auto", url: URL.createObjectURL(f) }); });
       fxList(); if (skip) { $("#fxNote").textContent = "有 " + skip + " 張沒加進來：只收照片、每張 " + FXMB + "MB 以內、最多 " + FXMAX + " 張。"; } };
@@ -153,13 +155,21 @@
     if (f.size <= 6 * 1048576) { var r = await c.storage.from("ai-videos").upload(path, f, { contentType: f.type || "video/mp4" }); if (r.error) throw new Error("上傳失敗：" + r.error.message); prog(1); return path; }
     await loadTus(); var tk = await VAI.token();
     var real = path;   // Vic 10/31 #43：接著上次沒傳完的檔案續傳時，檔案存在上次的名字，要記真正的名字
+    // Vic 11/1：手機切走、鎖螢幕、網路斷一下都不能讓客人重來——一直重試，回到這頁馬上接著傳；卡住 25 秒沒動就自己重接
     await new Promise(function (ok, no) {
-      var u = new window.tus.Upload(f, { endpoint: "https://cswhroimywfyokxxogis.supabase.co/storage/v1/upload/resumable", retryDelays: [0, 2000, 5000, 10000, 20000],
+      var done = false, last = Date.now(), wait = [0, 1000, 3000, 5000]; for (var w = 0; w < 60; w++) wait.push(10000);   // 斷線最多再試約 10 分鐘
+      var u = new window.tus.Upload(f, { endpoint: "https://cswhroimywfyokxxogis.supabase.co/storage/v1/upload/resumable", retryDelays: wait,
         headers: { authorization: "Bearer " + tk }, uploadDataDuringCreation: true, removeFingerprintOnSuccess: true, chunkSize: 6 * 1024 * 1024,
         metadata: { bucketName: "ai-videos", objectName: path, contentType: f.type || "video/mp4", cacheControl: "3600" },
-        onError: function (e) { var t = String(e && e.message || e); no(new Error(/413|too large|exceeded/i.test(t) ? "影片太大，系統收不下，請剪短一點或用 1080p 重新匯出" : "上傳失敗：" + t.slice(0, 160))); },
-        onProgress: function (a, b) { prog(b ? a / b : 0); }, onSuccess: function () { prog(1); ok(); } });
-      u.findPreviousUploads().then(function (prev) { var mine = prev.filter(function (x) { return x.metadata && x.metadata.bucketName === "ai-videos" && String(x.metadata.objectName || "").indexOf(path.split("/")[0] + "/") === 0; }); if (mine.length) { u.resumeFromPreviousUpload(mine[0]); real = mine[0].metadata.objectName; } u.start(); });
+        onShouldRetry: function (err) { var st = err && err.originalResponse ? err.originalResponse.getStatus() : 0; return !(st === 413 || st === 400 || st === 403); },
+        onError: function (e) { done = true; cleanup(); var t = String(e && e.message || e); no(new Error(/413|too large|exceeded/i.test(t) ? "影片太大，系統收不下，請剪短一點或用 1080p 重新匯出" : "上傳中斷了。再按一次送出、選同一支影片，會從斷掉的地方接著傳，不用重來。")); },
+        onProgress: function (x, y) { last = Date.now(); prog(y ? x / y : 0); }, onSuccess: function () { done = true; cleanup(); prog(1); ok(); } });
+      function kick() { if (done) return; last = Date.now(); try { u.abort().then(function () { if (!done) u.start(); }); } catch (e) { u.start(); } }
+      function onVis() { if (document.visibilityState === "visible" && Date.now() - last > 3000) kick(); }   // 回到這一頁：馬上接著傳
+      document.addEventListener("visibilitychange", onVis); window.addEventListener("online", kick);
+      var watch = setInterval(function () { if (document.visibilityState === "visible" && Date.now() - last > 25000) kick(); }, 5000);
+      function cleanup() { clearInterval(watch); document.removeEventListener("visibilitychange", onVis); window.removeEventListener("online", kick); }
+      u.findPreviousUploads().then(function (prev) { var mine = prev.filter(function (x) { return x.metadata && x.metadata.bucketName === "ai-videos" && String(x.metadata.objectName || "").indexOf(path.split("/")[0] + "/") === 0 && x.size === f.size; }); if (mine.length) { u.resumeFromPreviousUpload(mine[0]); real = mine[0].metadata.objectName; } u.start(); });
     });
     return real;
   }
