@@ -171,6 +171,10 @@
     if (TRIAL) { if (files.length > 1) { m.className = "msg err"; m.textContent = "免費試用一次放 1 支影片"; return; } var dd = await vidDur(files[0]); if (dd > 61) { m.className = "msg err"; m.textContent = "免費試用的影片要 60 秒以內（這支 " + Math.round(dd) + " 秒），先剪短一點再傳"; return; } }
     if (mode === "subs" && !pickMod) { m.className = "msg err"; m.textContent = "先選一個字幕模組"; return; }
     if (swPhotos.length && !$("#swOk").checked) { m.className = "msg err"; m.textContent = "要換人的話，請先勾選下面的同意聲明"; return; }
+    // Vic 11/1：手機傳到一半鎖螢幕或切到別的 App，上傳會停住、影片不見。上傳時叫手機別睡，並提醒不要離開
+    var wl = null; try { if (navigator.wakeLock) wl = await navigator.wakeLock.request("screen"); } catch (e) {}
+    var stay = $("#upStay"); if (!stay) { stay = document.createElement("p"); stay.id = "upStay"; stay.className = "msg err"; m.parentNode.insertBefore(stay, m); }
+    stay.hidden = false; stay.textContent = "上傳中，請停在這一頁、不要鎖螢幕或切到別的 App，不然會傳到一半停住。傳完會出現「送出了！」。";
     b.disabled = true; pg.hidden = false; m.className = "msg"; var c = VAI.client(), uid = (await c.auth.getUser()).data.user.id, stamp = Date.now(), up = [];
     try {
       for (var i = 0; i < files.length; i++) { m.textContent = "上傳中 " + (i + 1) + "/" + files.length + "…"; pg.firstChild.style.width = (i / files.length * 90) + "%";
@@ -195,6 +199,7 @@
       openJob = s.data; sttRun(newJob, gl);
       pg.firstChild.style.width = "100%"; m.className = "msg ok"; m.textContent = "送出了！編號 #" + s.data + "，AI 正在打字幕，好了請在下面「我的影片」確認。" + (sw ? "換人的報價會用 LINE 跟你確認。" : ""); files = []; listFiles(); swPhotos = []; swProof = null; $("#swPh").value = ""; $("#swOk").checked = false; $("#swPhMsg").textContent = "還沒選照片，不換人就不用選"; $("#vNote").value = ""; fxPhotos.forEach(function (p) { URL.revokeObjectURL(p.url); }); fxPhotos = []; fxList(); VAI.refresh(); jobs();
     } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+    try { if (wl) wl.release(); } catch (e) {} if ($("#upStay")) $("#upStay").hidden = true;
     b.disabled = false; setTimeout(function () { pg.hidden = true; pg.firstChild.style.width = "0"; }, 1500); }
   var ST = { stt: "AI 打字幕中", review: "待你確認字幕", rendering: "待出片", queued: "已收到，通常 15 分鐘內交片", working: "剪輯中，快好了", done: "完成", error: "有問題，我們會聯絡你" };
   var JOBS = [];
