@@ -18,6 +18,9 @@
     { id: "grade", n: "暖色系列", fit: "每一支都適合", d: "整支調成溫暖的底片色，膚色好看、白色不刺眼。", basic: 1, img: "fx_grade" },
     { id: "hang", n: "吊牌字", fit: "重點字、情緒字", d: "一個關鍵字掛在細線上從上面垂下來，輕輕晃一下就停，不會抖。", img: "fx_hang" },
     { id: "chapters", n: "章節目錄", fit: "教學、清單型內容", d: "右側一排小字列出這支片的段落，講到哪一段就亮哪一段，觀眾知道還有什麼沒看。", basic: 1, img: "fx_chapters" },
+    { id: "qcard", n: "問題卡", fit: "開頭丟問題、主題", d: "開頭講到要問的問題時，畫面旁邊跳出一張小白卡，紅色問號＋主題＋問題，讓人想看答案。11 月新款。", img: "fx_qcard" },
+    { id: "versus", n: "二選一卡", fit: "比較、選邊站", d: "講到「A 還是 B」時，下方跳出左右兩張卡、中間 VS，還會標出你選哪邊，最容易讓人留言。11 月新款。", img: "fx_versus" },
+    { id: "glass", n: "毛玻璃重點卡", fit: "金句、結論", d: "講到最有記憶點的那句，跳出一張半透明白卡，大字放重點、底下一條金線。11 月新款。", img: "fx_glass" },
     { id: "logo", n: "品牌 logo", fit: "有品牌的都建議放", d: "你上傳的 logo 放在角落當浮水印，整支都在。logo 在最下面「特別交代和 logo」上傳，或直接打字。", basic: 1, img: "fx_logo" }];
   var fxOn = [], fxPhotos = [], FXMAX = 12, FXMB = 10;
   function fxName(id) { var f = FX.filter(function (x) { return x.id === id; })[0]; return f ? f.n : "交給我們"; }
@@ -78,6 +81,7 @@
     $("#modPick").innerHTML = '<button class="chip" type="button" data-mod="" data-auto="1" aria-pressed="' + (pickMod === "") + '">跟剪法搭配</button>' + MODS.map(function (m) { var ok = allowAll || BASIC_MODS.indexOf(m.id) >= 0; return '<button class="chip" type="button" data-mod="' + m.id + '" aria-pressed="' + (pickMod === m.id) + '"' + (ok ? "" : " disabled") + ">" + E(m.name) + "</button>"; }).join("");
     $$("[data-mod]").forEach(function (b) { b.onclick = function () { pickMod = b.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); pvSync(); }; });
     $("#acc").oninput = function () { accTouched = true; };
+    $$("[data-spos]").forEach(function (b) { b.onclick = function () { spos = b.dataset.spos; $$("[data-spos]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
     $$("[data-ratio]").forEach(function (b) { b.onclick = function () { ratio = b.dataset.ratio; $$("[data-ratio]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
     $$("[data-bty]").forEach(function (b) { b.onclick = function () { bty = b.dataset.bty; $$("[data-bty]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
     $$("[data-sz]").forEach(function (b) { b.onclick = function () { subSize = b.dataset.sz; $$("[data-sz]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); pvSync(1); }; });
@@ -102,7 +106,7 @@
     VAI.client().from("ai_tool_glossary").select("words,sticky,sticky_pos").maybeSingle().then(function (r) { if (r && r.data) { savedSticky = r.data; if (!$("#vGloss").value) $("#vGloss").value = r.data.words || ""; } }, function () {});
     VAI.client().rpc("ai_render_cap").then(function (r) { if (r && !r.error) renderCap = r.data; }, function () {}); }
   function setMode(m) { mode = m; if (m === "subs" && !pickMod) { var f = $$("[data-mod]").filter(function (x) { return x.dataset.mod && !x.disabled; })[0]; if (f) { pickMod = f.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === f)); }); } } $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
-    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#fxPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "4"; $("#noteNo").textContent = subs ? "3" : "5"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $("#beautyRow").hidden = subs; $("#ratioRow").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
+    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#fxPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "4"; $("#noteNo").textContent = subs ? "3" : "5"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $("#beautyRow").hidden = subs; $("#ratioRow").hidden = subs; $("#sposRow").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
     
     $("#stNote").textContent = plan === "basic" ? "入門方案可用 3 種剪法，升級專業就能用全部。" : ""; $("#modNote").textContent = plan === "basic" ? "入門方案可用 8 種字幕樣式，升級專業就能用全部 " + MODS.length + " 種。" : "";
     pvSync(); $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; }
@@ -130,7 +134,7 @@
     $$("[data-fxrm]").forEach(function (b) { b.onclick = function () { var p = fxPhotos.splice(+b.dataset.fxrm, 1)[0]; if (p) URL.revokeObjectURL(p.url); fxList(); }; });
     fxSync(); }
   // ===== 選了馬上預覽（用跟出片一樣的字幕程式畫） =====
-  var subSize = "中", bty = "不要", ratio = "9:16", logoImg = null, accTouched = false, pvT0 = performance.now(), pvOn = false;
+  var subSize = "中", bty = "不要", ratio = "9:16", spos = "下方", logoImg = null, accTouched = false, pvT0 = performance.now(), pvOn = false;
   function curMod() { var id = pickMod; if (!id && mode !== "subs") id = pickSt >= 0 && window.SUBJOB ? SUBJOB.CUTMAP[VSTY[pickSt][0]] : "pop";
     return MODS.filter(function (q) { return q.id === id; })[0] || MODS[0]; }
   function pvSync(keep) { var c = $("#pv"); if (!c || !MODS.length) return; var m = curMod();
@@ -201,7 +205,7 @@
         fx = { auto: !fxOn.length, effects: effs, photos: fph }; }
       var md = MODS.filter(function (q) { return q.id === pickMod; })[0], st = mode === "subs" ? "只上字幕：" + (md ? md.name : "") : (pickSt < 0 ? "交給 AI 挑" : VSTY[pickSt][0]);
       var mus = ($$("[data-mus]").filter(function (x) { return x.getAttribute("aria-pressed") === "true"; })[0] || {}).dataset; mus = mus ? mus.mus : "原創配樂";
-      var note = $("#vNote").value + "（重點字顏色 " + $("#acc").value + "）（字幕大小 " + subSize + "）" + (mode === "subs" ? "" : "（配樂：" + mus + "）" + (bty === "不要" ? "" : "（美顏 " + bty + "）") + (ratio === "16:9" ? "（比例 16:9）" : ""));
+      var note = $("#vNote").value + "（重點字顏色 " + $("#acc").value + "）（字幕大小 " + subSize + "）" + (mode === "subs" ? "" : "（配樂：" + mus + "）" + (bty === "不要" ? "" : "（美顏 " + bty + "）") + (ratio === "16:9" ? "（比例 16:9）" : "") + (spos === "中間" ? "（字幕位置 中間）" : ""));
       var s = await c.rpc("ai_video_submit3", { p_files: up, p_style: st, p_note: note, p_logo: lp, p_mode: mode, p_module: pickMod || null, p_swap: sw, p_fx: fx }); if (s.error) throw new Error(s.error.message);
       var lt = $("#vLogoT").value.trim(); if (lt) { await c.rpc("ai_job_edit", { p_id: s.data, p_edit: { sticky: lt, stickyPos: "tr" } }); }
       var gl = $("#vGloss").value.trim(); VAI.client().rpc("ai_glossary_set", { p_words: gl }).then(function () {}, function () {});

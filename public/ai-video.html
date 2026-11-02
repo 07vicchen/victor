@@ -160,7 +160,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
     <div class="bar" style="margin-bottom:14px"><span class="note">付款方式</span><button class="chip" type="button" data-bill="month" aria-pressed="true">月繳</button><button class="chip" type="button" data-bill="year" aria-pressed="false">年繳（送 2 個月）</button></div>
     <div class="plans" id="planCards"></div>
     <div id="extras"></div>
-    <div class="feats" style="margin-top:14px"><div class="feat"><span class="ic">⏱</span><b>多久拿到</b><span>只上字幕：確認字幕後網頁直接出片，1 分鐘影片約 1 分鐘。完整剪片：確認字幕後通常 15 分鐘內交片（影片越長越久），旗艦排隊時優先剪。</span></div><div class="feat"><span class="ic">✎</span><b>可以改幾次</b><span>出片前改字幕不限次數。出片後：入門再改 1 次、專業 3 次、旗艦不限。</span></div><div class="feat"><span class="ic">▦</span><b>一次丟好幾支</b><span>講話的、沒講話的都可以一起丟。完整剪片會看沒講話那幾支的畫面，挑最好看的幾段，接在對的那句話後面，剪成一支完整的片；預覽看到的就是成品的接法。</span></div><div class="feat"><span class="ic">♪</span><b>人聲自動加清楚</b><span>完整剪片會自動壓掉冷氣、風聲這類背景雜音，咬字調清楚、音量調到短影音平台的標準；有配樂時，講話那幾秒配樂會自動降低。</span></div><div class="feat"><span class="ic">✧</span><b>想美顏可以自己選</b><span>美顏分「不要／輕／中」，預設不要。只磨臉上皮膚、提一點氣色，背景不會糊；前後對比的影片會自動不開。</span></div><div class="feat"><span class="ic">▭</span><b>直式、橫式自己選</b><span>IG、抖音用直式 9:16，YouTube、官網用橫式 16:9。直的、橫的素材混在一起也可以，會自動排好，不會變成中間一條。</span></div><div class="feat"><span class="ic">✓</span><b>買到什麼</b><span>方案卡上寫的就是全部內容；AI 換人、加購支數、急件另外加購。</span></div></div>
+    <div class="feats" style="margin-top:14px"><div class="feat"><span class="ic">⏱</span><b>多久拿到</b><span>只上字幕：確認字幕後網頁直接出片，1 分鐘影片約 1 分鐘。完整剪片：確認字幕後通常 15 分鐘內交片（影片越長越久），旗艦排隊時優先剪。</span></div><div class="feat"><span class="ic">✎</span><b>可以改幾次</b><span>出片前改字幕不限次數。出片後：入門再改 1 次、專業 3 次、旗艦不限。</span></div><div class="feat"><span class="ic">▦</span><b>一次丟好幾支</b><span>講話的、沒講話的都可以一起丟。完整剪片會看沒講話那幾支的畫面，挑最好看的幾段，接在對的那句話後面，剪成一支完整的片；預覽看到的就是成品的接法。</span></div><div class="feat"><span class="ic">♪</span><b>人聲自動加清楚</b><span>完整剪片會自動壓掉冷氣、風聲這類背景雜音，咬字調清楚、音量調到短影音平台的標準；有配樂時，講話那幾秒配樂會自動降低。</span></div><div class="feat"><span class="ic">✧</span><b>想美顏可以自己選</b><span>美顏分「不要／輕／中」，預設不要。只磨臉上皮膚、提一點氣色，背景不會糊；前後對比的影片會自動不開。</span></div><div class="feat"><span class="ic">▭</span><b>直式、橫式自己選</b><span>IG、抖音用直式 9:16，YouTube、官網用橫式 16:9。直的、橫的素材混在一起也可以，會自動排好，不會變成中間一條。</span></div><div class="feat"><span class="ic">？</span><b>11 月新款：問題卡、二選一卡、重點卡</b><span>學最近的爆款：開頭丟問題時跳出問題卡，講「A 還是 B」時跳出左右對比卡加 VS，金句時跳出毛玻璃重點卡。AI 看你講的內容自己挑時間點，專業方案以上可用。</span></div><div class="feat"><span class="ic">✓</span><b>買到什麼</b><span>方案卡上寫的就是全部內容；AI 換人、加購支數、急件另外加購。</span></div></div>
     <p class="fine">價格為目前方案，如有調整以網站公告為準。</p>
   </section>
 
@@ -175,6 +175,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
         <div class="panel">
           <div class="ph"><b>1</b><div><h3>上傳素材</h3><p>最多 5 支，每支 500MB 以內（手機 1080p 大約 5～8 分鐘）。用 1080p 拍就好，不用 4K（平台最高只播 1080p），傳得也比較快。</p></div></div>
           <div class="drop"><input type="file" id="vf" accept="video/*,.mp4,.mov,.m4v" multiple aria-label="選擇影片"><b>點這裡選影片，或拖進來</b><span class="note">mp4、mov 都可以，橫的直的都行</span></div>
+          <div class="upnote" style="margin:10px 0 4px;padding:12px 14px;border-radius:12px;background:#FFF6E0;border:1px solid #F2D58A;color:#5a4410;font-size:14px;line-height:1.7"><b>上傳前請看</b><br>① 按「交給 AI 剪」之後，<b>請停在這一頁等它傳完</b>，看到「送出了！」才算完成。傳的時候不要鎖螢幕、不要切去 LINE 或別的 App，手機會把上傳暫停。<br>② 不小心離開了也沒關係：回到這頁就會接著傳；如果頁面被關掉，重新選<b>同一支影片</b>再送出，會從斷掉的地方接著傳，不用重來（24 小時內有效）。<br>③ 想傳快一點：手機錄影設成 <b>1080p</b>（不要 4K），檔案會小三四倍，通常幾十秒就傳完。<br>④ 每支 500MB 以內。</div>
           <div class="flist" id="flist"></div>
         </div>
         <div class="panel" id="cutPanel">
@@ -201,6 +202,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
           <div class="pickw"><div class="pickl">
           <div class="pick2" id="modPick"></div>
           <div class="bar" id="accRow"><div class="custom"><input type="color" id="acc" value="#ff3b30" aria-label="重點字顏色"><span class="note">重點字顏色</span></div></div>
+          <div class="bar" id="sposRow"><span class="note">字幕位置</span><button class="chip" type="button" data-spos="下方" aria-pressed="true">下方</button><button class="chip" type="button" data-spos="中間" aria-pressed="false">畫面中間</button><span class="note">中間＝胸口高度，現在很多爆款都這樣放；預覽一律在下方，成品照你選的</span></div>
           <div class="bar"><span class="note">字幕大小</span><button class="chip" type="button" data-sz="小" aria-pressed="false">小</button><button class="chip" type="button" data-sz="中" aria-pressed="true">中</button><button class="chip" type="button" data-sz="大" aria-pressed="false">大</button><span class="note">確認字幕時還可以再改</span></div>
           <p class="note" id="modNote"></p>
           </div><div class="pvb"><canvas id="pv" width="270" height="480" aria-label="字幕預覽"></canvas><p class="note" id="pvCap"></p></div></div>
@@ -242,6 +244,6 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
 <script src="/ai/subfx.js?v=1026i"></script>
 <script src="/ai/core.js?v=1026f"></script>
 <script src="/ai/subjob.js?v=1031a"></script>
-<script src="/ai/video.js?v=1101b"></script>
+<script src="/ai/video.js?v=1102a"></script>
 </body>
 </html>
