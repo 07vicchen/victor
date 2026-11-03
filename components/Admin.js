@@ -216,9 +216,9 @@ function Login(p) {
 }
 
 /* ---------- 主畫面 ---------- */
-var TABS = [['msg', '客人留言'], ['tools', 'AI 工具會員'], ['orders', 'AI 剪片・美編單'], ['fxlib', '剪片室特效庫'], ['kefu', 'AI 客服'], ['cat', '價錢與服務'], ['pages', '每頁文字與圖片'], ['info', '聯絡資訊']];
+var TABS = [['hub', '全部入口'], ['msg', '客人留言'], ['tools', 'AI 工具會員'], ['orders', 'AI 剪片・美編單'], ['fxlib', '剪片室特效庫'], ['kefu', 'AI 客服'], ['cat', '價錢與服務'], ['pages', '每頁文字與圖片'], ['info', '聯絡資訊']];
 // Vic 10/25：AI 工具、剪片單、AI 客服的管理都放進 /admin，不用記其他網址
-var EMBED = { tools: '/ai-admin', orders: '/ai-orders', fxlib: '/ai-fxlib', kefu: '/ai-kefu-admin' };   // Vic 11/3：剪片室特效庫
+var EMBED = { tools: '/ai-admin', orders: '/ai-orders', fxlib: '/ai-fxlib', hub: '/ai-hub', kefu: '/ai-kefu-admin' };   // Vic 11/3：剪片室特效庫
 function EmbedTab(p) {
   var s = useState(900), ht = s[0], setHt = s[1];
   useEffect(function () {
@@ -232,7 +232,7 @@ function EmbedTab(p) {
 export default function Admin() {
   var s0 = useState(undefined), session = s0[0], setSession = s0[1];
   var s1 = useState(null), isAdmin = s1[0], setIsAdmin = s1[1];
-  var s2 = useState('msg'), tab = s2[0], setTab = s2[1];
+  var s2 = useState('hub'), tab = s2[0], setTab = s2[1];
   var s3 = useState(null), data = s3[0], setData = s3[1];
   var s4 = useState(null), base = s4[0], setBase = s4[1];
   var s5 = useState(''), msg = s5[0], setMsg = s5[1];

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>全部入口｜維拓傳媒</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/m/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/ai/editorial.css?v=1026h">
+<style>[hidden]{display:none!important}
+.bot{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:6px 0 20px}.bot div{background:#fff;border:1px solid var(--line);padding:10px 12px}.bot b{display:block;font:700 20px "Space Grotesk","Noto Sans TC",sans-serif}.bot span{font-size:12.5px;color:var(--mid)}
+.tg{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line)}.tg.ok{background:#e7f2ea;color:#2f6a47;border-color:#b9d8c3}.tg.b{background:#f6e6e3;color:#9a3a2c;border-color:#e3bcb5}.tg.w{background:#fff4dc;color:#8a6414;border-color:#ecd49a}
+.q{width:100%;padding:11px 14px;border:1px solid var(--line);background:#fff;font-size:15px;margin:0 0 12px;box-sizing:border-box}
+.gp{border:1px solid var(--line);background:#fff;margin:0 0 8px}
+.gp summary{cursor:pointer;list-style:none;padding:11px 14px;display:flex;gap:10px;align-items:center}
+.gp summary::-webkit-details-marker{display:none}.gp summary b{flex:1;font-size:15px}.gp summary small{color:var(--mid)}.gp summary i{font-style:normal;color:var(--mid);transition:transform .2s}
+.gp[open]{border-color:var(--fg)}.gp[open] summary i{transform:rotate(180deg)}
+.ls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:0 12px 12px}
+.ls a{display:flex;flex-direction:column;gap:2px;padding:9px 12px;border:1px solid var(--line);text-decoration:none;color:inherit;background:var(--bg)}
+.ls a:hover{border-color:var(--fg)}.ls a b{font-size:14px;font-weight:700}.ls a small{color:var(--mid);font-size:12px}
+.ls a.old b{color:var(--mid);font-weight:500}
+.add{display:grid;grid-template-columns:2fr 3fr 2fr auto;gap:6px;margin-top:18px}.add input,.add select{padding:9px 10px;border:1px solid var(--line);background:#fff;font-size:14px;min-width:0}
+@media (max-width:700px){.bot{grid-template-columns:repeat(2,minmax(0,1fr))}.ls{grid-template-columns:1fr}.add{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>全部入口</small></div></a>
+    <div class="tabs"><a href="/admin">回後台</a></div><div class="who" id="who"></div></nav>
+  <section class="sect">
+    <div class="sh"><small>EVERYTHING</small><h2>全部入口</h2><p id="sub">讀取中…</p></div>
+    <div id="gate"></div>
+    <div id="dash" hidden>
+      <h3>桌機 AI 剪片程式</h3>
+      <div class="bot" id="bot"></div>
+      <input class="q" id="q" type="search" placeholder="找頁面：打幾個字，例如「月報」「當沖」「貓探長」" aria-label="找頁面">
+      <div id="list"></div>
+      <h3 style="margin-top:26px">加一個入口</h3>
+      <p class="note">Claude 做的新頁面會自己加進來；你自己有別的網址也可以在這裡加。</p>
+      <form class="add" id="add"><input name="t" placeholder="名稱" required><input name="u" placeholder="網址（https://…）" required><select name="g" id="addG"></select><button class="btn" type="submit">加進去</button></form>
+      <p class="note" id="addMsg"></p>
+    </div>
+  </section>
+  <footer><img src="/m/logo.png" alt="" width="36" height="36" style="border-radius:50%"><span>只有管理員看得到</span><a href="/admin">回後台</a></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="/ai/core.js?v=1103a"></script>
+<script>
+(function () {
+  var done = false, E = VAI.E, rows = [], openG = null;
+  function tm(x) { if (!x) return "—"; var d = new Date(x); return (d.getMonth() + 1) + "/" + d.getDate() + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+  async function status() {
+    var r = await VAI.client().rpc("admin_hub_status"), box = document.getElementById("bot");
+    if (r.error) { box.innerHTML = '<div><b>—</b><span>' + E(r.error.message) + "</span></div>"; return; }
+    var h = r.data.heartbeat || {}, s = r.data.selftest || {}, mins = h.seen_at ? (Date.now() - new Date(h.seen_at)) / 60000 : 1e9;
+    var dyn = (s.checks && s.checks["動態特效有加"]) || [];
+    box.innerHTML = [
+      ['<span class="tg ' + (mins < 10 ? "ok" : "b") + '">' + (mins < 10 ? "開著" : "沒回應") + "</span>", "最後回報 " + tm(h.seen_at)],
+      [E(h.state || "—"), E(h.note || "現在在做什麼")],
+      ['<span class="tg ' + (s.ok ? "ok" : "b") + '">' + (s.ok ? "通過" : (s.ran_at ? "有問題" : "還沒跑")) + "</span>", "自我測試 " + tm(s.ran_at) + (s.work_sec ? "・" + Math.round(s.work_sec) + " 秒" : "")],
+      [E(h.version || "—"), "程式版本" + (dyn.length ? "・動態特效 " + dyn.length + " 種有測" : "")]
+    ].map(function (k) { return "<div><b>" + k[0] + "</b><span>" + k[1] + "</span></div>"; }).join("");
+  }
+  function draw() {
+    var q = document.getElementById("q").value.trim().toLowerCase(), groups = [], by = {};
+    rows.forEach(function (x) { if (q && (x.title + " " + x.grp + " " + (x.note || "")).toLowerCase().indexOf(q) < 0) return; if (!by[x.grp]) { by[x.grp] = []; groups.push(x.grp); } by[x.grp].push(x); });
+    var L = document.getElementById("list");
+    if (!groups.length) { L.innerHTML = '<p class="note">找不到「' + E(q) + "」。</p>"; return; }
+    L.innerHTML = groups.map(function (g) {
+      var open = q ? true : g === openG;
+      return '<details class="gp" data-g="' + E(g) + '"' + (open ? " open" : "") + "><summary><b>" + E(g) + "</b><small>" + by[g].length + ' 個</small><i aria-hidden="true">▾</i></summary><div class="ls">' +
+        by[g].map(function (x) { var ext = /^https?:/.test(x.url); return '<a href="' + E(x.url) + '"' + (ext ? ' target="_blank" rel="noopener"' : ' target="_top"') + (/舊/.test(x.note || "") ? ' class="old"' : "") + "><b>" + E(x.title) + "</b><small>" + E(x.note || (ext ? "在 Claude 打開" : "官網")) + "</small></a>"; }).join("") + "</div></details>"; }).join("");
+    if (!q) { var ds = [].slice.call(L.querySelectorAll("details"));
+      ds.forEach(function (d) { d.addEventListener("toggle", function () { if (d.open) { openG = d.dataset.g; ds.forEach(function (x) { if (x !== d) x.open = false; }); } else if (openG === d.dataset.g) openG = null; }); }); }
+  }
+  async function load() {
+    var r = await VAI.client().from("admin_hub_links").select("id,grp,title,url,note,sort").order("sort");
+    if (r.error) { document.getElementById("list").innerHTML = '<p class="msg err">' + E(r.error.message) + "</p>"; return; }
+    rows = r.data || [];
+    document.getElementById("sub").textContent = "你所有的頁面，一共 " + rows.length + " 個，依部門分好。Claude 裡的頁面要用你的 Claude 帳號登入才打得開。";
+    var gs = []; rows.forEach(function (x) { if (gs.indexOf(x.grp) < 0) gs.push(x.grp); });
+    document.getElementById("addG").innerHTML = gs.map(function (g) { return "<option>" + E(g) + "</option>"; }).join("");
+    draw();
+  }
+  document.getElementById("q").addEventListener("input", draw);
+  document.getElementById("add").addEventListener("submit", async function (e) {
+    e.preventDefault(); var f = e.target, msg = document.getElementById("addMsg"), url = f.u.value.trim();
+    if (!/^https?:\/\//.test(url) && !/^\//.test(url)) { msg.textContent = "網址要用 https:// 開頭。"; return; }
+    var mx = Math.max.apply(null, rows.filter(function (x) { return x.grp === f.g.value; }).map(function (x) { return x.sort; }).concat([0]));
+    var r = await VAI.client().from("admin_hub_links").insert({ grp: f.g.value, title: f.t.value.trim(), url: url, note: "", sort: mx + 1 });
+    msg.textContent = r.error ? (/duplicate/.test(r.error.message) ? "這個網址已經在裡面了。" : r.error.message) : "加好了。";
+    if (!r.error) { f.reset(); openG = null; load(); }
+  });
+  VAI.onMe(function (m) {
+    var g = document.getElementById("gate");
+    if (!m || !m.login) { document.getElementById("dash").hidden = true; document.getElementById("sub").textContent = "請用管理員帳號登入。"; VAI.authBox(g, "/ai-hub"); return; }
+    if (!m.admin) { g.innerHTML = '<p class="msg err">這個帳號不是管理員。</p>'; document.getElementById("sub").textContent = ""; return; }
+    g.innerHTML = ""; document.getElementById("dash").hidden = false;
+    if (done) return; done = true;
+    load(); status(); setInterval(status, 60000);
+  });
+})();
+</script>
+</body>
+</html>
