@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>剪片室特效庫｜維拓傳媒</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/m/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;900&family=Space+Grotesk:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="/ai/editorial.css?v=1026h">
+<style>[hidden]{display:none!important}
+.sum{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:6px 0 22px}.sum div{background:#fff;border:1px solid var(--line);padding:10px 12px}.sum b{display:block;font:700 26px "Space Grotesk",sans-serif}.sum span{font-size:12.5px;color:var(--mid)}
+.grp{margin:26px 0 8px;display:flex;align-items:baseline;gap:10px}.grp h3{margin:0}.grp small{color:var(--mid);font-size:13px}
+.lib{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.it{border:1px solid var(--line);background:#fff}
+.it summary{cursor:pointer;list-style:none;padding:9px 12px;display:flex;gap:10px;align-items:center}
+.it summary::-webkit-details-marker{display:none}
+.it summary em{font:600 11px "Space Grotesk",sans-serif;color:var(--mid);font-style:normal;min-width:44px}
+.it summary b{flex:1;font-size:14.5px}
+.it summary i{font-style:normal;color:var(--mid);transition:transform .2s}
+.it[open]{border-color:var(--fg);grid-column:1/-1}.it[open] summary i{transform:rotate(180deg)}
+.bd{display:flex;gap:14px;padding:0 12px 12px;align-items:flex-start}
+.bd canvas,.bd img,.bd video{width:150px;height:267px;flex:none;background:#eee;object-fit:cover}
+.bd p{margin:0 0 8px;font-size:14px;line-height:1.7}
+.tg{display:inline-block;font-size:12px;padding:1px 8px;border:1px solid var(--line);margin:0 4px 4px 0}
+.tg.ok{background:#e7f2ea;color:#2f6a47;border-color:#b9d8c3}.tg.pro{background:#fff4dc;color:#8a6414;border-color:#ecd49a}.tg.new{background:#f6e6e3;color:#9a3a2c;border-color:#e3bcb5}.tg.no{background:#eee;color:#666}
+@media (max-width:700px){.sum{grid-template-columns:repeat(2,minmax(0,1fr))}.lib{grid-template-columns:1fr}.bd{flex-direction:column}.bd canvas,.bd img,.bd video{width:135px;height:240px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top"><a class="logo" href="/"><img src="/m/logo.png" alt="維拓傳媒" width="44" height="44" style="border-radius:50%"><div><b>維拓傳媒</b><small>剪片室特效庫</small></div></a>
+    <div class="tabs"><a href="/admin">回後台</a></div></nav>
+  <section class="sect">
+    <div class="sh"><small>MOTION LIBRARY</small><h2>剪片室特效庫：現在可以給客人的東西</h2><p>AI 剪片桌機程式真的做得出來、官網客人選得到的，全部列在這裡。點一張看示範，一次只開一張。最下面「準備做的新款」是還沒上線的候選。</p></div>
+    <div class="sum" id="sum"></div>
+    <div id="lib"></div>
+  </section>
+  <footer><img src="/m/logo.png" alt="" width="36" height="36" style="border-radius:50%"><span>只有管理員看得到（客人看不到這頁）</span><a href="/admin">回後台</a></footer>
+</div>
+<script>var F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif',N='"Roboto","Noto Sans TC",sans-serif';</script>
+<script src="/ai/vid.js"></script>
+<script src="/ai/subfx.js?v=1026i"></script>
+<script>
+(function () {
+  "use strict";
+  function E(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  var RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // 跟官網 AI 剪片頁同一份（video.js）：入門可用的剪法、字幕模組
+  var BASIC = [0, 1, 8], BASIC_MODS = ["pop", "karaoke", "invert", "minimal", "cinema", "marker", "fadeup", "stack"];
+  var FX = [
+    ["covers", "封面彈出", "新品、作品、系列介紹", "一排雜誌封面小卡從上方一張一張浮出來，可放客人照片。", "fx_covers_photo", 1, 0],
+    ["pip", "畫中畫", "教學示範、前後對比", "角落開一個細框小視窗，放截圖或第二段畫面。", "fx_pip", 1, 0],
+    ["bigword", "深藍大字", "金句、轉折", "一兩個字的深藍襯線大字蓋滿畫面。", "fx_bigword", 0, 0],
+    ["material", "素材框", "截圖、商品細節", "上方滑進圓角視窗放截圖或商品照。", "fx_material_photo", 0, 0],
+    ["featcards", "功能卡輪播", "服務項目、商品賣點", "深藍圓角卡從側邊滑進來，一張換一張，可放照片。", "fx_featcards_photo", 1, 0],
+    ["grade", "暖色系列", "每一支都適合", "整支調成溫暖的底片色。", "fx_grade", 0, 1],
+    ["hang", "吊牌字", "重點字、情緒字", "關鍵字掛在細線上垂下來。", "fx_hang", 0, 0],
+    ["chapters", "章節目錄", "教學、清單型內容", "右側列出段落，講到哪段亮哪段。", "fx_chapters", 0, 1],
+    ["qcard", "問題卡", "開頭丟問題", "開頭跳出小白卡：紅色問號＋主題＋問題。", "fx_qcard", 0, 0],
+    ["versus", "二選一卡", "比較、選邊站", "左右兩張卡中間 VS，標出講者選哪邊。", "fx_versus", 0, 0],
+    ["glass", "毛玻璃重點卡", "金句、結論", "半透明白卡，大字重點＋金線。", "fx_glass", 0, 0],
+    ["logo", "品牌 logo", "有品牌的都建議放", "客人的 logo 放角落當浮水印。", "fx_logo", 0, 1],
+    ["behind", "字放人後面", "品牌名、主題詞", "超大字擺在講者身後，人擋住一點字，有前後層次。AI 人像分割（免費、桌機跑）。11/3 新款。", "fx_behind", 1, 0, 1],
+    ["steps", "動態重點清單", "步驟、幾個理由", "講到第幾點，那一點就滑進來、金色號碼亮起來。11/3 新款。", "fx_steps", 1, 0, 1],
+    ["chart", "圖表動畫", "價格比較、成長", "長條一條一條長出來、數字從 0 跳到講的數；只用影片裡真的講到的數字。11/3 新款。", "fx_chart", 1, 0, 1]];
+  var MORE = [
+    ["自動剪停頓、剪口誤", "每一支", "停頓自動剪；講錯、重講的地方 AI 只留最完整最順的那一遍（11/3 加強：同一句講好幾遍會自動挑最好那次）。", "ok"],
+    ["每句都有字幕＋自動補漏", "每一支", "剪好再聽一遍，漏掉沒字幕的句子自動補上；全部台灣繁體、一行。", "ok"],
+    ["⭐ 重點句放開頭", "口播、短影音", "最抓人的那句複製到開頭當鉤子。", "ok"],
+    ["標題、小字、常駐文字", "每一支", "上方標題（可設秒數）、標題上小字、角落常駐文字。", "ok"],
+    ["9:16／16:9 輸出", "每一支", "客人選直式或橫式，不會變成上下黑邊的細長條。", "ok"],
+    ["橫拍轉直式、多人對話切鏡", "相機拍、Podcast", "跟著臉裁直；多人誰講話切誰，一來一往上下分割。", "pro"],
+    ["清單劃掉字幕", "清單型內容", "每講完一句就劃掉，像在打勾。", "ok"],
+    ["畫面素材（B-roll）穿插", "有空檔畫面時", "客人另外上傳的畫面自動穿插在沒講話的地方。", "pro"],
+    ["美顏", "客人自己選", "客人勾才做，不勾不碰。", "ok"],
+    ["原創配樂", "每一支", "照剪輯方向挑原創配樂，聽得到，也可以不要。", "ok"],
+    ["AI 換人（加購）", "專業以上", "換成客人自己或朋友授權的臉，15 秒內 499 元起。", "pro"],
+    ["急件優先處理（加購）", "趕時間", "排隊時先剪，每支 49 元。", "ok"]];
+  // 從別人那邊看到、還沒做的（Vic 11/3 給的 IG 參考）：ok＝適合做，no＝跟規則衝突先不做
+  var IDEA = [
+    ["打勾清單", "跟「動態重點清單」「清單劃掉」差不多，已經有了。", "no"],
+    ["鏤空字", "大字裡面透出影片畫面；跟「深藍大字」同一套，加一種樣子就好。", "ok"],
+    ["破框而出", "人從一張卡片的框裡探出來；用 11/3 的人像分割就做得到。", "ok"],
+    ["環繞字", "一圈字繞著人轉，人擋住後半圈；人像分割做得到。", "ok"],
+    ["雜誌封面", "講者變雜誌封面人物，上面壓刊名和標題；人像分割＋排版。", "ok"],
+    ["數位推近", "畫面放大推近；客人那邊規定不推近（10/25），先不做。", "no"],
+    ["收據列印", "重點一行一行像收據印出來，適合講價錢、清單。", "ok"],
+    ["綠幕換景", "把講者後面的背景換掉；人像分割做得到。", "ok"],
+    ["標題牆、影片牆、九宮格", "很多小卡排成一面牆；適合作品集、客戶見證。", "ok"],
+    ["長條成長", "就是「圖表動畫」，已經有了。", "no"],
+    ["剪紙、手繪塗鴉", "畫面變剪紙或手繪風；比較吃效能，看需求再做。", "ok"],
+    ["貼紙輪播、名牌貼紙", "「你好我是…」名牌貼紙、一張張貼紙換；適合自我介紹開頭。", "ok"],
+    ["手機畫面", "把客人的截圖放進一支手機框裡；適合 App、網站、IG 介紹。", "ok"],
+    ["私訊通知、留言串", "畫面跳出像 IG 私訊、留言的小卡；適合見證、問答。", "ok"],
+    ["劇本卡、指令列", "像打字機打出一張卡或一行指令；適合 AI、科技內容。", "ok"],
+    ["底片印樣、錄影框、對焦尺", "相機感的框和刻度；適合攝影、美業。", "ok"],
+    ["色票展開、吸管取色", "跳出顏色色票；適合穿搭、美妝。", "ok"],
+    ["圖示彈出、跳動標題", "小圖示、標題一個個跳出來（不震）。", "ok"],
+    ["穿越轉場、色條轉場、鏡頭轉場、拉遠揭曉", "比較花的轉場；拉遠、穿越有放大感，客人那邊先不放。", "no"],
+    ["快轉、剪輯時間軸、強度旋鈕", "像剪片軟體畫面的特效；適合教學、幕後花絮。", "ok"]];
+  var lib = document.getElementById("lib"), anim = [];
+  function item(no, name, tags, body) { return '<details class="it"><summary><em>' + no + "</em><b>" + E(name) + "</b>" + tags + '<i aria-hidden="true">▾</i></summary><div class="bd">' + body + "</div></details>"; }
+  function tag(t, c) { return '<span class="tg ' + c + '">' + E(t) + "</span>"; }
+  function grp(t, sub, html) { return '<div class="grp"><h3>' + E(t) + "</h3><small>" + E(sub) + '</small></div><div class="lib">' + html + "</div>"; }
+  var h = "";
+  h += grp("剪法", VSTY.length + " 種・整支的節奏和字幕排法", VSTY.map(function (s, i) {
+    return item("NO." + String(i + 1).padStart(2, "0"), s[0], BASIC.indexOf(i) >= 0 ? tag("入門可用", "ok") : tag("專業以上", "pro"),
+      '<canvas width="270" height="480" data-sty="' + i + '"></canvas><div><p>' + E(s[2]) + "</p>" + tag("適合：" + s[1], "") + "</div>"); }).join(""));
+  var MODS = window.SUBFX ? SUBFX.list : [];
+  h += grp("字幕模組", MODS.length + " 種・字幕專區、完整剪片都能選", MODS.map(function (m, i) {
+    return item("SUB." + String(i + 1).padStart(2, "0"), m.name, BASIC_MODS.indexOf(m.id) >= 0 ? tag("入門可用", "ok") : tag("專業以上", "pro"),
+      '<canvas width="270" height="480" data-mod="' + i + '"></canvas><div><p>' + E(m.desc) + "</p>" + tag("適合：" + m.fit, "") + "</div>"); }).join(""));
+  h += grp("質感特效", FX.length + " 種・剪好之後疊上去，不晃、不推近、不加音效", FX.map(function (f, i) {
+    var media = f[5] ? '<video src="/ai/fx/' + f[4] + '.mp4" poster="/ai/fx/' + f[4] + '.jpg" muted loop playsinline preload="none"></video>' : '<img src="/ai/fx/' + f[4] + '.jpg" alt="" loading="lazy">';
+    return item("FX." + String(i + 1).padStart(2, "0"), f[1], (f[6] ? tag("入門可用", "ok") : tag("專業以上", "pro")) + (f[7] ? tag("新", "new") : ""),
+      media + "<div><p>" + E(f[3]) + "</p>" + tag("適合：" + f[2], "") + tag("程式代號 " + f[0], "") + "</div>"); }).join(""));
+  h += grp("其他功能", MORE.length + " 項・每支片都會做或客人可以加的", MORE.map(function (m, i) {
+    return item("+" + String(i + 1).padStart(2, "0"), m[0], m[3] === "pro" ? tag("專業以上", "pro") : tag("可用", "ok"), "<div><p>" + E(m[2]) + "</p>" + tag("適合：" + m[1], "") + "</div>"); }).join(""));
+  h += grp("準備做的新款", IDEA.length + " 個・從 IG 參考整理，還沒上線", IDEA.map(function (m, i) {
+    return item("IDEA." + String(i + 1).padStart(2, "0"), m[0], m[2] === "ok" ? tag("可以做", "new") : tag("先不做", "no"), "<div><p>" + E(m[1]) + "</p></div>"); }).join(""));
+  lib.innerHTML = h;
+  document.getElementById("sum").innerHTML = [[VSTY.length, "種剪法"], [MODS.length, "種字幕模組"], [FX.length, "種質感特效"], [MORE.length, "項其他功能"], [IDEA.filter(function (x) { return x[2] === "ok"; }).length, "個候選新款"]].map(function (x) { return "<div><b>" + x[0] + "</b><span>" + x[1] + "</span></div>"; }).join("");
+  // 一次只開一張；打開才開始畫示範
+  var ds = [].slice.call(lib.querySelectorAll("details"));
+  ds.forEach(function (d) { d.addEventListener("toggle", function () {
+    var v = d.querySelector("video"), c = d.querySelector("canvas");
+    if (d.open) { ds.forEach(function (x) { if (x !== d) x.open = false; });
+      if (v && !RM) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      if (c) { anim = [c]; if (RM) draw(c, 3); } }
+    else { if (v) v.pause(); if (c && anim[0] === c) anim = []; } }); });
+  function draw(c, t) {
+    if (c.dataset.sty != null) frame(c, VSTY[+c.dataset.sty][3], t);
+    else { var m = MODS[+c.dataset.mod], x = c.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height); x.save(); m.draw(x, c.width, c.height, { t: t % SUBFX.loop, lines: SUBFX.demo, accent: m.accent, bg: true }); x.restore(); } }
+  var t0 = performance.now();
+  (function loop(now) { var t = Math.max(0, (now - t0) / 1000); anim.forEach(function (c) { try { draw(c, t + 2); } catch (e) {} }); if (!RM) requestAnimationFrame(loop); else if (anim[0]) draw(anim[0], 3); })(t0);
+})();
+</script>
+</body>
+</html>
