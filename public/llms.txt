@@ -23,6 +23,7 @@
 - [自媒體 IP 代操](https://www.victormedia.com.tw/ip-management)：個人品牌經營；定位 NT$15,000 起、代營運每月 NT$20,000 起；案例村山爺爺、貓探長、王拓恩
 - [AI 客服](https://www.victormedia.com.tw/ai-kefu)：LINE／官網 24 小時 AI 客服，照店家資料回答、照店家話術推銷，成交與客訴當下通知老闆；月費 NT$1,980 起
 - [AI 秘書](https://www.victormedia.com.tw/ai-secretary)：LINE 裡的私人秘書，記事、說「提醒我」才提醒、拍收據自動記帳、客戶跟進、每週日回顧，資料存在客戶自己的 Google 雲端；個人版建置 NT$6,800 起、月費 NT$680，團隊版洽詢；LINE 官方帳號月費客戶自付
+- [AI 辦公室實戰班](https://www.victormedia.com.tw/ai-class)：4 堂線上實作課（每週一堂、每堂 2.5 小時），教學員建立每天照班表上班的 AI 員工；第一期限 8 人，早鳥 NT$9,800（原價 NT$12,800），送 AI 美編＋AI 剪片專業組 1 個月，結業 30 天內代建學費全額折抵；學員需自備 Claude 付費帳號
 - [關於我們](https://www.victormedia.com.tw/about)：創辦人陳卓恩（Vic，傳播傳媒近 10 年、做過娛樂直播）、公司資料、自己經營的 IP、合作流程
 - [聯絡我們](https://www.victormedia.com.tw/contact)
 
