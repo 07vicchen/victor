@@ -269,7 +269,7 @@
   // ===== 設定 =====
   async function paneSet(id, el) {
     var g = await api("tenant_get", { id: id }), t = g.tenant, iq = await intakes();
-    var f = function (k, lab, v, typ, hint) { return '<label class="fl"><span>' + lab + '</span><input data-k="' + k + '" type="' + (typ || "text") + '" value="' + E(v == null ? "" : v) + '">' + (hint ? "<small>" + hint + "</small>" : "") + "</label>"; };
+    var f = function (k, lab, v, typ, hint) { return '<label class="fl"><span>' + lab + '</span><input data-k="' + k + '" type="' + (typ || "text") + '"' + (typ === "password" ? ' autocomplete="new-password" data-lpignore="true" data-1p-ignore' : "") + ' value="' + E(v == null ? "" : v) + '">' + (hint ? "<small>" + hint + "</small>" : "") + "</label>"; };
     el.innerHTML =
       '<label style="font-size:15px;display:flex;gap:8px;align-items:center"><input type="checkbox" data-k="ai_enabled"' + (t.ai_enabled ? " checked" : "") + '> <b>AI 自動回覆客人</b>（關掉的話訊息照收，只是 AI 不回）</label>' +
       '<div class="f2">' + f("name", "店名", t.name) + f("owner_email", "店家老闆登入信箱", t.owner_email, "email", "老闆用這個信箱在官網登入，就能看自己這家的對話和成交") + f("plan", "方案（自己記）", t.plan, "text", "例：月繳 3,980") + f("business_hours", "營業時間", t.business_hours) +
@@ -297,6 +297,8 @@
         sos_enabled: $('[data-k="sos_enabled"]', el).checked, forward_url: v("forward_url"),
         handoff_keywords: v("handoff_keywords").split(/[、,，\s]+/).filter(Boolean), line_channel_secret: v("line_channel_secret"), line_access_token: v("line_access_token"),
         rules: $$(".rule", el).map(function (r) { return { id: r.dataset.r, active: $("[data-a]", r).checked, auto_send: $("[data-u]", r).checked, message_hint: $("[data-h]", r).value }; }) };
+      if (body.line_channel_secret && !/^[0-9a-f]{32}$/i.test(body.line_channel_secret)) { say("Channel secret 應該是 32 個英文數字，看起來貼錯了（可能被瀏覽器自動填入密碼），請重新複製貼上"); return; }
+      if (body.line_access_token && body.line_access_token.length < 100) { say("Channel access token 太短，看起來貼錯了，請重新複製貼上"); return; }
       if (body.ai_enabled && !(g.tenant.line_secret_set || body.line_channel_secret)) { say("LINE 還沒接好，AI 先不能打開"); return; }
       busy(this, true, "儲存中…");
       try { await api("tenant_save", body); busy(this, false); say("設定存好了", true); await load(); } catch (e) { busy(this, false); say(e.message); }
