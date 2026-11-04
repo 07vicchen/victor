@@ -131,7 +131,7 @@
     var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#fxPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "4"; $("#noteNo").textContent = subs ? "3" : "5"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $("#beautyRow").hidden = subs; $("#ratioRow").hidden = subs; $("#sposRow").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
     
     $("#stNote").textContent = plan === "basic" ? "入門方案可用 3 種剪法，升級專業就能用全部。" : ""; $("#modNote").textContent = plan === "basic" ? "入門方案可用 8 種字幕樣式，升級專業就能用全部 " + MODS.length + " 種。" : "";
-    pvSync(); $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; }
+    pvSync(); $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; psum(); }
   // ===== 質感特效挑選＋照片（只有完整剪片用；入門和試用只能用 3 種、不能放照片，伺服器也會再擋一次） =====
   function fxFull() { return plan !== "basic" || !!window.__vaiAdmin; }
   function fxPick() { var full = fxFull();
@@ -245,7 +245,18 @@
   // Vic 10/24：成品和素材保存 3 天
   function keep(j) { if (!j.done_at) return ""; var end = new Date(new Date(j.done_at).getTime() + 3 * 864e5), h = Math.max(0, Math.round((end - Date.now()) / 36e5)); return '<span class="keep' + (h <= 24 ? " soon" : "") + '" style="flex-basis:100%">請在 ' + end.toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) + " 前下載（還有 " + (h >= 24 ? Math.floor(h / 24) + " 天 " + (h % 24) + " 小時" : h + " 小時") + "），過了檔案會自動刪除</span>"; }
   // Vic 10/26：選填的區塊先收起來，按標題才展開；最上面「待你處理」直接列出要確認字幕、可以下載的影片
-  $$("[data-fold] .ph").forEach(function (h) { h.onclick = function () { h.parentNode.classList.toggle("fold"); }; });
+  // Vic 11/4：會員區的步驟都收成卡片，一次只開一張；收起來時標題下面顯示目前選了什麼
+  $$("[data-fold] .ph").forEach(function (h) { h.onclick = function () { var pn = h.parentNode, open = pn.classList.contains("fold");
+    $$("[data-fold]").forEach(function (x) { x.classList.add("fold"); }); if (open) { pn.classList.remove("fold"); setTimeout(function () { pn.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50); } psum(); }; });
+  function onOf(attr) { var b = document.querySelector("[" + attr + '][aria-pressed="true"]'); return b ? b.textContent.trim() : ""; }
+  function psum() { var put = function (id, t) { var el = document.querySelector('[data-psum="' + id + '"]'); if (el) el.textContent = t ? "目前：" + t : ""; };
+    put("cutPanel", pickSt < 0 ? "交給 AI 挑" : VSTY[pickSt][0]);
+    put("fxPanel", fxOn.length ? fxOn.map(fxName).join("、") : "交給我們挑" + (fxPhotos.length ? "，照片 " + fxPhotos.length + " 張" : ""));
+    var md = MODS.filter(function (q) { return q.id === pickMod; })[0]; put("subPanel", (md ? md.name : "跟剪法搭配") + "・" + (spos === "中間" ? "畫面中間" : "下方") + "・" + subSize);
+    put("swapPanel", swPhotos.length ? "要換人，照片 " + swPhotos.length + " 張" : "不換人");
+    put("notePanel", (mode === "subs" ? "" : ratio + "・美顏" + bty + "・" + (onOf("data-mus") || "幫我配音樂")) + ($("#vLogoT") && $("#vLogoT").value.trim() || vlogo ? "・有 logo" : "") + ($("#vNote") && $("#vNote").value.trim() ? "・有備註" : "")); }
+  document.addEventListener("click", function (e) { if (e.target.closest && e.target.closest("#work")) setTimeout(psum, 0); });
+  document.addEventListener("change", function (e) { if (e.target.closest && e.target.closest("#work")) setTimeout(psum, 0); });
   function todo() { var t = $("#todo"); if (!t) return; var rows = JOBS.filter(function (j) { return !j.purged_at && (j.status === "review" || j.status === "rendering" || (j.status === "done" && j.result && j.result.path && Date.now() - new Date(j.done_at || 0).getTime() < 864e5)); }).slice(0, 4);
     var wait = JOBS.filter(function (j) { return /^(stt|queued|working)$/.test(j.status); }).length;
     if (!rows.length && !wait) { t.hidden = true; return; } t.hidden = false;

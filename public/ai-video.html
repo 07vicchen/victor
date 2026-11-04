@@ -78,7 +78,7 @@
 .sed-rows{display:flex;flex-direction:column;gap:6px;max-height:520px;overflow:auto}
 .sed-r{display:grid;grid-template-columns:auto minmax(0,1fr) 110px auto;gap:6px;align-items:center}
 .sed-r input{padding:8px;border:1px solid var(--line);font:inherit;min-width:0}
-.sed-act{position:sticky;bottom:0;z-index:5;background:var(--paper);padding:10px 0;border-top:1px solid var(--line);margin:0}.todo{border:1px solid var(--gold);background:var(--goldSoft,#fbf5e8);padding:12px 14px;display:flex;flex-direction:column;gap:8px}.todo b{font:900 15px var(--serif)}.todo .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.panel.fold>*:not(.ph){display:none}.panel[data-fold] .ph{cursor:pointer}.panel[data-fold] .ph::after{content:"▾";margin-left:auto;color:var(--mid);font-size:18px;transition:transform .2s}.panel.fold .ph::after{transform:rotate(-90deg)}.sed-b{display:flex;gap:4px}.sed select,.sed .f input{padding:8px;border:1px solid var(--line);font:inherit;background:#fff}.sed-r.cut input{text-decoration:line-through;opacity:.45}.sed-r.star input[data-t]{border-color:var(--gold);background:#fffaf0}
+.sed-act{position:sticky;bottom:0;z-index:5;background:var(--paper);padding:10px 0;border-top:1px solid var(--line);margin:0}.todo{border:1px solid var(--gold);background:var(--goldSoft,#fbf5e8);padding:12px 14px;display:flex;flex-direction:column;gap:8px}.todo b{font:900 15px var(--serif)}.todo .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.panel.fold>*:not(.ph){display:none}.panel.fold .ph p{display:none}.ph .psum{display:none;font-size:13px;color:var(--gold2,#8a6a1f);margin-top:2px}.panel.fold .ph .psum{display:block}details.tip{margin:2px 0 8px}details.tip summary{cursor:pointer;font-size:13px;color:var(--mid);list-style:none;display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px}details.tip summary::-webkit-details-marker{display:none}details.tip p{margin:6px 0 0}.panel[data-fold] .ph{cursor:pointer}.panel[data-fold] .ph::after{content:"▾";margin-left:auto;color:var(--mid);font-size:18px;transition:transform .2s}.panel.fold .ph::after{transform:rotate(-90deg)}.sed-b{display:flex;gap:4px}.sed select,.sed .f input{padding:8px;border:1px solid var(--line);font:inherit;background:#fff}.sed-r.cut input{text-decoration:line-through;opacity:.45}.sed-r.star input[data-t]{border-color:var(--gold);background:#fffaf0}
 .jobw{display:flex;flex-direction:column}
 @media (max-width:760px){.sed{grid-template-columns:1fr}.sed-stage{max-width:260px;margin:0 auto}.sed-r{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tm . bt" "tx tx tx" "hl hl hl";row-gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}.sed-r>[data-play]{grid-area:tm}.sed-r>input[data-t]{grid-area:tx;font-size:17px;padding:10px}.sed-r>input[data-h]{grid-area:hl;font-size:15px;padding:8px 10px}.sed-r>.sed-b{grid-area:bt}}
 @media (max-width:1000px){.styles{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -173,7 +173,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
         <div class="usage" id="usage"></div>
         <div class="bar"><span class="note">要做什麼</span><button class="chip" type="button" data-mode="cut" aria-pressed="true">完整剪片</button><button class="chip" type="button" data-mode="subs" aria-pressed="false">只上字幕</button></div>
         <div class="panel">
-          <div class="ph"><b>1</b><div><h3>上傳素材</h3><p>最多 5 支，每支 500MB 以內（手機 1080p 大約 5～8 分鐘）。用 1080p 拍就好，不用 4K（平台最高只播 1080p），傳得也比較快。</p></div></div>
+          <div class="ph"><b>1</b><div><h3>上傳素材</h3><p>最多 5 支、每支 500MB 以內，用 1080p 拍就好。</p></div></div>
           <div class="drop"><input type="file" id="vf" accept="video/*,.mp4,.mov,.m4v" multiple aria-label="選擇影片"><b>點這裡選影片，或拖進來</b><span class="note">mp4、mov 都可以，橫的直的都行</span></div>
           <p class="msg" id="vfWait" hidden style="margin:8px 0 0;padding:10px 12px;border-radius:10px;background:#EAF3FF;color:#1d4f8f;font-size:14px;line-height:1.6"></p>
           <div class="flist" id="flist"></div>
@@ -181,15 +181,15 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
             ① 按「交給 AI 剪」後，<b>停在這頁等它傳完</b>，看到「送出了！」才算完成；不要鎖螢幕、不要切去 LINE 或別的 App。<br>② iPhone 選好影片按 ✓ 後，手機要先整理影片（長片 10～60 秒），畫面不動是正常的，不要重按。<br>③ 不小心離開了：回到這頁會接著傳；頁面被關掉就重選<b>同一支影片</b>再送出，會從斷掉的地方接著傳（24 小時內有效）。<br>④ 想傳快一點：錄影設成 <b>1080p</b>（不要 4K）；每支 500MB 以內。
           </details>
         </div>
-        <div class="panel" id="cutPanel">
-          <div class="ph"><b>2</b><div><h3>選剪法</h3><p>決定影片怎麼剪、節奏怎麼走。不知道選哪個，就選「交給 AI 挑」。剪好之後會再聽一遍成品，每句話都有字幕才交片。</p></div></div>
+        <div class="panel fold" id="cutPanel" data-fold>
+          <div class="ph"><b>2</b><div><h3>選剪法</h3><span class="psum" data-psum="cutPanel"></span><p>決定影片怎麼剪、節奏怎麼走。不知道選哪個，就選「交給 AI 挑」。剪好之後會再聽一遍成品，每句話都有字幕才交片。</p></div></div>
           <div class="pickw"><div class="pickl">
           <div class="pick2" id="stPick"></div>
           <p class="note" id="stNote"></p>
           </div><div class="pvb"><canvas id="pvA" width="270" height="480" aria-label="剪法預覽"></canvas><p class="note" id="pvCapA"></p></div></div>
         </div>
         <div class="panel fold" id="fxPanel" data-fold>
-          <div class="ph"><b>3</b><div><h3>質感特效和照片（選填）</h3><p>可以多選；都不選就交給我們看內容決定。想讓影片裡出現你的商品、作品、截圖或店面，就把照片丟進來。</p></div></div>
+          <div class="ph"><b>3</b><div><h3>質感特效和照片（選填）</h3><span class="psum" data-psum="fxPanel"></span><p>可以多選；都不選就交給我們看內容決定。想讓影片裡出現你的商品、作品、截圖或店面，就把照片丟進來。</p></div></div>
           <div class="pick2" id="fxPick"></div>
           <p class="note" id="fxNote"></p>
           <div class="fxsel" id="fxSel" aria-live="polite"></div>
@@ -200,18 +200,18 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
           <p class="note" id="fxLock" hidden>入門方案可以用暖色系列、章節目錄、品牌 logo 3 種；升級專業方案就能用全部 15 種，還能放自己的照片。</p>
           <p class="note">照片跟影片一樣只保留 3 天，第 3 天自動刪除，之後要再用請重新上傳。</p>
         </div>
-        <div class="panel" id="subPanel">
-          <div class="ph"><b id="subNo">3</b><div><h3>選字幕樣式</h3><p id="subP">決定字幕長什麼樣子。不選就用剪法配好的那款。</p></div></div>
+        <div class="panel fold" id="subPanel" data-fold>
+          <div class="ph"><b id="subNo">3</b><div><h3>選字幕樣式</h3><span class="psum" data-psum="subPanel"></span><p id="subP">決定字幕長什麼樣子。不選就用剪法配好的那款。</p></div></div>
           <div class="pickw"><div class="pickl">
           <div class="pick2" id="modPick"></div>
           <div class="bar" id="accRow"><div class="custom"><input type="color" id="acc" value="#ff3b30" aria-label="重點字顏色"><span class="note">重點字顏色</span></div></div>
-          <div class="bar" id="sposRow"><span class="note">字幕位置</span><button class="chip" type="button" data-spos="下方" aria-pressed="true">下方</button><button class="chip" type="button" data-spos="中間" aria-pressed="false">畫面中間</button><span class="note">中間＝胸口高度，現在很多爆款都這樣放；預覽一律在下方，成品照你選的</span></div>
+          <div class="bar" id="sposRow"><span class="note">字幕位置</span><button class="chip" type="button" data-spos="下方" aria-pressed="true">下方</button><button class="chip" type="button" data-spos="中間" aria-pressed="false">畫面中間</button></div><details class="tip"><summary>說明</summary><p class="note">中間＝胸口高度，現在很多爆款都這樣放；預覽一律在下方，成品照你選的。</p></details>
           <div class="bar"><span class="note">字幕大小</span><button class="chip" type="button" data-sz="小" aria-pressed="false">小</button><button class="chip" type="button" data-sz="中" aria-pressed="true">中</button><button class="chip" type="button" data-sz="大" aria-pressed="false">大</button><span class="note">確認字幕時還可以再改</span></div>
           <p class="note" id="modNote"></p>
           </div><div class="pvb"><canvas id="pv" width="270" height="480" aria-label="字幕預覽"></canvas><p class="note" id="pvCap"></p></div></div>
         </div>
         <div class="panel fold" id="swapPanel" data-fold>
-          <div class="ph"><b>＋</b><div><h3>AI 換人（選填，專業方案以上）</h3><p>把影片裡的人換成照片裡的人。加購價：15 秒內 499 元、30 秒內 899 元、60 秒內 1,599 元，或 3 支包 1,299 元（每支 15 秒內）。送出後我們會先用 LINE 跟你確認費用，付款後才開始換。</p></div></div>
+          <div class="ph"><b>＋</b><div><h3>AI 換人（選填，專業方案以上）</h3><span class="psum" data-psum="swapPanel"></span><p>把影片裡的人換成照片裡的人。加購價：15 秒內 499 元、30 秒內 899 元、60 秒內 1,599 元，或 3 支包 1,299 元（每支 15 秒內）。送出後我們會先用 LINE 跟你確認費用，付款後才開始換。</p></div></div>
           <div id="swapLock" class="note" hidden>入門方案沒有這個功能，升級專業方案就能用。</div>
           <div id="swapBody">
             <div class="bar"><span class="note">照片是誰</span><button class="chip" type="button" data-who="本人" aria-pressed="true">我本人</button><button class="chip" type="button" data-who="朋友授權" aria-pressed="false">朋友（有授權）</button></div>
@@ -220,19 +220,19 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
             <label class="note" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="swOk" style="margin-top:4px"><span>我確認照片是我本人，或已取得照片中本人同意使用，並了解成品會標示「AI 生成」。</span></label>
           </div>
         </div>
-        <div class="panel fold" data-fold>
-          <div class="ph"><b id="noteNo">4</b><div><h3>特別交代和 logo（選填）</h3><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
+        <div class="panel fold" id="notePanel" data-fold>
+          <div class="ph"><b id="noteNo">4</b><div><h3>特別交代和 logo（選填）</h3><span class="psum" data-psum="notePanel"></span><p>例如：第 20 秒講錯剪掉、價格 1280 要跳出來、品牌名是英文 VITO。</p></div></div>
           <label class="f"><span>常用詞（品牌名、產品名、人名，用空格隔開，AI 打字幕時會照這個寫）</span><input type="text" id="vGloss" maxlength="1000" placeholder="例如：維拓傳媒 AI剪片 Vic"></label>
           <label class="f"><span>備註</span><textarea id="vNote" rows="3" maxlength="500"></textarea></label>
-          <div id="ratioRow"><div class="bar"><span class="note">影片比例</span><button class="chip" type="button" data-ratio="9:16" aria-pressed="true">直式 9:16</button><button class="chip" type="button" data-ratio="16:9" aria-pressed="false">橫式 16:9</button></div><p class="note">直式給 IG、抖音、Shorts；橫式給 YouTube、官網。直的素材做成橫式會放中間、兩邊用模糊補滿；橫的素材做成直式會跟著人臉裁成滿版。預覽一律是直的，成品照你選的比例。</p></div>
-          <div id="beautyRow"><div class="bar"><span class="note">美顏</span><button class="chip" type="button" data-bty="不要" aria-pressed="true">不要</button><button class="chip" type="button" data-bty="輕" aria-pressed="false">輕</button><button class="chip" type="button" data-bty="中" aria-pressed="false">中</button></div><p class="note">臉上皮膚磨細一點、氣色亮一點，背景和頭髮不會糊。前後對比的影片（美容、美甲、整骨這類）請選「不要」，不然對比會不準；影片有寫 BEFORE／AFTER 或「前後對比」，系統也會自動不開。預覽看不到美顏，成品才有。</p></div>
-          <div id="musRow"><div class="bar"><span class="note">背景音樂</span><button class="chip" type="button" data-mus="原創配樂" aria-pressed="true">幫我配音樂</button><button class="chip" type="button" data-mus="不要配樂" aria-pressed="false">不要音樂</button></div><p class="note" style="margin:4px 0 0">幫我配音樂：我們放一段沒有版權問題的背景音樂，講話時自動調小聲。不要音樂：成品只有你的聲音，發 IG、抖音時可以自己加平台上的熱門歌。</p></div>
+          <div id="ratioRow"><div class="bar"><span class="note">影片比例</span><button class="chip" type="button" data-ratio="9:16" aria-pressed="true">直式 9:16</button><button class="chip" type="button" data-ratio="16:9" aria-pressed="false">橫式 16:9</button></div><details class="tip"><summary>說明</summary><p class="note">直式給 IG、抖音、Shorts；橫式給 YouTube、官網。直的素材做成橫式會放中間、兩邊用模糊補滿；橫的素材做成直式會跟著人臉裁成滿版。預覽一律是直的，成品照你選的比例。</p></details></div>
+          <div id="beautyRow"><div class="bar"><span class="note">美顏</span><button class="chip" type="button" data-bty="不要" aria-pressed="true">不要</button><button class="chip" type="button" data-bty="輕" aria-pressed="false">輕</button><button class="chip" type="button" data-bty="中" aria-pressed="false">中</button></div><details class="tip"><summary>說明</summary><p class="note">臉上皮膚磨細一點、氣色亮一點，背景和頭髮不會糊。前後對比的影片（美容、美甲、整骨這類）請選「不要」，不然對比會不準；影片有寫 BEFORE／AFTER 或「前後對比」，系統也會自動不開。預覽看不到美顏，成品才有。</p></details></div>
+          <div id="musRow"><div class="bar"><span class="note">背景音樂</span><button class="chip" type="button" data-mus="原創配樂" aria-pressed="true">幫我配音樂</button><button class="chip" type="button" data-mus="不要配樂" aria-pressed="false">不要音樂</button></div><details class="tip"><summary>說明</summary><p class="note">幫我配音樂：我們放一段沒有版權問題的背景音樂，講話時自動調小聲。不要音樂：成品只有你的聲音，發 IG、抖音時可以自己加平台上的熱門歌。</p></details></div>
           <div class="bar"><label class="up">上傳 logo（選填）<input type="file" accept="image/*" id="vLogo" hidden></label><span class="note">或直接打字</span><input type="text" id="vLogoT" maxlength="20" placeholder="例如：維拓傳媒" style="padding:9px 12px;border:1px solid var(--line);font:inherit;min-width:0;flex:1;max-width:240px"><span class="note" id="vLogoMsg">有放的話會放在影片角落</span></div>
           <div class="pvm" id="pvm" hidden><canvas id="pv2" width="270" height="480" aria-label="logo 預覽"></canvas><span class="note">打字或換 logo，這裡馬上就會變</span></div>
         </div>
         <div class="bar"><button class="btn" type="button" id="send">交給 AI 剪（用掉 1 支）</button><span class="msg" id="sendMsg"></span></div>
         <div class="prog" id="prog" hidden><i></i></div>
-        <div class="sh" style="margin-top:20px"><h2 style="font-size:24px">我的影片</h2><p>AI 會先把字幕打好給你確認，確認後才出片。做好會顯示「完成」，按下載就能存下來（請直接上傳到平台，不要先用 LINE 傳，會被壓糊）。<b>影片、照片和成品完成後只保留 3 天</b>，下面會顯示倒數，過了會自動刪除。</p></div>
+        <div class="sh" style="margin-top:20px"><h2 style="font-size:24px">我的影片</h2><p>字幕打好會先給你確認，確認後才出片。<b>成品只保留 3 天</b>，請記得下載。</p></div>
         <div class="jobs" id="jobs"></div>
       </div>
     </div>
@@ -247,6 +247,6 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
 <script src="/ai/subfx.js?v=1026i"></script>
 <script src="/ai/core.js?v=1103a"></script>
 <script src="/ai/subjob.js?v=1031a"></script>
-<script src="/ai/video.js?v=1104c"></script>
+<script src="/ai/video.js?v=1104d"></script>
 </body>
 </html>
