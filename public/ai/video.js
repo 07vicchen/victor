@@ -200,7 +200,8 @@
     return real;
   }
   function listFiles() { $("#flist").innerHTML = files.map(function (f, i) { var big = f.size > MAXMB * 1048576; return "<div><b>" + E(f.name) + "</b><span" + (big ? ' style="color:#b23b2e"' : "") + ">" + (f.size / 1048576).toFixed(1) + " MB" + (big ? "（超過 " + MAXMB + "MB）" : "") + '</span><button class="chip" type="button" data-rm="' + i + '">移除</button></div>' + (/^result_\d+_/i.test(f.name) ? '<p class="msg err" style="margin:2px 0 8px">這支看起來是我們剪好的成品，畫面上已經有字幕了，再剪一次會出現兩層字幕。要重剪請丟原始影片，或在「我的影片」按改字幕重出。</p>' : ""); }).join("");
-    $$("[data-rm]").forEach(function (b) { b.onclick = function () { files.splice(+b.dataset.rm, 1); listFiles(); }; }); }
+    $$("[data-rm]").forEach(function (b) { b.onclick = function () { files.splice(+b.dataset.rm, 1); listFiles(); }; });
+    if (files.length) { var fl = $("#flist"); setTimeout(function () { fl.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 100); } }
   async function send() { var m = $("#sendMsg"), b = $("#send"), pg = $("#prog");
     if (!files.length) { m.className = "msg err"; m.textContent = "先選至少一支影片"; return; }
     if (files.some(function (f) { return f.size > MAXMB * 1048576; })) { m.className = "msg err"; m.textContent = "有影片超過 " + MAXMB + "MB，請先剪短一點，或用 1080p 重新匯出"; return; }
@@ -253,14 +254,17 @@
   function draw() { var box = $("#jobs"), c = VAI.client(); todo();
     if (editor) { editor.close(); editor = null; }
     if (!JOBS.length) { box.innerHTML = '<p class="note">還沒有影片。上面選好素材送出就會出現在這裡。</p>'; return; }
-    box.innerHTML = JOBS.map(function (j) { var sub = j.mode === "subs", left = Math.max(0, renderCap - (j.renders || 0)), btn = "";
+    // Vic 11/4：過期刪掉的影片收進一張卡片，點開才看，不要把上面拉很長
+    var gone = function (j) { return !!(j.purged_at || (j.result && j.result.expired)); }, live = JOBS.filter(function (j) { return !gone(j); }), dead = JOBS.filter(gone);
+    box.innerHTML = (live.length ? "" : '<p class="note">目前沒有進行中的影片。</p>') + live.map(function (j) { var sub = j.mode === "subs", left = Math.max(0, renderCap - (j.renders || 0)), btn = "";
       if (j.status === "stt") btn = '<button class="btn sm gh" type="button" data-stt="' + j.id + '">重新打字幕</button>';
       if (j.status === "review") btn = '<button class="btn sm" type="button" data-edit="' + j.id + '">確認字幕</button>';
       if (j.status === "rendering") btn = '<button class="btn sm gh" type="button" data-edit="' + j.id + '">再看一次字幕</button><button class="btn sm" type="button" data-render="' + j.id + '">開始出片</button>';
       if (j.purged_at || (j.result && j.result.expired)) btn = '<span class="note">已超過 3 天保存期限，檔案已刪除</span>';
       else if (j.status === "done" && j.result && j.result.path) btn = keep(j) + '<button class="btn sm" type="button" data-get="' + E(j.result.path) + '">下載成品</button>' + (sub ? (left > 0 ? '<button class="btn sm gh" type="button" data-edit="' + j.id + '">改字幕再出一次（還可以 ' + (renderCap >= 1000 ? "不限" : left) + " 次）</button>" : '<span class="note">修改次數用完了</span>') : "");
       if (j.lines && j.lines.length) btn += '<button class="btn sm gh" type="button" data-srt="' + j.id + '">下載字幕檔</button>';
-      return '<div class="jobw"><div class="job"><span><b>#' + j.id + "</b>　" + E(j.style || "") + "・" + new Date(j.created_at || Date.now()).toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) + '</span><span class="s ' + j.status + '">' + (ST[j.status] || j.status) + (j.trial ? "・試用" : "") + "</span>" + btn + (busy[j.id] ? '<span class="note" data-busy="' + j.id + '" style="flex-basis:100%">' + E(busy[j.id]) + "</span>" : "") + '</div><div data-ed="' + j.id + '"></div></div>'; }).join("");
+      return '<div class="jobw"><div class="job"><span><b>#' + j.id + "</b>　" + E(j.style || "") + "・" + new Date(j.created_at || Date.now()).toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) + '</span><span class="s ' + j.status + '">' + (ST[j.status] || j.status) + (j.trial ? "・試用" : "") + "</span>" + btn + (busy[j.id] ? '<span class="note" data-busy="' + j.id + '" style="flex-basis:100%">' + E(busy[j.id]) + "</span>" : "") + '</div><div data-ed="' + j.id + '"></div></div>'; }).join("")
+    if (dead.length) box.innerHTML += '<details class="fxc" style="margin-top:8px"><summary style="display:flex;justify-content:space-between;padding:10px 12px"><b style="font-size:14px">已刪除的影片（' + dead.length + ' 支，超過 3 天保存期限）</b><i aria-hidden="true">▾</i></summary><div style="padding:0 12px 10px;display:flex;flex-direction:column;gap:4px">' + dead.map(function (j) { return '<span class="note">#' + j.id + "　" + E(j.style || "") + "・" + new Date(j.created_at || Date.now()).toLocaleString("zh-TW", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }) + "</span>"; }).join("") + "</div></details>";
     $$("[data-get]").forEach(function (b) { b.onclick = async function () { var s = await c.storage.from("ai-videos").createSignedUrl(b.dataset.get, 3600, { download: true }); if (!s.error) location.href = s.data.signedUrl; }; });
     $$("[data-stt]").forEach(function (b) { b.onclick = function () { var j = JOBS.filter(function (x) { return x.id === +b.dataset.stt; })[0]; sttRun(j); }; });
     $$("[data-render]").forEach(function (b) { b.onclick = function () { var j = JOBS.filter(function (x) { return x.id === +b.dataset.render; })[0]; renderRun(j); }; });
