@@ -32,7 +32,7 @@ html.vai-in .vai-bar{background:#0c1a30;border-color:#24456e;color:#fff}html.vai
 #work .quest .qn{color:#6f8fb3}#work .quest .qn small{color:#4c6c90}
 #work .quest .qn:not(:last-child)::after{background:#13294a}
 #work .quest .qn.done:not(:last-child)::after{background:linear-gradient(90deg,var(--n3),var(--n2));box-shadow:0 0 8px #7ad8ff88}
-#work .quest .qn i{background:#0d1d36;color:#5f80a6;border:1px solid #1d3556}
+#work .quest .qn i{background:#0d1d36;color:#8fb0d0;border:1px solid #1d3556}
 #work .quest .qn.done i{background:linear-gradient(145deg,var(--n3),var(--n2));color:#fff;border:0;box-shadow:0 0 14px #7ad8ffaa}
 #work .quest .qn.done{color:var(--n3)}
 #work .quest .qn.now i{background:linear-gradient(145deg,var(--n1),var(--n2));color:#fff;border:0;animation:nq 1.4s ease-in-out infinite}
@@ -88,3 +88,41 @@ html.vai-in nav.top a,html.vai-in nav.top b,html.vai-in nav.top small,html.vai-i
 html.vai-in nav.top .btn{background:#0f2242!important;color:#dcebff!important;border-color:#24456e!important}
 html.vai-in footer{background:#06101f!important;color:#8fb0d0!important;border-color:#1d3556!important}html.vai-in footer a{color:#8fb0d0!important}
 html.vai-in .sect{border-color:#1d3556!important}
+/* ===== 11/5 字色總檢查：登入後整頁（含「看方案、功能介紹」）統一深藍底、亮字 ===== */
+html.vai-in{--bg:#06101f;--paper:#0c1a30;--card:#0c1a30;--line:#1d3556;--line2:#24456e;--fg:#e6f2ff;--mid:#a9c2dc;--dim:#8fa9c6;--gold:#7ad8ff;--gold2:#3dffa8;--goldSoft:#0f2547;color-scheme:dark}
+html.vai-in :is(.st,.fxc,.drop,.fxguide,.tile,.plans,.extras,.auth,.state,.vsc,.ocs div,.oc,.status,.vis .pr,.acc,.flist div,.flist .fxrow,.job,.sed,.sed-act){background:#0c1a30;border-color:#1d3556;color:#e6f2ff;box-shadow:none}
+html.vai-in .fxc summary img,html.vai-in .tile canvas{background:#13294a}
+html.vai-in .lock{background:#06101fd9;color:#e6f2ff}
+html.vai-in .sh,html.vai-in nav.top,html.vai-in footer{border-color:#1d3556}
+html.vai-in .sh small,html.vai-in .kicker,html.vai-in .feat .ic,html.vai-in .plan .badge,html.vai-in .st .cap em,html.vai-in .fxc summary em{color:#7ad8ff}
+html.vai-in .hero h1 span{color:#3dffa8}
+html.vai-in .stats b{color:#7ad8ff}
+html.vai-in .btn{background:linear-gradient(90deg,#3dffa8,#2fa8ff);color:#04122a;border:0}
+html.vai-in .btn.gh{background:transparent;color:#e6f2ff;border:1px solid #2f5a8a}
+html.vai-in .btn.gh:hover{background:#0f2242;color:#fff}
+html.vai-in .ocs .go{background:linear-gradient(150deg,#0f2c4a,#0b1d38);border:1px solid #3dffa8;color:#fff;box-shadow:0 0 18px #3dffa855}
+html.vai-in .ocs .go b{color:#3dffa8}html.vai-in .ocs .go small{color:#a9c2dc}
+html.vai-in .plan.hot{background:linear-gradient(160deg,#0f2c4a,#0b1d38);color:#fff;box-shadow:inset 0 0 0 1px #3dffa8}
+html.vai-in .plan.hot ul,html.vai-in .plan.hot .m,html.vai-in .plan.hot .q{color:#cfe4ff}
+html.vai-in .plan.hot .badge,html.vai-in .plan.hot .m b,html.vai-in .plan .bd{color:#3dffa8}
+html.vai-in .plan.hot .btn{background:linear-gradient(90deg,#3dffa8,#2fa8ff);color:#04122a}
+html.vai-in .vsc:last-child{border-color:#3dffa8;box-shadow:0 0 16px #3dffa833}
+html.vai-in input[type=email],html.vai-in input[type=password]{background:#081426;color:#fff;border-color:#1d3556}
+/* 會員區裡的提示框、按鈕字 */
+#work p.note[style*="F1F6EE"]{background:#0b2a22!important;color:#bff5dc!important;border:1px solid #1f6b4f}
+#work p.note[style*="F1F6EE"] b{color:#3dffa8!important}
+#work details.upnote{background:#2a2410!important;border-color:#6b5a1f!important;color:#f3e3b0!important}
+#work details.upnote b{color:#ffd34d!important}
+#work #send,#work #genAI,#work .btn.dl,#work #mbarDl,#work .todo .btn{color:#04122a!important}
+#work [data-mode][aria-pressed=true],#work [data-mode][aria-pressed=true] *{color:#04122a!important}
+#work .ph b{color:#04122a!important}
+.quest .qn:is(.done,.now) i{color:#04122a!important}
+.quest .qn small{color:#8fb0d0!important}
+#work .psum{color:#8fb0d0!important}
+html.vai-in .mbar span{color:#ffd34d}
+html.vai-in .up{background:#0d1d36;color:#e6f2ff;border-color:#2f5a8a}
+html.vai-in .oc i{color:#04122a}
+html.vai-in .chip{background:#0d1d36;color:#cfe4ff;border-color:#24456e}
+html.vai-in .chip[aria-pressed=true]{background:#0f2c4a;color:#fff;border-color:#7ad8ff}
+.sed.studio [data-ok]{color:#04122a!important}
+html.vai-in .pi,html.vai-in .pi *{color:#141414}html.vai-in .pi .pr,html.vai-in .pi .pr *{color:#d9472b}

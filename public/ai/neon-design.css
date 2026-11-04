@@ -18,3 +18,12 @@ html.vai-in .vai-bar span{color:#ffc857!important}
 @keyframes nq{0%,100%{box-shadow:0 0 0 0 #ff7a5999}50%{box-shadow:0 0 0 10px #ff7a5900,0 0 18px #ff7a59}}
 #work .phone{box-shadow:0 0 0 2px #ff7a5966,0 0 30px #ffc85733!important}
 #work .phone-cap{color:#ffc857!important}
+/* 介紹區也用美編的珊瑚橘＋暖金 */
+html.vai-in{--gold:#ff9a7a;--gold2:#ffc857}
+html.vai-in .sh small,html.vai-in .kicker,html.vai-in .feat .ic,html.vai-in .plan .badge,html.vai-in .stats b{color:#ff9a7a}
+html.vai-in .hero h1 span{color:#ffc857}
+html.vai-in .btn:not(.gh){background:linear-gradient(90deg,#ff7a59,#ffc857);color:#1a0f08}
+html.vai-in .ocs .go,html.vai-in .vsc:last-child{border-color:#ff7a59;box-shadow:0 0 16px #ff7a5944}
+html.vai-in .ocs .go b,html.vai-in .plan.hot .badge,html.vai-in .plan.hot .m b,html.vai-in .plan .bd{color:#ffc857}
+html.vai-in .plan.hot{box-shadow:inset 0 0 0 1px #ff7a59}
+html.vai-in .chip[aria-pressed=true]{border-color:#ff9a7a}
