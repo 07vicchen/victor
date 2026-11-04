@@ -80,6 +80,31 @@
 .sed-r input{padding:8px;border:1px solid var(--line);font:inherit;min-width:0}
 .sed-act{position:sticky;bottom:0;z-index:5;background:var(--paper);padding:10px 0;border-top:1px solid var(--line);margin:0}.todo{border:1px solid var(--gold);background:var(--goldSoft,#fbf5e8);padding:12px 14px;display:flex;flex-direction:column;gap:8px}.todo b{font:900 15px var(--serif)}.todo .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.panel.fold>*:not(.ph){display:none}.panel.fold .ph p{display:none}.ph .psum{display:none;font-size:13px;color:var(--gold2,#8a6a1f);margin-top:2px}.panel.fold .ph .psum{display:block}details.tip{margin:2px 0 8px}details.tip summary{cursor:pointer;font-size:13px;color:var(--mid);list-style:none;display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px}details.tip summary::-webkit-details-marker{display:none}details.tip p{margin:6px 0 0}.panel[data-fold] .ph{cursor:pointer}.panel[data-fold] .ph::after{content:"▾";margin-left:auto;color:var(--mid);font-size:18px;transition:transform .2s}.panel.fold .ph::after{transform:rotate(-90deg)}.sed-b{display:flex;gap:4px}.sed select,.sed .f input{padding:8px;border:1px solid var(--line);font:inherit;background:#fff}.sed-r.cut input{text-decoration:line-through;opacity:.45}.sed-r.star input[data-t]{border-color:var(--gold);background:#fffaf0}
 .jobw{display:flex;flex-direction:column}
+/* ===== 會員區「我的剪片工作台」：跟剪輯工作室同一套淺色圓角風格（Vic 11/5） ===== */
+#work{--g:#b8913a;--g2:#8a6a1f;--ink:#1f1b16;--mute:#7a7266;--ln:#e7e1d5}
+#work .col{gap:12px}
+#work .usage{border:0;border-radius:16px;background:#fff;box-shadow:0 3px 12px #2b221012;padding:12px 16px}
+#work .usage .bar2{height:6px;border-radius:9px;overflow:hidden}
+#work .todo{border:0;border-radius:16px;background:#fff6e2;box-shadow:0 3px 12px #b8913a22}
+#work>.col>.bar:first-of-type,#work .col>.bar:has([data-mode]){background:#efe9dc;border-radius:999px;padding:4px;display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;align-items:center}
+#work [data-mode]{border:0;border-radius:999px;background:transparent;padding:10px 0;font-weight:700;font-size:14.5px;color:var(--mute)}
+#work [data-mode][aria-pressed=true]{background:var(--ink);color:#fff;box-shadow:0 4px 12px #1f1b1633}
+#work .panel{border:0;border-radius:18px;background:#fff;box-shadow:0 4px 16px #2b221012;padding:16px}
+#work .ph b{font:900 15px var(--body);width:30px;height:30px;border-radius:50%;background:var(--ink);color:#e7c56f;display:grid;place-items:center;flex:none}
+#work .ph h3{font-size:17px}
+#work .drop{border:2px dashed #d9c9a3;border-radius:18px;background:linear-gradient(160deg,#fffdf8,#f8f1e2);padding:30px 16px}
+#work .drop b{font-size:20px}
+#work .drop:not(.sm)::before{content:"＋";display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--ink);color:#e7c56f;font:900 30px/1 var(--body);margin:0 auto 6px;box-shadow:0 6px 16px #1f1b1633}
+#work .flist div{border:0;border-radius:12px;background:#f8f5ee}
+#work .chip{border-radius:999px}
+#work #send{width:100%;border-radius:999px;background:var(--ink);color:#fff;font-weight:900;font-size:17px;padding:15px;box-shadow:0 8px 20px #1f1b1633}
+#work #send+.msg{flex-basis:100%}
+#work .prog{height:6px;border-radius:9px;overflow:hidden}
+#work .jobw .job{border:0;border-radius:16px;background:#fff;box-shadow:0 3px 12px #2b221012;padding:12px 14px}
+#work .job .s{border-radius:999px;padding:3px 10px;font-size:12.5px;background:#f3eee3}
+#work .job .s.done{background:#e6f3e6}#work .job .s.review,#work .job .s.rendering{background:#fff1d6;color:#8a5a00}#work .job .s.queued,#work .job .s.working{background:#e8efff}
+#work .jobs details.fxc{border:0;border-radius:16px;background:#f8f5ee}
+#work .btn{border-radius:999px}
 /* ===== 剪輯工作室：乾淨明亮版（Vic 11/5 選 1：米白底＋香檳金，跟官網同色） ===== */
 .sed.studio{--g:#b8913a;--g2:#8a6a1f;--ink:#1f1b16;--mute:#7a7266;--line:#e7e1d5;background:#fbf9f4;color:var(--ink);border:1px solid var(--line);border-radius:20px;box-shadow:0 10px 30px #2b22100f;padding:14px;gap:12px}
 .sed.studio .st-h{grid-column:1/-1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
@@ -222,7 +247,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
           <div class="drop"><input type="file" id="vf" accept="video/*,.mp4,.mov,.m4v" multiple aria-label="選擇影片"><b>點這裡選影片，或拖進來</b><span class="note">mp4、mov 都可以，橫的直的都行</span></div>
           <p class="msg" id="vfWait" hidden style="margin:8px 0 0;padding:10px 12px;border-radius:10px;background:#EAF3FF;color:#1d4f8f;font-size:14px;line-height:1.6"></p>
           <div class="flist" id="flist"></div>
-          <p class="note" style="margin:8px 0 0;padding:10px 12px;border-radius:10px;background:#F1F6EE;color:#2f5130;font-size:13.5px;line-height:1.6"><b>剪法、字幕、特效不用現在選：</b>傳完 AI 打好字幕，會打開「預覽室」，用你自己的影片邊看邊挑，看滿意了再送出。</p>
+          <p class="note" style="margin:8px 0 0;padding:10px 12px;border-radius:10px;background:#F1F6EE;color:#2f5130;font-size:13.5px;line-height:1.6"><b>剪法、字幕、特效不用現在選：</b>傳完 AI 打好字幕，會打開「剪輯工作室」，用你自己的影片邊看邊挑，看滿意了再送出。</p>
           <details class="upnote" style="margin:8px 0 4px;padding:8px 12px;border-radius:10px;background:#FFF6E0;border:1px solid #F2D58A;color:#5a4410;font-size:13.5px;line-height:1.7"><summary style="cursor:pointer;font-weight:700">上傳前請看（點開）：傳完前請停在這頁</summary>
             ① 按「交給 AI 剪」後，<b>停在這頁等它傳完</b>，看到「送出了！」才算完成；不要鎖螢幕、不要切去 LINE 或別的 App。<br>② iPhone 選好影片按 ✓ 後，手機要先整理影片（長片 10～60 秒），畫面不動是正常的，不要重按。<br>③ 不小心離開了：回到這頁會接著傳；頁面被關掉就重選<b>同一支影片</b>再送出，會從斷掉的地方接著傳（24 小時內有效）。<br>④ 想傳快一點：錄影設成 <b>1080p</b>（不要 4K）；每支 500MB 以內。
           </details>
