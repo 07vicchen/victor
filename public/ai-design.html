@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
+<script>/* 上次是會員就先套會員版型，避免先閃一下舊版 */try{if(localStorage.getItem("vai_in_design")&&Object.keys(localStorage).some(function(k){return /^sb-.*-auth-token$/.test(k)})&&!/[?&]embed=1/.test(location.search))document.documentElement.classList.add("vai-in","vai-login","vai-tool")}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AI 美編｜維拓傳媒 AI 工具</title>
@@ -160,7 +161,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="/ai/tpl.js?v=1025d"></script>
-<script src="/ai/core.js?v=1104e"></script>
+<script src="/ai/core.js?v=1105a"></script>
 <script src="/ai/design.js?v=1030f"></script>
 <script>/* Vic 11/5：步驟卡片一次只開一張 */
 document.querySelectorAll("#work [data-fold] .ph").forEach(function (h) { h.addEventListener("click", function () { var p = h.parentNode, open = p.classList.contains("fold");

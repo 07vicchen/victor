@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
+<script>/* 上次是會員就先套會員版型，避免先閃一下舊版 */try{if(localStorage.getItem("vai_in_video")&&Object.keys(localStorage).some(function(k){return /^sb-.*-auth-token$/.test(k)})&&!/[?&]embed=1/.test(location.search))document.documentElement.classList.add("vai-in","vai-login","vai-tool")}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AI 剪片・AI 快剪｜影片丟進來，自動剪成短影音｜維拓傳媒</title>
@@ -295,7 +296,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
           </div><div class="pvb"><canvas id="pvA" width="270" height="480" aria-label="剪法預覽"></canvas><p class="note" id="pvCapA"></p></div></div>
         </div>
         <div class="panel fold" id="fxPanel" data-fold>
-          <div class="ph"><b>2</b><div><h3>要放進影片的照片（選填）</h3><span class="psum" data-psum="fxPanel"></span><p>可以多選；都不選就交給我們看內容決定。想讓影片裡出現你的商品、作品、截圖或店面，就把照片丟進來。</p></div></div>
+          <div class="ph"><b>2</b><div><h3>要放進影片的照片（選填）</h3><span class="psum" data-psum="fxPanel"></span><p>想讓影片裡出現你的商品、作品、截圖或店面，就把照片丟進來；要不要加特效、放在哪，傳完在剪輯工作室邊看邊選。</p></div></div>
           <div class="pick2" id="fxPick" hidden></div>
           <p class="note" id="fxNote" hidden></p>
           <div class="fxsel" id="fxSel" aria-live="polite" hidden></div>
@@ -351,8 +352,8 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
 <script>var F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif',N='"Roboto","Noto Sans TC",sans-serif';</script>
 <script src="/ai/vid.js"></script>
 <script src="/ai/subfx.js?v=1105b"></script>
-<script src="/ai/core.js?v=1104e"></script>
-<script src="/ai/fxsim.js?v=1105b"></script><script src="/ai/subjob.js?v=1105k"></script>
+<script src="/ai/core.js?v=1105a"></script>
+<script src="/ai/fxsim.js?v=1105b"></script><script src="/ai/subjob.js?v=1105l"></script>
 <script src="/ai/video.js?v=1105j"></script>
 </body>
 </html>
