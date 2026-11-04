@@ -100,11 +100,20 @@
     (function () { var vf = $("#vf"), w = $("#vfWait"), picking = 0, t0 = 0, tm = null;
       function tick() { if (!picking) return; var s = Math.round((Date.now() - t0) / 1000); w.hidden = false; w.textContent = "手機正在整理你選的影片…（" + s + " 秒）長片要等久一點，請不要關掉或重按。"; tm = setTimeout(tick, 1000); }
       function back() { if (!picking || document.visibilityState !== "visible") return; setTimeout(function () { if (picking && !tm) { t0 = Date.now(); tick(); } }, 800); }
-      vf.addEventListener("click", function () { picking = 1; clearTimeout(tm); tm = null; });
+      // Vic 11/4 21:50：iPhone 整理大影片時記憶體不夠，會把這頁關掉重開，選的影片就不見。選影片時先把示範動畫的畫布清空省記憶體；真的被重開了，回來要講清楚
+      var shrunk = [];
+      function lighten() { if (shrunk.length) return; $$("canvas").forEach(function (c) { if (c.closest("#work")) return; shrunk.push([c, c.width, c.height]); c.width = 1; c.height = 1; }); }
+      function restore() { shrunk.forEach(function (s) { s[0].width = s[1]; s[0].height = s[2]; }); shrunk = []; }
+      function done() { picking = 0; clearTimeout(tm); tm = null; w.hidden = true; restore(); try { sessionStorage.removeItem("vfPick"); } catch (e) {} }
+      try { var was = +sessionStorage.getItem("vfPick") || 0; sessionStorage.removeItem("vfPick");
+        if (was && Date.now() - was < 600000) { w.hidden = false; w.style.background = "#FFF0E6"; w.style.color = "#8a3a12";
+          w.innerHTML = "<b>剛剛選的影片沒收到：</b>手機整理影片時記憶體不夠，把這一頁重新開了。請這樣再試一次：<br>① 先把 Safari 其他分頁關掉、把背景的 App 滑掉<br>② 再點上面選影片，選完等它跳回這頁，看到影片名稱出現在下面才算選好<br>③ 還是不行：影片太大了，改用電腦上傳，或手機錄影改成 1080p 再拍";
+          setTimeout(function () { w.scrollIntoView({ block: "center" }); }, 600); } } catch (e) {}
+      vf.addEventListener("click", function () { picking = 1; clearTimeout(tm); tm = null; w.hidden = true; w.style.background = "#EAF3FF"; w.style.color = "#1d4f8f"; try { sessionStorage.setItem("vfPick", String(Date.now())); } catch (e) {} lighten(); });
       window.addEventListener("focus", back); document.addEventListener("visibilitychange", back);
-      vf.addEventListener("cancel", function () { picking = 0; clearTimeout(tm); tm = null; w.hidden = true; });
-      vf.addEventListener("change", function () { picking = 0; clearTimeout(tm); tm = null; w.hidden = true; });
-      setInterval(function () { if (picking && tm && Date.now() - t0 > 180000) { picking = 0; clearTimeout(tm); tm = null; w.hidden = true; } }, 5000);
+      vf.addEventListener("cancel", done);
+      vf.addEventListener("change", done);
+      setInterval(function () { if (picking && tm && Date.now() - t0 > 180000) done(); }, 5000);
     })();
     $("#vf").onchange = function (e) { var add = [].slice.call(e.target.files); add.forEach(function (f) { if (files.length < 5) files.push(f); }); e.target.value = ""; listFiles(); };
     $("#vLogo").onchange = function (e) { vlogo = e.target.files[0] || null; $("#vLogoMsg").textContent = vlogo ? "已選 logo：" + vlogo.name : "有放的話會放在影片角落"; if (logoImg) URL.revokeObjectURL(logoImg.src); logoImg = null; if (vlogo) { logoImg = new Image(); logoImg.src = URL.createObjectURL(vlogo); } $("#pvm").hidden = !vlogo && !$("#vLogoT").value.trim(); pvSync(1); fxSync(); };
