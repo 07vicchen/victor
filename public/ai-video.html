@@ -80,7 +80,8 @@
 .sed-r input{padding:8px;border:1px solid var(--line);font:inherit;min-width:0}
 .sed-act{position:sticky;bottom:0;z-index:5;background:var(--paper);padding:10px 0;border-top:1px solid var(--line);margin:0}.todo{border:1px solid var(--gold);background:var(--goldSoft,#fbf5e8);padding:12px 14px;display:flex;flex-direction:column;gap:8px}.todo b{font:900 15px var(--serif)}.todo .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.panel.fold>*:not(.ph){display:none}.panel.fold .ph p{display:none}.ph .psum{display:none;font-size:13px;color:var(--gold2,#8a6a1f);margin-top:2px}.panel.fold .ph .psum{display:block}details.tip{margin:2px 0 8px}details.tip summary{cursor:pointer;font-size:13px;color:var(--mid);list-style:none;display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px}details.tip summary::-webkit-details-marker{display:none}details.tip p{margin:6px 0 0}.panel[data-fold] .ph{cursor:pointer}.panel[data-fold] .ph::after{content:"▾";margin-left:auto;color:var(--mid);font-size:18px;transition:transform .2s}.panel.fold .ph::after{transform:rotate(-90deg)}.sed-b{display:flex;gap:4px}.sed select,.sed .f input{padding:8px;border:1px solid var(--line);font:inherit;background:#fff}.sed-r.cut input{text-decoration:line-through;opacity:.45}.sed-r.star input[data-t]{border-color:var(--gold);background:#fffaf0}
 .jobw{display:flex;flex-direction:column}
-@media (max-width:760px){.sed{grid-template-columns:1fr}.sed-stage{max-width:260px;margin:0 auto}.sed-r{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tm . bt" "tx tx tx" "hl hl hl";row-gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}.sed-r>[data-play]{grid-area:tm}.sed-r>input[data-t]{grid-area:tx;font-size:17px;padding:10px}.sed-r>input[data-h]{grid-area:hl;font-size:15px;padding:8px 10px}.sed-r>.sed-b{grid-area:bt}}
+.rm{border:1px solid var(--gold,#b8913a);background:#fffdf7;margin:0 0 10px}.rm>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px 12px;list-style:none}.rm>summary::-webkit-details-marker{display:none}.rm-b{padding:0 12px 10px;display:flex;flex-direction:column;gap:8px}.rm-g{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.rm-t{flex-basis:100%;font-weight:700;color:var(--fg)}.rm-tip{flex-basis:100%;margin:2px 0 0;font-size:12.5px}.rm .chip{padding:6px 10px;font-size:13px}
+@media (max-width:760px){.sed{grid-template-columns:1fr}.sed-v{position:sticky;top:0;z-index:6;background:var(--paper,#f6f5f1);padding:6px 0 4px}.sed-v>.note,.sed-v>p{display:none}.sed-stage{max-width:150px;margin:0 auto}.sed-r{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"tm . bt" "tx tx tx" "hl hl hl";row-gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}.sed-r>[data-play]{grid-area:tm}.sed-r>input[data-t]{grid-area:tx;font-size:17px;padding:10px}.sed-r>input[data-h]{grid-area:hl;font-size:15px;padding:8px 10px}.sed-r>.sed-b{grid-area:bt}}
 @media (max-width:1000px){.styles{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:640px){.styles{grid-template-columns:repeat(2,minmax(0,1fr))}.vframes canvas{width:160px}.vframes figure+figure canvas{width:120px}}
 </style>
@@ -177,6 +178,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
           <div class="drop"><input type="file" id="vf" accept="video/*,.mp4,.mov,.m4v" multiple aria-label="選擇影片"><b>點這裡選影片，或拖進來</b><span class="note">mp4、mov 都可以，橫的直的都行</span></div>
           <p class="msg" id="vfWait" hidden style="margin:8px 0 0;padding:10px 12px;border-radius:10px;background:#EAF3FF;color:#1d4f8f;font-size:14px;line-height:1.6"></p>
           <div class="flist" id="flist"></div>
+          <p class="note" style="margin:8px 0 0;padding:10px 12px;border-radius:10px;background:#F1F6EE;color:#2f5130;font-size:13.5px;line-height:1.6"><b>剪法、字幕、特效不用現在選：</b>傳完 AI 打好字幕，會打開「預覽室」，用你自己的影片邊看邊挑，看滿意了再送出。</p>
           <details class="upnote" style="margin:8px 0 4px;padding:8px 12px;border-radius:10px;background:#FFF6E0;border:1px solid #F2D58A;color:#5a4410;font-size:13.5px;line-height:1.7"><summary style="cursor:pointer;font-weight:700">上傳前請看（點開）：傳完前請停在這頁</summary>
             ① 按「交給 AI 剪」後，<b>停在這頁等它傳完</b>，看到「送出了！」才算完成；不要鎖螢幕、不要切去 LINE 或別的 App。<br>② iPhone 選好影片按 ✓ 後，手機要先整理影片（長片 10～60 秒），畫面不動是正常的，不要重按。<br>③ 不小心離開了：回到這頁會接著傳；頁面被關掉就重選<b>同一支影片</b>再送出，會從斷掉的地方接著傳（24 小時內有效）。<br>④ 想傳快一點：錄影設成 <b>1080p</b>（不要 4K）；每支 500MB 以內。
           </details>
@@ -189,10 +191,10 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
           </div><div class="pvb"><canvas id="pvA" width="270" height="480" aria-label="剪法預覽"></canvas><p class="note" id="pvCapA"></p></div></div>
         </div>
         <div class="panel fold" id="fxPanel" data-fold>
-          <div class="ph"><b>3</b><div><h3>質感特效和照片（選填）</h3><span class="psum" data-psum="fxPanel"></span><p>可以多選；都不選就交給我們看內容決定。想讓影片裡出現你的商品、作品、截圖或店面，就把照片丟進來。</p></div></div>
-          <div class="pick2" id="fxPick"></div>
-          <p class="note" id="fxNote"></p>
-          <div class="fxsel" id="fxSel" aria-live="polite"></div>
+          <div class="ph"><b>2</b><div><h3>要放進影片的照片（選填）</h3><span class="psum" data-psum="fxPanel"></span><p>可以多選；都不選就交給我們看內容決定。想讓影片裡出現你的商品、作品、截圖或店面，就把照片丟進來。</p></div></div>
+          <div class="pick2" id="fxPick" hidden></div>
+          <p class="note" id="fxNote" hidden></p>
+          <div class="fxsel" id="fxSel" aria-live="polite" hidden></div>
           <div id="fxPhBox">
             <div class="drop sm"><input type="file" id="fxPh" accept="image/jpeg,image/png,image/webp,image/heic,image/*" multiple aria-label="選擇要放進特效的照片"><b>點這裡選照片，可以一次選很多張</b><span class="note">jpg、png 都可以，最多 12 張、每張 10MB 以內。每張可以指定放在哪個特效，不指定就交給我們挑位置。</span></div>
             <div class="flist" id="fxList"></div>
@@ -246,7 +248,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
 <script src="/ai/vid.js"></script>
 <script src="/ai/subfx.js?v=1026i"></script>
 <script src="/ai/core.js?v=1104e"></script>
-<script src="/ai/subjob.js?v=1105b"></script>
-<script src="/ai/video.js?v=1104e"></script>
+<script src="/ai/subjob.js?v=1105c"></script>
+<script src="/ai/video.js?v=1105c"></script>
 </body>
 </html>

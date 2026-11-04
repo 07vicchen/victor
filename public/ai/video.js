@@ -128,7 +128,7 @@
     VAI.client().from("ai_tool_glossary").select("words,sticky,sticky_pos").maybeSingle().then(function (r) { if (r && r.data) { savedSticky = r.data; if (!$("#vGloss").value) $("#vGloss").value = r.data.words || ""; } }, function () {});
     VAI.client().rpc("ai_render_cap").then(function (r) { if (r && !r.error) renderCap = r.data; }, function () {}); }
   function setMode(m) { mode = m; if (m === "subs" && !pickMod) { var f = $$("[data-mod]").filter(function (x) { return x.dataset.mod && !x.disabled; })[0]; if (f) { pickMod = f.dataset.mod; $$("[data-mod]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === f)); }); } } $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.mode === m)); });
-    var subs = m === "subs"; $("#cutPanel").hidden = subs; $("#fxPanel").hidden = subs; $("#subNo").textContent = subs ? "2" : "4"; $("#noteNo").textContent = subs ? "3" : "5"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = subs; $("#beautyRow").hidden = subs; $("#ratioRow").hidden = subs; $("#sposRow").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
+    var subs = m === "subs"; $("#cutPanel").hidden = true; $("#subPanel").hidden = true; $("#fxPanel").hidden = subs;   // Vic 11/5：剪法、字幕樣式改到預覽室選 $("#noteNo").textContent = subs ? "2" : "3"; $("#subP").textContent = subs ? "決定字幕長什麼樣子。影片不會被剪，只上字幕。" : "決定字幕長什麼樣子。不選就用剪法配好的那款。"; $("#musRow").hidden = true; $("#beautyRow").hidden = true; $("#ratioRow").hidden = true; $("#sposRow").hidden = subs; $$("[data-auto]").forEach(function (x) { x.hidden = subs; });
     
     $("#stNote").textContent = plan === "basic" ? "入門方案可用 3 種剪法，升級專業就能用全部。" : ""; $("#modNote").textContent = plan === "basic" ? "入門方案可用 8 種字幕樣式，升級專業就能用全部 " + MODS.length + " 種。" : "";
     pvSync(); $("#send").textContent = subs ? "交給 AI 上字幕（用掉 1 支）" : "交給 AI 剪（用掉 1 支）"; psum(); }
@@ -251,7 +251,7 @@
   function onOf(attr) { var b = document.querySelector("[" + attr + '][aria-pressed="true"]'); return b ? b.textContent.trim() : ""; }
   function psum() { var put = function (id, t) { var el = document.querySelector('[data-psum="' + id + '"]'); if (el) el.textContent = t ? "目前：" + t : ""; };
     put("cutPanel", pickSt < 0 ? "交給 AI 挑" : VSTY[pickSt][0]);
-    put("fxPanel", fxOn.length ? fxOn.map(fxName).join("、") : "交給我們挑" + (fxPhotos.length ? "，照片 " + fxPhotos.length + " 張" : ""));
+    put("fxPanel", fxPhotos.length ? "照片 " + fxPhotos.length + " 張" : "沒有放照片");
     var md = MODS.filter(function (q) { return q.id === pickMod; })[0]; put("subPanel", (md ? md.name : "跟剪法搭配") + "・" + (spos === "中間" ? "畫面中間" : "下方") + "・" + subSize);
     put("swapPanel", swPhotos.length ? "要換人，照片 " + swPhotos.length + " 張" : "不換人");
     put("notePanel", (mode === "subs" ? "" : ratio + "・美顏" + bty + "・" + (onOf("data-mus") || "幫我配音樂")) + ($("#vLogoT") && $("#vLogoT").value.trim() || vlogo ? "・有 logo" : "") + ($("#vNote") && $("#vNote").value.trim() ? "・有備註" : "")); }
@@ -283,8 +283,13 @@
     $$("[data-edit]").forEach(function (b) { b.onclick = function () { openEd(+b.dataset.edit); }; });
     if (openJob) { var oj = JOBS.filter(function (x) { return x.id === openJob; })[0]; if (oj && oj.status === "review") openEd(openJob); }
   }
+  // Vic 11/5：預覽室要的選項（剪法、字幕樣式、特效），照方案標可不可以用
+  function roomOpts() { var all = plan !== "basic" || !!window.__vaiAdmin;
+    return { styles: VSTY.map(function (s, i) { return { n: s[0], ok: all || BASIC.indexOf(i) >= 0 }; }),
+      mods: MODS.map(function (m) { return { id: m.id, name: m.name, ok: all || BASIC_MODS.indexOf(m.id) >= 0 }; }),
+      fx: FX.filter(function (f) { return f.id !== "logo"; }).map(function (f) { return { id: f.id, n: f.n, img: f.img, ok: fxFull() || !!f.basic }; }) }; }
   function openEd(id) { var j = JOBS.filter(function (x) { return x.id === id; })[0]; if (!j) return; if (editor) editor.close(); $$("[data-ed]").forEach(function (d) { d.innerHTML = ""; }); openJob = id;
-    var holder = document.querySelector('[data-ed="' + id + '"]'); editor = SUBJOB.openEditor(holder, j, { sticky: savedSticky, onConfirm: function (job) { openJob = null; if (job.mode === "subs") renderRun(job); else { busy[job.id] = "收到！我們開始剪，剪好會顯示「完成」。"; jobs(); } } });
+    var holder = document.querySelector('[data-ed="' + id + '"]'); editor = SUBJOB.openEditor(holder, j, { sticky: savedSticky, room: roomOpts(), onConfirm: function (job) { openJob = null; if (job.mode === "subs") renderRun(job); else { busy[job.id] = "收到！我們開始剪，剪好會顯示「完成」。"; jobs(); } } });
     holder.scrollIntoView({ behavior: "smooth", block: "start" }); }
   async function jobs() { var c = VAI.client(), r = await c.from("ai_video_jobs").select("*").order("id", { ascending: false }).limit(50);
     if (r.error) { $("#jobs").innerHTML = '<p class="msg err">' + E(r.error.message) + "</p>"; return; }
