@@ -190,3 +190,28 @@ html.vai-in .adm .acc{background:#0c1a30!important}
 .sed.studio .st-set-x{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
 .sed.studio .st-f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:#a9c2dc}
 .sed.studio .st-f select,.sed.studio .st-f input{width:100%;padding:10px!important;font-size:15px;border-radius:10px}
+/* 手機工作室 v2（Vic 11/5：兩段式捲動常滑走、內容只剩一點）：上影片、中間一頁、下分頁列，只有中間會捲 */
+.sed.studio .st-vz{display:none}
+@media (max-width:760px){
+ html.st-open .sed.studio{gap:4px;padding:6px 8px 0!important}
+ html.st-open .sed.studio .st-h{gap:6px}
+ html.st-open .sed.studio .st-h>b{font-size:15px;white-space:nowrap}
+ html.st-open .sed.studio .st-h>span{display:none}
+ html.st-open .sed.studio .st-h .sed-act{position:static!important;display:flex!important;gap:6px;margin:0 0 0 auto!important;padding:0!important;background:none!important;flex:none}
+ html.st-open .sed.studio .st-h .sed-act .btn{padding:7px 12px!important;font-size:13px!important;animation:none}
+ html.st-open .sed.studio .st-h [data-ok]{padding:8px 14px!important;font-size:14.5px!important}
+ html.st-open .sed.studio .st-x{margin-left:0;padding:6px 10px}
+ html.st-open .sed.studio .sed-stage{height:30vh;position:relative}
+ html.st-open .sed.studio.vbig .sed-stage{height:52vh}
+ html.st-open .sed.studio.big .sed-stage{height:34vh}
+ html.st-open .sed.studio.vbig.big .sed-stage{height:52vh}
+ html.st-open .sed.studio.typing .sed-stage{height:18vh}
+ html.st-open .sed.studio .st-vz{display:block;position:absolute;right:6px;top:6px;z-index:4;background:#06101fcc;color:#cfe4ff;border:1px solid #24456e;border-radius:999px;font-size:11.5px;padding:4px 9px}
+ html.st-open .sed.studio .sed-l{display:flex;flex-direction:column;overflow:hidden!important;flex:1;min-height:0;padding:0!important}
+ html.st-open .sed.studio .sed-l>[data-room]{flex:1;min-height:0;display:flex;flex-direction:column}
+ html.st-open .sed.studio .st-pane:not([hidden]){flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:6px 2px 14px}
+ html.st-open .sed.studio .st-dock{order:9;position:static!important;flex:none;display:grid!important;grid-template-columns:repeat(6,1fr);gap:4px;padding:6px 0 calc(8px + env(safe-area-inset-bottom,0px))!important;border-top:1px solid #1d3556;margin:0;background:#06101f}
+ html.st-open .sed.studio .st-dock button{padding:6px 0!important;min-height:0}
+ html.st-open .sed.studio .sed-l>[data-msg]{flex:none;margin:0;font-size:12.5px}
+ html.st-open .sed.studio .sed-l>[data-msg]:empty{display:none}
+}

@@ -172,6 +172,11 @@
        fitSt = function () { if (!box.isConnected) return unfit(); if (!mq.matches) { sedEl.style.height = sedEl.style.top = ""; document.documentElement.classList.remove("st-open"); return; } document.documentElement.classList.add("st-open"); sedEl.style.height = Math.round(vv ? vv.height : innerHeight) + "px"; sedEl.style.top = Math.round(vv ? vv.offsetTop : 0) + "px"; };
        if (vv) { vv.addEventListener("resize", fitSt); vv.addEventListener("scroll", fitSt); } window.addEventListener("resize", fitSt); fitSt();
        sedEl.querySelector("[data-stx]").onclick = function () { shut(); if (opt.onClose) opt.onClose(); };
+       // Vic 11/5：手機版像剪映：上面影片（可放大縮小）、中間一頁選項自己捲、最下面一排分頁；開剪按鈕放到最上面
+       (function () { var act = sedEl.querySelector(".sed-act"), hd = sedEl.querySelector(".st-h"), home = act && act.parentNode, nx = act && act.nextSibling, st = sedEl.querySelector(".sed-stage");
+         var vb = document.createElement("button"); vb.type = "button"; vb.className = "st-vz"; vb.textContent = "⤢ 放大"; vb.onclick = function () { var on = sedEl.classList.toggle("vbig"); vb.textContent = on ? "⤡ 縮小" : "⤢ 放大"; }; if (st) st.appendChild(vb);
+         var place = function () { if (!act) return; if (mq.matches) { if (act.parentNode !== hd) hd.insertBefore(act, hd.querySelector("[data-stx]")); } else if (act.parentNode !== home) home.insertBefore(act, nx); };
+         place(); if (mq.addEventListener) mq.addEventListener("change", place); })();
       var lock = function (ok) { return ok === false ? ' disabled title="專業方案以上可用"' : ""; };
       var card = function (attr, val, label, on, ok, inner, desc) { return '<button class="sc' + (desc ? " sc-d" : "") + '" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '"' + lock(ok) + (ok === false ? ' data-base-ok="0"' : "") + ">" + inner + "<span>" + (ok === false ? "🔒 " : "") + E(label) + "</span>" + (desc ? '<small class="st-desc">' + E(desc) + "</small>" : "") + "</button>"; };
       var pill = function (attr, val, label, on) { return '<button class="sp" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '">' + E(label) + "</button>"; };
@@ -207,7 +212,7 @@
       function drawMini(c, t) { var x = c.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
         if (c.dataset.mc) { var m = window.SUBFX && SUBFX.list.filter(function (q) { return q.id === c.dataset.mc; })[0]; if (m) { x.save(); m.draw(x, c.width, c.height, { t: t % SUBFX.loop, lines: SUBFX.demo, accent: rs.acc, bg: true }); x.restore(); } }
         else if (c.dataset.vc != null && window.frame && window.VSTY) { try { window.frame(c, VSTY[+c.dataset.vc][3], t); } catch (e) {} } }
-      function openTab(k) { stTab = stTab === k ? "" : k; sedEl.classList.toggle("big", stTab === "fx"); if (stTab === "fx" && !fxSim && rs.fx.length) simFx(rs.fx[0]); room.querySelectorAll("[data-tab]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.tab === stTab)); });
+      function openTab(k) { stTab = stTab === k && !(mq && mq.matches) ? "" : k; sedEl.classList.toggle("big", stTab === "fx"); if (stTab === "fx" && !fxSim && rs.fx.length) simFx(rs.fx[0]); room.querySelectorAll("[data-tab]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.tab === stTab)); });
         room.querySelectorAll("[data-pane]").forEach(function (p) { p.hidden = p.dataset.pane !== stTab; if (!p.hidden && !p.dataset.drawn) { p.dataset.drawn = 1; p.querySelectorAll("canvas").forEach(function (c) { drawMini(c, 2.6); }); } }); }
       room.querySelectorAll("[data-tab]").forEach(function (b) { b.onclick = function () { openTab(b.dataset.tab); }; });
       var press = function (attr, val) { room.querySelectorAll("[" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)); }); };
@@ -317,7 +322,7 @@
     sedBox.addEventListener("focusin", function (e) { var t = e.target; if (!t.matches || !t.matches('input[type=text],textarea')) return; clearTimeout(tyT);
       if (t.dataset.t != null) { var L = lines[+t.dataset.t]; if (L) { stopPv(); useSrc(L.src || 0).then(function () { vid.pause(); vid.currentTime = L.s + .05; }); } }
       if (innerWidth > 760) return; sedBox.classList.add("typing");
-      setTimeout(function () { var sc = document.documentElement.classList.contains("st-open") ? sedBox.querySelector(".sed-l") : null, v = sedBox.querySelector(".sed-v").getBoundingClientRect(), r = t.getBoundingClientRect(); if (sc) sc.scrollTop += r.top - sc.getBoundingClientRect().top - 10; else window.scrollBy(0, r.top - (v.bottom + 12)); }, 380); });
+      setTimeout(function () { var sc = document.documentElement.classList.contains("st-open") ? (t.closest(".st-pane") || sedBox.querySelector(".sed-l")) : null, v = sedBox.querySelector(".sed-v").getBoundingClientRect(), r = t.getBoundingClientRect(); if (sc) sc.scrollTop += r.top - sc.getBoundingClientRect().top - 10; else window.scrollBy(0, r.top - (v.bottom + 12)); }, 380); });
     sedBox.addEventListener("focusout", function () { tyT = setTimeout(function () { var a = document.activeElement; if (!a || !sedBox.contains(a) || !a.matches('input[type=text],textarea')) sedBox.classList.remove("typing"); }, 200); });
     box.querySelector("[data-gap]").onchange = len; box.querySelector("[data-hook]").onchange = len;
     box.querySelector("[data-add]").onclick = function () { var t = vid.currentTime || 0, src = Math.max(0, curSrc), k = 0; while (k < lines.length && ((lines[k].src || 0) < src || ((lines[k].src || 0) === src && lines[k].s < t))) k++; var nx = lines[k] && (lines[k].src || 0) === src ? lines[k].s : t + 2; lines.splice(k, 0, { s: Math.round(t * 100) / 100, e: Math.round(Math.max(t + .5, Math.min(nx, t + 2)) * 100) / 100, t: "", hl: [], src: src }); draw(); var inp = rowsEl.querySelector('[data-t="' + k + '"]'); if (inp) inp.focus(); };
