@@ -105,6 +105,24 @@
 #work .job .s.done{background:#e6f3e6}#work .job .s.review,#work .job .s.rendering{background:#fff1d6;color:#8a5a00}#work .job .s.queued,#work .job .s.working{background:#e8efff}
 #work .jobs details.fxc{border:0;border-radius:16px;background:#f8f5ee}
 #work .btn{border-radius:999px}
+/* ===== 遊戲關卡感（Vic 11/5 選：淺色＋關卡） ===== */
+.quest{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:#fff;border-radius:18px;box-shadow:0 4px 16px #2b221012;padding:14px 8px 10px;position:relative}
+.quest .qn{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;font-size:11.5px;color:#9a9184;text-align:center;line-height:1.25}
+.quest .qn:not(:last-child)::after{content:"";position:absolute;top:17px;left:calc(50% + 20px);right:calc(-50% + 20px);height:4px;border-radius:4px;background:#ece5d6}
+.quest .qn.done:not(:last-child)::after{background:linear-gradient(90deg,#b8913a,#e7c56f)}
+.quest .qn i{font-style:normal;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:900 15px var(--body);background:#f3eee3;color:#b3a993;position:relative;z-index:1}
+.quest .qn.done i{background:linear-gradient(145deg,#e7c56f,#b8913a);color:#fff;box-shadow:0 4px 10px #b8913a55}
+.quest .qn.now i{background:#1f1b16;color:#e7c56f;animation:qpulse 1.6s ease-in-out infinite}
+.quest .qn.now{color:#1f1b16;font-weight:700}.quest .qn.done{color:#8a6a1f}
+.quest .qn small{display:block;font-size:10px;letter-spacing:.08em;color:#c0b49a}
+@keyframes qpulse{0%,100%{box-shadow:0 0 0 0 #b8913a66}50%{box-shadow:0 0 0 9px #b8913a00}}
+#work .ph b{position:relative}#work .ph b::before{content:"第";font-size:9px;position:absolute;top:-13px;left:50%;transform:translateX(-50%);color:#b8913a;font-weight:700;white-space:nowrap}#work .ph b::after{content:"關";font-size:9px;position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);color:#b8913a;font-weight:700}
+#swapPanel .ph b::before,#swapPanel .ph b::after{content:none!important}
+#work #send,.sed.studio [data-ok]{animation:glow 2.2s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 8px 20px #1f1b1633,0 0 0 0 #e7c56f00}50%{box-shadow:0 8px 20px #1f1b1633,0 0 0 6px #e7c56f55}}
+#work .btn:active,#work .chip:active,.sp:active,.st-dock button:active{transform:scale(.94)}
+.sc[aria-pressed=true]{animation:pop .28s ease}.st-dock button[aria-pressed=true]{animation:pop .28s ease}
+@keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
 /* ===== 剪輯工作室：乾淨明亮版（Vic 11/5 選 1：米白底＋香檳金，跟官網同色） ===== */
 .sed.studio{--g:#b8913a;--g2:#8a6a1f;--ink:#1f1b16;--mute:#7a7266;--line:#e7e1d5;background:#fbf9f4;color:var(--ink);border:1px solid var(--line);border-radius:20px;box-shadow:0 10px 30px #2b22100f;padding:14px;gap:12px}
 .sed.studio .st-h{grid-column:1/-1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
@@ -239,6 +257,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
     <div id="memBox"><p class="note">讀取中…</p></div>
     <div id="work" hidden>
       <div class="col">
+        <div class="quest" id="quest" aria-label="關卡進度"></div>
         <div class="todo" id="todo" hidden></div>
         <div class="usage" id="usage"></div>
         <div class="bar"><span class="note">要做什麼</span><button class="chip" type="button" data-mode="cut" aria-pressed="true">完整剪片</button><button class="chip" type="button" data-mode="subs" aria-pressed="false">只上字幕</button></div>
@@ -318,6 +337,6 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
 <script src="/ai/subfx.js?v=1026i"></script>
 <script src="/ai/core.js?v=1104e"></script>
 <script src="/ai/subjob.js?v=1105g"></script>
-<script src="/ai/video.js?v=1105c"></script>
+<script src="/ai/video.js?v=1105h"></script>
 </body>
 </html>

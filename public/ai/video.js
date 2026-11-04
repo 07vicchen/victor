@@ -199,7 +199,12 @@
     });
     return real;
   }
-  function listFiles() { $("#flist").innerHTML = files.map(function (f, i) { var big = f.size > MAXMB * 1048576; return "<div><b>" + E(f.name) + "</b><span" + (big ? ' style="color:#b23b2e"' : "") + ">" + (f.size / 1048576).toFixed(1) + " MB" + (big ? "（超過 " + MAXMB + "MB）" : "") + '</span><button class="chip" type="button" data-rm="' + i + '">移除</button></div>' + (/^result_\d+_/i.test(f.name) ? '<p class="msg err" style="margin:2px 0 8px">這支看起來是我們剪好的成品，畫面上已經有字幕了，再剪一次會出現兩層字幕。要重剪請丟原始影片，或在「我的影片」按改字幕重出。</p>' : ""); }).join("");
+  // Vic 11/5 遊戲關卡感：①上傳 ②AI 打字幕 ③工作室挑樣子 ④開剪拿成品
+  function quest() { var q = $("#quest"); if (!q) return; var j = JOBS.filter(function (x) { return !x.purged_at; })[0], st = j ? j.status : "", lv = 0;
+    if (files.length) lv = 1; if (st === "stt") lv = 1; if (st === "review" || st === "rendering") lv = 2; if (st === "queued" || st === "working") lv = 3; if (st === "done" && !files.length) lv = 4;
+    var N = [["上傳素材", "STAGE 1"], ["AI 打字幕", "STAGE 2"], ["工作室挑樣子", "STAGE 3"], ["開剪拿成品", "STAGE 4"]];
+    q.innerHTML = N.map(function (n, i) { var c = i < lv ? "done" : i === lv ? "now" : ""; if (lv === 4) c = "done"; return '<div class="qn ' + c + '"><i>' + (c === "done" ? "✓" : i + 1) + "</i>" + n[0] + "<small>" + n[1] + "</small></div>"; }).join(""); }
+  function listFiles() { setTimeout(quest, 0); $("#flist").innerHTML = files.map(function (f, i) { var big = f.size > MAXMB * 1048576; return "<div><b>" + E(f.name) + "</b><span" + (big ? ' style="color:#b23b2e"' : "") + ">" + (f.size / 1048576).toFixed(1) + " MB" + (big ? "（超過 " + MAXMB + "MB）" : "") + '</span><button class="chip" type="button" data-rm="' + i + '">移除</button></div>' + (/^result_\d+_/i.test(f.name) ? '<p class="msg err" style="margin:2px 0 8px">這支看起來是我們剪好的成品，畫面上已經有字幕了，再剪一次會出現兩層字幕。要重剪請丟原始影片，或在「我的影片」按改字幕重出。</p>' : ""); }).join("");
     $$("[data-rm]").forEach(function (b) { b.onclick = function () { files.splice(+b.dataset.rm, 1); listFiles(); }; });
     if (files.length) { var fl = $("#flist"); setTimeout(function () { fl.scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 100); } }
   async function send() { var m = $("#sendMsg"), b = $("#send"), pg = $("#prog");
@@ -262,7 +267,7 @@
     if (!rows.length && !wait) { t.hidden = true; return; } t.hidden = false;
     t.innerHTML = "<b>待你處理</b>" + rows.map(function (j) { var w = j.status === "review" ? "字幕打好了，請確認" : j.status === "rendering" ? "字幕確認好了，按開始出片" : "剪好了，可以下載"; return '<div class="row"><span>#' + j.id + "　" + w + '</span><button class="btn sm" type="button" data-go="' + j.id + '">' + (j.status === "done" ? "去下載" : "去確認") + "</button></div>"; }).join("") + (wait ? '<span class="note">另外有 ' + wait + " 支正在處理中，好了會出現在這裡（不用一直重新整理）。</span>" : "");
     $$("[data-go]").forEach(function (b) { b.onclick = function () { var j = JOBS.filter(function (x) { return x.id === +b.dataset.go; })[0]; if (!j) return; if (j.status === "review" || j.status === "rendering") openEd(j.id); else { var el = document.querySelector('[data-ed="' + j.id + '"]'); if (el) el.parentNode.scrollIntoView({ behavior: "smooth", block: "center" }); } }; }); }
-  function draw() { var box = $("#jobs"), c = VAI.client(); todo();
+  function draw() { var box = $("#jobs"), c = VAI.client(); todo(); quest();
     if (editor) { editor.close(); editor = null; }
     if (!JOBS.length) { box.innerHTML = '<p class="note">還沒有影片。上面選好素材送出就會出現在這裡。</p>'; return; }
     // Vic 11/4：過期刪掉的影片收進一張卡片，點開才看，不要把上面拉很長

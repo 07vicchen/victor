@@ -32,6 +32,17 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
 #work input[type=text],#work input[type=number],#work textarea,#work select{border-radius:10px}
 #work #genAI,#work .btn.dl,#work #mbarDl{background:var(--ink);color:#fff;font-weight:900}
 #work .phone{border-radius:34px;box-shadow:0 18px 40px #2b221026}
+.quest{display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border-radius:18px;box-shadow:0 4px 16px #2b221012;padding:14px 6px 10px}
+.quest .qn{display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;font-size:11px;color:#9a9184;text-align:center;line-height:1.25}
+.quest .qn:not(:last-child)::after{content:"";position:absolute;top:16px;left:calc(50% + 18px);right:calc(-50% + 18px);height:4px;border-radius:4px;background:#ece5d6}
+.quest .qn.done:not(:last-child)::after{background:linear-gradient(90deg,#b8913a,#e7c56f)}
+.quest .qn i{font-style:normal;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:900 14px var(--body);background:#f3eee3;color:#b3a993;position:relative;z-index:1}
+.quest .qn.done i{background:linear-gradient(145deg,#e7c56f,#b8913a);color:#fff;box-shadow:0 4px 10px #b8913a55}
+.quest .qn.now i{background:#1f1b16;color:#e7c56f;animation:qpulse 1.6s ease-in-out infinite}.quest .qn.now{color:#1f1b16;font-weight:700}.quest .qn.done{color:#8a6a1f}
+@keyframes qpulse{0%,100%{box-shadow:0 0 0 0 #b8913a66}50%{box-shadow:0 0 0 9px #b8913a00}}
+#work .ph b{position:relative}#work .ph b::before{content:"第";font-size:9px;position:absolute;top:-13px;left:50%;transform:translateX(-50%);color:#b8913a;font-weight:700}#work .ph b::after{content:"關";font-size:9px;position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);color:#b8913a;font-weight:700}
+#work #genAI,#work #mbarDl,#work .btn.dl{animation:glow 2.2s ease-in-out infinite}@keyframes glow{0%,100%{box-shadow:0 0 0 0 #e7c56f00}50%{box-shadow:0 0 0 6px #e7c56f55}}
+#work .btn:active,#work .chip:active{transform:scale(.94)}#work .chip[aria-pressed=true]{animation:pop .28s ease}@keyframes pop{0%{transform:scale(.9)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -89,6 +100,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
     <div id="work" hidden>
       <div class="work">
         <div class="col">
+          <div class="quest" id="quest" aria-label="關卡進度"></div>
           <div class="usage" id="usage"></div>
           <div class="panel">
             <div class="ph"><b>1</b><div><h3>放商品照</h3><p>商品完整入鏡就好，按「一鍵去背」AI 會幫你抓出來（約 10～30 秒）。可以放 1～2 張，AI 寫文案時會一起看。</p></div></div>
@@ -117,7 +129,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
             <div class="bar"><label class="up">上傳 logo（選填）<input type="file" accept="image/*" id="logoF" hidden></label><span class="note">或直接打字</span><input type="text" id="logoT" maxlength="20" placeholder="例如：維拓傳媒" style="padding:9px 12px;border:1px solid var(--line);font:inherit;min-width:0;flex:1;max-width:240px"><span class="note" id="logoMsg">沒有也可以</span></div>
             <div class="bar" id="logoPos" hidden><span class="note">logo 位置</span><button class="chip" type="button" data-lp="tr" aria-pressed="false">右上</button><button class="chip" type="button" data-lp="br" aria-pressed="true">右下</button><button class="chip" type="button" data-lp="bl" aria-pressed="false">左下</button><button class="chip" type="button" id="logoX">拿掉</button></div>
           </div>
-          <div class="panel" data-fold>
+          <div class="panel fold" data-fold>
             <div class="ph"><b>4</b><div><h3>選行業和模組</h3><p>勾選要放進這組的圖，右邊手機就是買家看到的樣子。</p></div></div>
             <div class="bar"><span class="note">行業</span><button class="chip" type="button" data-ind="cloth" aria-pressed="true">服飾</button><button class="chip" type="button" data-ind="gen" aria-pressed="false">一般商品</button><button class="chip" type="button" data-ind="beauty" aria-pressed="false">美妝保養</button><button class="chip" type="button" data-ind="tech" aria-pressed="false">3C 家電</button><button class="chip" type="button" data-ind="food" aria-pressed="false">食品</button></div>
             <div class="bar" id="styRow"><span class="note">風格</span><button class="chip" type="button" data-sty="s" aria-pressed="true">簡約</button><button class="chip" type="button" data-sty="k" aria-pressed="false">韓系</button><button class="chip" type="button" data-sty="st" aria-pressed="false">街頭</button><span class="note" id="styNote"></span></div>
@@ -150,6 +162,15 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
 <script src="/ai/design.js?v=1030f"></script>
 <script>/* Vic 11/5：步驟卡片一次只開一張 */
 document.querySelectorAll("#work [data-fold] .ph").forEach(function (h) { h.addEventListener("click", function () { var p = h.parentNode, open = p.classList.contains("fold");
-  document.querySelectorAll("#work [data-fold]").forEach(function (x) { x.classList.add("fold"); }); if (open) p.classList.remove("fold"); }); });</script>
+  document.querySelectorAll("#work [data-fold]").forEach(function (x) { x.classList.add("fold"); }); if (open) p.classList.remove("fold"); quest(); }); });
+/* 遊戲關卡感：①商品照 ②文案 ③品牌色 ④選模組 ⑤存整組圖 */
+var QN = ["放商品照", "AI 寫文案", "品牌色", "選模組", "存整組圖"], qDone = {};
+function quest() { var q = document.getElementById("quest"); if (!q) return; var ps = [].slice.call(document.querySelectorAll("#work .panel")), cur = 0;
+  ps.forEach(function (p, i) { if (p.hasAttribute("data-fold") && !p.classList.contains("fold")) cur = i; });
+  var f = document.getElementById("file"); if (f && f.files && f.files.length) qDone[0] = 1; if ((document.getElementById("aiOut") || {}).innerHTML) qDone[1] = 1;
+  for (var k = 0; k < cur; k++) qDone[k] = 1;
+  q.innerHTML = QN.map(function (n, i) { var c = qDone[i] ? "done" : i === cur ? "now" : ""; return '<div class="qn ' + c + '"><i>' + (c === "done" ? "✓" : i + 1) + "</i>" + n + "</div>"; }).join(""); }
+["file", "genAI", "dlAll", "mbarDl"].forEach(function (id) { var el = document.getElementById(id); if (el) el.addEventListener(id === "file" ? "change" : "click", function () { if (id === "dlAll" || id === "mbarDl") qDone[4] = 1; setTimeout(quest, 300); }); });
+setTimeout(quest, 800);</script>
 </body>
 </html>
