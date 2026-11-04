@@ -92,7 +92,7 @@
       (j.lines || []).forEach(function (L) { L.src = k; all.push(L); });
     }
     if (needKey) throw new Error("聽寫服務設定中，我們會盡快幫你把字幕打好，好了會在這裡顯示「待確認字幕」");
-    all = oneLine(await toTW(all));
+    all = oneLine(tidy(await toTW(all)));
     var s = await VAI.client().rpc("ai_job_lines", { p_id: job.id, p_lines: all, p_action: "stt" }); if (s.error) throw new Error(s.error.message);
     onMsg(all.length ? "字幕打好了，請確認一下，順便決定要剪掉哪些句子。" : "影片裡沒有聽到講話，可以自己加字幕。");
     return all;
@@ -111,6 +111,18 @@
     try { await loadCC(); var cv = window.OpenCC.Converter({ from: "cn", to: "tw" }); lines.forEach(function (L) { L.t = cv(L.t || ""); L.hl = (L.hl || []).map(function (h) { return cv(h); }); }); } catch (e) {} return lines; }
   // Vic 10/26：字幕只能一行，放不下就換下一個字幕（照詞切，時間照字數分；跟桌機一樣）
   var WSEG = null; try { WSEG = new Intl.Segmenter("zh-Hant", { granularity: "word" }); } catch (e) {}
+  // Vic 11/5 #46：聽寫常切在半個詞、帶口吃的槓（「很-很多」）。先清乾淨：口吃只留一次、槓拿掉；沒講完的碎尾巴併回前一句
+  var STARTS = /^(我|你|他|她|它|所以|然後|但是|可是|如果|因為|而且|還有|其實|接著|最後|現在|哦|喔|對|好|啊|哎|嗯)/;
+  function tidy(lines) { var out = [];
+    lines.forEach(function (L0) { var t = String(L0.t || "");
+      for (var k = 0; k < 3; k++) t = t.replace(/([\u4e00-\u9fff]{1,2})[-－—–]+\1/g, "$1");
+      t = t.replace(/[-－—–]+$/, "").replace(/([\u4e00-\u9fff])[-－—–]+(?=[\u4e00-\u9fff])/g, "$1，").replace(/[-－—–]+/g, "").replace(/^[\s，]+|[\s，]+$/g, "");
+      if (!t) return; var L = Object.assign({}, L0, { t: t }), p = out[out.length - 1];
+      if (p && !L.cut && !p.cut && (L.src || 0) === (p.src || 0)) { var gap = L.s - p.e, pt = String(p.t), open = !/[。！？!?…]$/.test(pt);
+        var tail = t.length <= 3 && gap <= 0.8, cont = gap <= 0.15 && !/[，、,]$/.test(pt) && pt.length + t.length <= 26 && !STARTS.test(t);
+        if (open && (tail || cont)) { p.t = pt + t; p.e = L.e; p.hl = (p.hl || []).concat(L.hl || []); if (L.star) p.star = true; return; } }
+      out.push(L); });
+    return out; }
   function oneLine(lines, maxc) { maxc = maxc || 12; var out = [];
     lines.forEach(function (L) { var t = String(L.t || "").replace(/\|/g, ""); if (t.length <= maxc) { out.push(Object.assign({}, L, { t: t })); return; }
       var ws = WSEG ? Array.from(WSEG.segment(t)).map(function (x) { return x.segment; }) : t.split(""), n = Math.ceil(t.length / maxc), tg = Math.ceil(t.length / n), ps = [], c = "";
