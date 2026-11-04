@@ -123,17 +123,23 @@
         if (open && (tail || cont)) { p.t = pt + t; p.e = L.e; p.hl = (p.hl || []).concat(L.hl || []); if (L.star) p.star = true; return; } }
       out.push(L); });
     return out; }
+  // Vic 11/5：字幕段落最重要；聽寫加的逗點不要（停頓本來就是段落），逗點變成換塊；客人自己打的逗點才留
+  var PAUSE = /[，、。；：,.;:]+/g;
+  function depunct(t) { return String(t || "").replace(PAUSE, "|").replace(/\|+/g, "|").replace(/^\||\|$/g, ""); }
+  function midCut(t) { var n = t.length, mid = n / 2, best = Math.round(mid), bs = 1e9, at = 0;
+    if (WSEG) Array.from(WSEG.segment(t)).forEach(function (x) { at += x.segment.length; if (at >= 2 && n - at >= 2) { var sc = Math.abs(at - mid); if (sc < bs) { bs = sc; best = at; } } }); return best; }
   function oneLine(lines, maxc) { maxc = maxc || 12; var out = [];
-    lines.forEach(function (L) { var t = String(L.t || "").replace(/\|/g, ""); if (t.length <= maxc) { out.push(Object.assign({}, L, { t: t })); return; }
-      var ws = WSEG ? Array.from(WSEG.segment(t)).map(function (x) { return x.segment; }) : t.split(""), n = Math.ceil(t.length / maxc), tg = Math.ceil(t.length / n), ps = [], c = "";
-      ws.forEach(function (w) { while (w.length > maxc) { if (c) { ps.push(c); c = ""; } ps.push(w.slice(0, maxc)); w = w.slice(maxc); } if (c && c.length + w.length > Math.min(maxc, tg + 2)) { ps.push(c); c = w; } else c += w; }); if (c) ps.push(c);
-      var at = L.s, tot = t.length; ps.forEach(function (pc, i) { var e = i === ps.length - 1 ? L.e : Math.round((at + (L.e - L.s) * pc.length / tot) * 100) / 100; var q = Object.assign({}, L, { t: pc, s: at, e: e, hl: (L.hl || []).filter(function (h) { return h && (pc.indexOf(h) >= 0 || (i === 0 && t.indexOf(h) < 0)); }) }); if (i) delete q.star; out.push(q); at = e; }); });
+    lines.forEach(function (L) { var raw = depunct(L.t), t = raw.replace(/\|/g, ""); if (!t) return; if (t.length <= maxc) { out.push(Object.assign({}, L, { t: raw })); return; }
+      // 先照停頓（原本的逗點、句號）分，一段一段裝進一行；一段太長才照詞從中間切
+      var segs = []; raw.split("|").forEach(function (c) { (function cut(c) { if (c.length <= maxc) { if (c) segs.push(c); return; } var k = midCut(c); cut(c.slice(0, k)); cut(c.slice(k)); })(c); });
+      var ps = [], cur = []; segs.forEach(function (c) { var len = cur.join("").length; if (cur.length && len + c.length > maxc) { ps.push(cur); cur = [c]; } else cur.push(c); }); if (cur.length) ps.push(cur);
+      var at = L.s, tot = t.length; ps.forEach(function (arr, i) { var pc = arr.join(""), e = i === ps.length - 1 ? L.e : Math.round((at + (L.e - L.s) * pc.length / tot) * 100) / 100; var q = Object.assign({}, L, { t: arr.join("|"), s: at, e: e, hl: (L.hl || []).filter(function (h) { return h && (pc.indexOf(h) >= 0 || (i === 0 && t.indexOf(h) < 0)); }) }); if (i) delete q.star; out.push(q); at = e; }); });
     return out; }
   function openEditor(box, job, opt) {
     opt = opt || {}; var lines = JSON.parse(JSON.stringify(job.lines || [])), edit = defEdit(job); if (!job.edit && opt.sticky) { edit.sticky = opt.sticky.sticky || ""; edit.stickyPos = opt.sticky.sticky_pos || "tl"; }
     var mod = modOf(job), acc = accentOf(job) || (mod && mod.accent) || "#FF3B30";
     var raf = 0, urls = {}, durs = [], curSrc = -1, pv = null, multi = (job.files || []).length > 1;
-    var fitSt = null;
+    var fitSt = null, edC = null, clC = null, clKey = "", lastF = 0;
     function unfit() { if (window.visualViewport && fitSt) { visualViewport.removeEventListener("resize", fitSt); visualViewport.removeEventListener("scroll", fitSt); } if (fitSt) window.removeEventListener("resize", fitSt); fitSt = null; document.documentElement.classList.remove("st-open"); }
     function shut() { try { stopPv(); } catch (e) {} cancelAnimationFrame(raf); try { vid.pause(); } catch (e) {} unfit(); box.innerHTML = ""; }
     box.innerHTML = '<div class="sed"><div class="sed-v"><div class="sed-stage"><video playsinline controls preload="metadata"></video><canvas width="540" height="960" aria-hidden="true"></canvas></div>' +
@@ -156,7 +162,7 @@
     if (R) { var nt = String(job.note || ""), cut = job.mode !== "subs";
       var KEEP = { "三段式知識框": "上方大標題＋章節卡", "倒敘懸念": "精彩句放開頭＋電影黑邊", "綜藝爆笑": "1.1 倍速＋重點大字", "直播帶貨": "價格大字＋限時標籤", "新聞快報": "快報條＋跑馬燈", "多人對話切鏡": "誰講話就切誰", "金句電影字卡": "金句切黑底金字卡" };
       var st0 = KEEP[job.style] ? job.style : "爆點跳字";
-      rs = { style: st0, module: job.module || CUTMAP[job.style] || "pop", /* Vic 11/5：字幕自己選（放第一個）；風格只管剪法 */ acc: acc, spos: /字幕位置 中間/.test(nt) ? "中間" : "下方", ratio: /比例 16:9/.test(nt) ? "16:9" : "9:16", bty: (nt.match(/美顏 (輕|中)/) || [])[1] || "不要", mus: /配樂：不要配樂/.test(nt) ? "不要配樂" : "原創配樂", fx: (job.fx && !job.fx.auto && job.fx.effects) ? job.fx.effects.slice() : [] };
+      rs = { style: st0, module: job.module || CUTMAP[job.style] || "pop", /* Vic 11/5：字幕自己選（放第一個）；風格只管剪法 */ acc: acc, spos: /字幕位置 中間/.test(nt) ? "中間" : "下方", ratio: /比例 16:9/.test(nt) ? "16:9" : "9:16", bty: (nt.match(/美顏 (輕|中)/) || [])[1] || "不要", mus: /配樂：不要配樂/.test(nt) ? "不要配樂" : "原創配樂", fx: (job.fx && !job.fx.auto && job.fx.effects) ? job.fx.effects.slice() : [], place: JSON.parse(JSON.stringify((job.fx && job.fx.place && !Array.isArray(job.fx.place)) ? job.fx.place : {})) };
       // ===== 霓虹剪輯工作室（Vic 11/5）：上面影片、下面一排發光大圖示，點了打開一排樣式小卡；字少、點了就看到 =====
       var sedEl = box.querySelector(".sed"), sedL = box.querySelector(".sed-l"), room = box.querySelector("[data-room]");
       sedEl.classList.add("studio");
@@ -181,7 +187,7 @@
         P.cut = '<div class="st-row">' + card("data-rst", "爆點跳字", "一般剪法", rs.style === "爆點跳字", true, '<i class="st-ic">✂</i>', "照順序剪，剪掉停頓口誤") +
           Object.keys(KEEP).map(function (n) { return card("data-rst", n, n, rs.style === n, ok1(n), '<i class="st-ic">' + ICON[n] + "</i>", KEEP[n]); }).join("") + '</div><p class="st-tip">風格只改「怎麼剪」，字幕長怎樣在第一個「字幕」選。</p>';
         var phOk = R.fx.some(function (q) { return q.id === "covers" && q.ok; });
-        P.fx = '<div class="st-ph">' + (phOk ? '<div class="st-ph-row" data-phrow></div>' : '<p class="st-tip">🔒 特效裡放自己的照片，要專業方案以上</p>') + '</div><div class="st-row">' + card("data-rfx", "", "交給 AI 挑", !rs.fx.length, true, '<i class="st-ic">AI</i>') + R.fx.map(function (x) { return card("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok, '<img src="/ai/fx/' + E(x.img) + '.jpg" alt="" loading="lazy">'); }).join("") + '</div><p class="st-tip">點特效，上面的影片就照成品的位置模擬給你看（用你放的照片）。什麼時候出現由 AI 看內容挑。</p>';
+        P.fx = '<div class="st-ph">' + (phOk ? '<div class="st-ph-row" data-phrow></div>' : '<p class="st-tip">🔒 特效裡放自己的照片，要專業方案以上</p>') + '</div><div class="st-row">' + card("data-rfx", "", "交給 AI 挑", !rs.fx.length, true, '<i class="st-ic">AI</i>') + R.fx.map(function (x) { return card("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok, '<img src="/ai/fx/' + E(x.img) + '.jpg" alt="" loading="lazy">'); }).join("") + '</div><div class="st-set" data-fxset></div><p class="st-tip">點特效，上面的影片就照成品的位置模擬。每個特效可以自己選放哪一句、打要顯示的字；沒設定就交給 AI。</p>';
         P.mus = '<div class="st-row">' + card("data-rmus", "原創配樂", "幫我配音樂", rs.mus === "原創配樂", true, '<i class="st-ic">♪</i>') + card("data-rmus", "不要配樂", "不要音樂", rs.mus === "不要配樂", true, '<i class="st-ic">🔇</i>') + '</div><p class="st-tip">講話時音樂會自動變小聲，人聲一定聽得清楚。</p>';
       }
       P.txt = '<div class="st-txt"></div>';
@@ -195,7 +201,7 @@
        (function () { var det = document.createElement("details"), dl = txtBox.querySelector("[data-dir]"), ab = txtBox.querySelector("[data-ai]"), nt0 = rowsEl.previousElementSibling; det.className = "st-adv"; det.innerHTML = "<summary>⚙ 進階：AI 幫挑句子、停頓、鉤子</summary>";
          [dl && dl.closest("label"), ab && ab.closest(".bar"), nt0 && nt0.matches("p.note") ? nt0 : null].forEach(function (el) { if (el) det.appendChild(el); }); txtBox.appendChild(det);
          txtBox.insertAdjacentHTML("afterbegin", '<p class="st-tip">點一句就能改字，影片會停在那句給你看。✂ 剪掉、⭐ 重點、空格分行。</p>'); })();
-      var miniT0 = performance.now(), mini = function () { if (!box.isConnected) return; var t = (performance.now() - miniT0) / 1000;
+      var miniT0 = performance.now(), miniL = 0, mini = function (nw) { if (!box.isConnected) return; if (nw && nw - miniL < 80) { requestAnimationFrame(mini); return; } miniL = nw || 0; var t = (performance.now() - miniT0) / 1000;
         var pane = room.querySelector('.st-pane:not([hidden])'); if (pane) pane.querySelectorAll('.sc[aria-pressed="true"] canvas').forEach(function (c) { drawMini(c, t); });
         requestAnimationFrame(mini); };
       function drawMini(c, t) { var x = c.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
@@ -215,16 +221,19 @@
       room.querySelector("[data-racc]").oninput = function () { rs.acc = this.value; acc = rs.acc; };
       room.querySelectorAll("[data-rfx]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-rfx");
         if (!id) rs.fx = []; else { var k = rs.fx.indexOf(id); if (k >= 0) rs.fx.splice(k, 1); else { rs.fx.push(id); var f = R.fx.filter(function (q) { return q.id === id; })[0]; if (f) simFx(id); } if (fxSim && rs.fx.indexOf(fxSim.id) < 0) fxSim = rs.fx.length ? { id: rs.fx[rs.fx.length - 1], t0: performance.now() } : null; }
-        room.querySelectorAll("[data-rfx]").forEach(function (q) { var v = q.getAttribute("data-rfx"); q.setAttribute("aria-pressed", String(v ? rs.fx.indexOf(v) >= 0 : !rs.fx.length)); }); }; });
+        room.querySelectorAll("[data-rfx]").forEach(function (q) { var v = q.getAttribute("data-rfx"); q.setAttribute("aria-pressed", String(v ? rs.fx.indexOf(v) >= 0 : !rs.fx.length)); }); if (id && rs.fx.indexOf(id) >= 0) setOpen = id; fxSet(); }; });
       room.querySelector("[data-ok]") ; sedEl.querySelector("[data-ok]").innerHTML = job.mode === "subs" ? "▶ 開始出片！" : "▶ 開剪！";
-      openTab("sub"); applyRoom(); if (cut) phLoad();
+      openTab("sub"); applyRoom(); if (cut) { phLoad(); fxSet(); }
       var sub = room.querySelector(".st-sub"); if (sub) sub.addEventListener("toggle", function () { if (sub.open) sub.querySelectorAll("canvas").forEach(function (c) { drawMini(c, 2.6); }); }); requestAnimationFrame(mini); }
     // ===== 工作室裡放照片（Vic 11/5：照片要能在工作室直接放、看到放在哪）=====
     function simFx(id) { fxSim = { id: id, t0: performance.now() }; }
     function autoDest() { var d = ["featcards", "covers", "material", "pip"].filter(function (e) { return rs && rs.fx.indexOf(e) >= 0; })[0]; return d || "featcards"; }
-    function simOpts(id) { var ls = clean(true).filter(function (L) { return !L.cut; }), hl = []; ls.forEach(function (L) { (L.hl || []).forEach(function (h) { hl.push(h); }); });
+    var simC = null, simK = "";
+    function simOpts(id) { var k = id + "#" + phs.map(function (p) { return p.use + (p.im ? 1 : 0); }).join(",") + "#" + (clC ? clC.length : -1); if (simC && simK === k && clC) return simC; simK = k; simC = simOpts0(id); return simC; }
+    function simOpts0(id) { var ls = clean(true).filter(function (L) { return !L.cut; }), hl = []; ls.forEach(function (L) { (L.hl || []).forEach(function (h) { hl.push(h); }); });
       var first = ls[0] ? String(ls[0].t).replace(/\|/g, "") : "重點";
-      return { photos: phs.filter(function (p) { return p.im && (p.use === id || (p.use === "auto" && autoDest() === id)); }).map(function (p) { return p.im; }), word: hl[0] || first.slice(0, 2), line: (ls.filter(function (L) { return L.star; })[0] || ls[0] || { t: first }).t, lines: ls.slice(0, 5).map(function (L) { return String(L.t).replace(/\|/g, ""); }) }; }
+      var pl = (rs && rs.place && rs.place[id]) || {}, pL = pl.line ? ls.filter(function (L) { return String(L.t).replace(/\|/g, "") === pl.line; })[0] : null;
+      return { photos: phs.filter(function (p) { return p.im && (p.use === id || (p.use === "auto" && autoDest() === id)); }).map(function (p) { return p.im; }), word: pl.word || (pL && (pL.hl || [])[0]) || hl[0] || (pL ? String(pL.t).replace(/\|/g, "").slice(0, 2) : first.slice(0, 2)), line: pl.word && (id === "qcard" || id === "glass") ? pl.word : (pL || ls.filter(function (L) { return L.star; })[0] || ls[0] || { t: first }).t, lines: ls.slice(0, 5).map(function (L) { return String(L.t).replace(/\|/g, ""); }) }; }
     function phLoad() { phs = ((job.fx && job.fx.photos) || []).map(function (p) { return { path: p.path, name: p.name || "", use: p.use || "auto" }; });
       phs.forEach(function (p) { signed(p.path, 7200).then(function (u) { p.url = u; p.im = new Image(); p.im.src = u; phRender(); }, function () {}); }); phRender(); }
     function phSave() { return VAI.client().rpc("ai_job_photos", { p_id: job.id, p_photos: phs.map(function (p) { return { path: p.path, name: p.name, use: p.use }; }) }).then(function (r) { if (r.error) say(r.error.message); else if (r.data && r.data.fx) job.fx = r.data.fx; }); }
@@ -242,6 +251,21 @@
         if (p.use !== "auto" && rs.fx.indexOf(p.use) < 0) { rs.fx.push(p.use); room.querySelectorAll("[data-rfx]").forEach(function (q) { var v = q.getAttribute("data-rfx"); q.setAttribute("aria-pressed", String(v ? rs.fx.indexOf(v) >= 0 : !rs.fx.length)); }); }
         simFx(p.use === "auto" ? autoDest() : p.use); }; });
       row.querySelectorAll("[data-phrm]").forEach(function (b) { b.onclick = function () { phs.splice(+b.dataset.phrm, 1); phSave(); phRender(); }; }); }
+    // ===== 每個特效自己設定（Vic 11/5）：放在哪一句、要顯示的字；沒設定就交給 AI =====
+    var setOpen = "", plT = 0, WORDFX = { bigword: "大字（1～4 個字）", hang: "吊牌上的字", behind: "人後面的大字（1～4 個字）", glass: "重點卡上的字", qcard: "要問的問題" }, NOSET = { grade: "整支都套用", chapters: "整支都在，用你填的重點字當段落名稱", logo: "整支都在角落", steps: "AI 照你講的第一、第二點放", chart: "AI 用你講到的數字畫", versus: "AI 找你講「A 還是 B」的地方放" };
+    function fmtT(x) { x = Math.max(0, x || 0); return Math.floor(x / 60) + ":" + String(Math.floor(x % 60)).padStart(2, "0"); }
+    function plSave() { clearTimeout(plT); plT = setTimeout(function () { VAI.client().rpc("ai_job_place", { p_id: job.id, p_place: rs.place }).then(function (r) { if (r.error) say(r.error.message); }); }, 600); }
+    function fxSet() { var el = box.querySelector("[data-fxset]"); if (!el || !rs) return; var ls = lines.filter(function (L) { return !L.cut && String(L.t).replace(/\|/g, "").trim(); });
+      if (!rs.fx.length) { el.innerHTML = ""; return; }
+      el.innerHTML = '<p class="st-set-h">你選的特效（點一下設定）</p>' + rs.fx.map(function (id) { var f = R.fx.filter(function (q) { return q.id === id; })[0] || { n: id }, pl = rs.place[id] || {}, open = setOpen === id;
+        var sum = NOSET[id] ? NOSET[id] : (pl.line ? fmtT(pl.s) + "・" + pl.line.slice(0, 8) : "AI 挑位置") + (pl.word ? "・「" + pl.word + "」" : "");
+        var body = NOSET[id] ? '<p class="st-tip" style="margin:0">' + E(NOSET[id]) + "</p>" : '<label class="st-f"><span>放在哪一句</span><select data-plline="' + id + '"><option value="">交給 AI 挑</option>' + ls.map(function (L) { var t = String(L.t).replace(/\|/g, ""); return '<option value="' + E(t) + '" data-s="' + L.s + '"' + (pl.line === t ? " selected" : "") + ">" + fmtT(L.s) + "　" + E(t.slice(0, 14)) + "</option>"; }).join("") + "</select></label>" + (WORDFX[id] ? '<label class="st-f"><span>' + WORDFX[id] + '</span><input type="text" data-plword="' + id + '" maxlength="' + (id === "qcard" || id === "glass" ? 12 : 4) + '" value="' + E(pl.word || "") + '" placeholder="不填就用那句的重點字"></label>' : "");
+        return '<div class="st-set-c' + (open ? " open" : "") + '"><button type="button" class="st-set-b" data-plopen="' + id + '"><b>' + E(f.n) + "</b><small>" + E(sum) + '</small><i aria-hidden="true">▸</i></button>' + (open ? '<div class="st-set-x">' + body + "</div>" : "") + "</div>"; }).join("");
+      el.querySelectorAll("[data-plopen]").forEach(function (b) { b.onclick = function () { var id = b.dataset.plopen; setOpen = setOpen === id ? "" : id; fxSet(); if (setOpen) { simFx(id); var pl = rs.place[id]; if (pl && pl.s != null) { stopPv(); useSrc(0).then(function () { vid.pause(); vid.currentTime = pl.s + .05; }); } } }; });
+      el.querySelectorAll("[data-plline]").forEach(function (sel) { sel.onchange = function () { var id = sel.dataset.plline, o = sel.selectedOptions[0], pl = rs.place[id] || {}; if (sel.value) { pl.line = sel.value; pl.s = +o.dataset.s; } else { delete pl.line; delete pl.s; } rs.place[id] = pl; simC = null; plSave(); simFx(id);
+        if (pl.s != null) { stopPv(); var L = lines.filter(function (q) { return q.s === pl.s; })[0]; useSrc((L && L.src) || 0).then(function () { vid.pause(); vid.currentTime = pl.s + .05; }); }
+        var c = sel.closest(".st-set-c"); if (c) c.querySelector("small").textContent = (pl.line ? fmtT(pl.s) + "・" + pl.line.slice(0, 8) : "AI 挑位置") + (pl.word ? "・「" + pl.word + "」" : ""); }; });
+      el.querySelectorAll("[data-plword]").forEach(function (inp) { inp.oninput = function () { var id = inp.dataset.plword, pl = rs.place[id] || {}; pl.word = inp.value.trim(); if (!pl.word) delete pl.word; rs.place[id] = pl; simC = null; plSave(); if (!fxSim || fxSim.id !== id) simFx(id); }; }); }
     function roomNote() { var base = String(job.note || "").replace(/（(重點字顏色 [^）]*|字幕大小 [^）]*|配樂：[^）]*|美顏 [^）]*|比例 [^）]*|字幕位置 [^）]*)）/g, ""), sz = +box.querySelector("[data-size]").value, szt = sz <= .8 ? "小" : sz >= 1.05 ? "大" : "中";
       return base + "（重點字顏色 " + rs.acc + "）（字幕大小 " + szt + "）" + (job.mode === "subs" ? "" : "（配樂：" + rs.mus + "）" + (rs.bty === "不要" ? "" : "（美顏 " + rs.bty + "）") + (rs.ratio === "16:9" ? "（比例 16:9）" : "") + (rs.spos === "中間" ? "（字幕位置 中間）" : "")); }
     async function saveRoom(c) { if (!rs) return { error: null }; var note = roomNote(), r = await c.rpc("ai_job_setup", { p_id: job.id, p_style: job.mode === "subs" ? null : rs.style, p_module: rs.module, p_note: note, p_effects: job.mode === "subs" ? null : rs.fx });
@@ -267,7 +291,7 @@
       VAI.client().from("ai_video_jobs").select("broll").eq("id", job.id).maybeSingle().then(function (r) { if (r && r.data && r.data.broll) { job.broll = r.data.broll; brNote(); len(); } else brTimer = setTimeout(brPoll, 10000); }, function () { brTimer = setTimeout(brPoll, 15000); }); }
     function len() { brNote(); var tl = timeline(clean(true), readEdit(), durs, job.broll), orig = durs.reduce(function (a, b) { return a + b; }, 0); box.querySelector("[data-len]").textContent = "剪完約 " + tl.dur.toFixed(1) + " 秒" + (orig ? "（原本 " + orig.toFixed(1) + " 秒）" : ""); }
     function readEdit() { return { direction: box.querySelector("[data-dir]").value.trim(), trimGaps: box.querySelector("[data-gap]").checked, hook: box.querySelector("[data-hook]").checked, title: box.querySelector("[data-title]").value.trim(), titleSec: +box.querySelector("[data-tsec]").value, sticky: box.querySelector("[data-sticky]").value.trim(), stickyPos: box.querySelector("[data-spos]").value, titleStyle: box.querySelector("[data-tsty]").value, subSize: +box.querySelector("[data-size]").value, tag: box.querySelector("[data-tag]").value.trim(), tagSize: +box.querySelector("[data-tagsz]").value }; }
-    function draw() {
+    function draw() { clC = null;
       var lastSrc = -1;
       rowsEl.innerHTML = lines.map(function (L, i) { var hd = ""; if (multi && (L.src || 0) !== lastSrc) { lastSrc = L.src || 0; hd = '<p class="note" style="margin:6px 0 0"><b>第 ' + (lastSrc + 1) + " 支素材</b></p>"; }
         return hd + '<div class="sed-r' + (L.cut ? " cut" : "") + (L.star ? " star" : "") + '"><button class="chip" type="button" data-play="' + i + '" title="從這句開始播">▶ ' + fmt(L.s) + '</button><input type="text" data-t="' + i + '" value="' + E(toText(L.t)) + '" aria-label="第 ' + (i + 1) + ' 句字幕" maxlength="40"><input type="text" data-h="' + i + '" value="' + E((L.hl || []).join(" ")) + '" placeholder="重點字（選填）" aria-label="第 ' + (i + 1) + ' 句重點字" maxlength="20"><span class="sed-b"><button class="chip" type="button" data-star="' + i + '" aria-pressed="' + !!L.star + '" title="標成重點">⭐</button><button class="chip" type="button" data-cut="' + i + '" aria-pressed="' + !!L.cut + '" title="剪掉這句">✂</button>' + (job.mode !== "subs" ? '<button class="chip" type="button" data-rot="' + i + '" aria-pressed="' + !!L.rot + '" title="這句畫面轉正（每按一次轉 90 度）" aria-label="第 ' + (i + 1) + ' 句畫面轉正，目前' + (L.rot ? "轉 " + L.rot + " 度" : "沒轉") + '">↻' + (L.rot ? L.rot + "°" : "") + '</button>' : "") + '</span></div>'; }).join("") || '<p class="note">還沒有字幕，按下面「加一句」自己加。</p>';
@@ -279,9 +303,14 @@
       rowsEl.querySelectorAll("[data-star]").forEach(function (b) { b.onclick = function () { var L = lines[+b.dataset.star]; L.star = !L.star; if (L.star) L.cut = false; draw(); len(); }; });
       len(); }
     draw();
+    // Vic 11/5：打字、選特效很卡 → 預覽每一格不要重算全部，只有改東西才重算
+    box.addEventListener("input", function () { edC = null; clC = null; }, true); box.addEventListener("change", function () { edC = null; clC = null; }, true); box.addEventListener("click", function () { clC = null; }, true);
     // Vic 11/5：字幕斷點很怪 → 請 AI 照意思切塊（字不會改，改了那句就不用），客人自己切過的就不動
-    if (lines.length && !lines.some(function (L) { return /\|/.test(L.t); }) && VAI.client().functions) VAI.client().functions.invoke("ai-video-phrase", { body: { lines: lines.map(function (L) { return String(L.t); }) } }).then(function (r) {
-      var c = r && r.data && r.data.cuts; if (!c || !box.isConnected) return; var n = 0; c.forEach(function (t, i) { var L = lines[i]; if (L && /\|/.test(t) && String(t).replace(/\|/g, "") === String(L.t).replace(/\|/g, "")) { L.t = t; n++; } });
+    // 客人還沒存過（字幕是 AI 聽的）：逗點一律拿掉變成換塊；客人自己打的逗點不會碰
+    var aiOnly = !job.edit && (job.status === "review" || job.status === "stt"); if (aiOnly) { lines.forEach(function (L) { L.t = depunct(L.t); }); draw(); }
+    var bare = function (x) { return String(x || "").replace(/[|，、。；：,.;:]/g, ""); };
+    if (aiOnly && lines.length && VAI.client().functions) VAI.client().functions.invoke("ai-video-phrase", { body: { lines: lines.map(function (L) { return String(L.t).replace(/\|/g, "，"); }) } }).then(function (r) {
+      var c = r && r.data && r.data.cuts; if (!c || !box.isConnected) return; var n = 0; c.forEach(function (t, i) { var L = lines[i], d = depunct(t); if (L && d !== L.t && bare(d) === bare(L.t)) { L.t = d; n++; } });
       var ae = document.activeElement; if (n && !(ae && rowsEl.contains(ae))) draw(); }, function () {});
     // Vic 11/5：手機打字時影片縮小、開剪鈕先藏起來，打的那句停在影片正下方，不會一直滑走
     var sedBox = box.querySelector(".sed"), tyT = 0;
@@ -314,9 +343,9 @@
       cancelAnimationFrame(raf); vid.pause(); job.lines = L2; job.edit = ed; job.status = job.mode === "subs" ? "rendering" : "queued";
       if (opt.onConfirm) opt.onConfirm(job); };
     // 即時字幕預覽：預覽中照剪完的時間軸，平常照原影片
-    (function loop() { var x = cv.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, cv.width, cv.height);
-      if (mod) { var t, ls; if (pv && pv.g) { t = pv.g.out + (vid.currentTime - pv.g.s); ls = pv.tl.lines; } else { t = vid.currentTime || 0; ls = clean(true).filter(function (L) { return !L.cut && L.src === Math.max(0, curSrc); }); }
-        var ed0 = readEdit(), o0 = SUBFX.size(ed0.subSize); if (rs && job.mode !== "subs" && (rs.style === "倒敘懸念" || rs.style === "金句電影字卡")) { x.fillStyle = "#000"; x.fillRect(0, 0, cv.width, cv.height * .11); x.fillRect(0, cv.height * .89, cv.width, cv.height * .11); }
+    (function loop(now) { if (now && now - lastF < 40 && !(pv && pv.g)) { raf = requestAnimationFrame(loop); return; } lastF = now || 0; var x = cv.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, cv.width, cv.height);
+      if (mod) { var t, ls; if (pv && pv.g) { t = pv.g.out + (vid.currentTime - pv.g.s); ls = pv.tl.lines; } else { t = vid.currentTime || 0; var ck = Math.max(0, curSrc); if (!clC || clKey !== ck) { clKey = ck; clC = clean(true).filter(function (L) { return !L.cut && L.src === ck; }); } ls = clC; }
+        var ed0 = edC || (edC = readEdit()), o0 = SUBFX.size(ed0.subSize); if (rs && job.mode !== "subs" && (rs.style === "倒敘懸念" || rs.style === "金句電影字卡")) { x.fillStyle = "#000"; x.fillRect(0, 0, cv.width, cv.height * .11); x.fillRect(0, cv.height * .89, cv.width, cv.height * .11); }
         if (fxSim && stTab === "fx" && window.FXSIM && FXSIM.has(fxSim.id)) { var st = (performance.now() - fxSim.t0) / 1000; FXSIM.draw(x, cv.width, cv.height, fxSim.id, st, simOpts(fxSim.id));
           var nm = (R.fx.filter(function (q) { return q.id === fxSim.id; })[0] || { n: fxSim.id }).n, cap = "模擬：" + nm + "・" + FXSIM.note(fxSim.id); x.save(); x.font = "700 " + Math.round(cv.width * .03) + "px sans-serif"; var cw2 = x.measureText(cap).width + cv.width * .04; x.fillStyle = "rgba(6,16,31,.8)"; x.fillRect(cv.width * .02, cv.height * .012, cw2, cv.width * .055); x.fillStyle = "#7ad8ff"; x.textBaseline = "middle"; x.fillText(cap, cv.width * .04, cv.height * .012 + cv.width * .0275); x.restore(); }
         x.save(); if (rs && rs.spos === "中間" && job.mode !== "subs") x.translate(0, -cv.height * .27); mod.draw(x, cv.width, cv.height, { t: t, lines: ls, accent: acc, bg: false }); x.restore();

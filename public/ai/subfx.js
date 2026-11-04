@@ -54,12 +54,13 @@
     if (SEG) { at = 0; Array.from(SEG.segment(t)).forEach(function (x) { at += x.segment.length; if (at < n) cand.push([at, 3]); }); } else for (var k = 2; k < n - 1; k++) cand.push([k, 5]);
     cand.forEach(function (c) { var k = c[0]; if (k < 3 || n - k < 3 || !ok(k)) return; var sc = Math.abs(k - mid) + c[1]; if (sc < bs) { bs = sc; best = k; } }); return best > 0 ? best : Math.round(mid); }
   function rawSlice(raw, k) { var at = 0; for (var i = 0; i < raw.length; i++) { if (raw[i] === "|") continue; if (at === k) return [raw.slice(0, i).replace(/\|$/, ""), raw.slice(i).replace(/^\|/, "")]; at++; } return [raw, ""]; }
-  function splitLong(lines, maxc) { if (!lines || !lines.length) return lines; var key = maxc + "#" + lines.map(function (L) { return L.s + "/" + L.e + "/" + L.t + "/" + (L.hl || []).join(","); }).join("\n"); if (SPC[key]) return SPC[key];
+  var SPW = typeof WeakMap === "function" ? new WeakMap() : null;
+  function splitLong(lines, maxc) { if (!lines || !lines.length) return lines; var wm = SPW && SPW.get(lines); if (wm && wm[maxc]) return wm[maxc]; var key = maxc + "#" + lines.map(function (L) { return L.s + "/" + L.e + "/" + L.t + "/" + (L.hl || []).join(","); }).join("\n"); if (SPC[key]) return SPC[key];
     var out = []; (function go(arr) { arr.forEach(function (L) { var t = plain(L); if (t.length <= maxc) { out.push(L); return; }
       var k = cutAt(L.t, L.hl), ab = rawSlice(L.t, k), a = ab[0].replace(/\|/g, ""), mt = L.s + (L.e - L.s) * a.length / t.length, hl = L.hl || [];
       var A = Object.assign({}, L, { t: ab[0], e: mt, hl: hl.filter(function (h) { return a.indexOf(h) >= 0; }) }), B = Object.assign({}, L, { t: ab[1], s: mt, hl: hl.filter(function (h) { return ab[1].replace(/\|/g, "").indexOf(h) >= 0; }) });
       go([A, B]); }); })(lines);
-    var n = 0; for (var q in SPC) n++; if (n > 60) SPC = {}; return (SPC[key] = out); }
+    var n = 0; for (var q in SPC) n++; if (n > 60) SPC = {}; if (SPW) { var o = SPW.get(lines) || {}; o[maxc] = out; SPW.set(lines, o); } return (SPC[key] = out); }
   function add(id, name, fit, desc, draw, opt) { var mx = (opt && opt.maxc) || 12; M.push(Object.assign({ id: id, name: name, fit: fit, desc: desc, accent: "#FF3B30" }, opt || {}, { draw: function (ctx, W, H, st) { return draw(ctx, W, H, Object.assign({}, st, { lines: splitLong(st.lines, mx) })); } })); }
 
   // 01 翻轉大字（剪映翻轉大字那種：一塊一塊大字疊上來、撐滿寬度，重點字換色，疊滿整組轉 90 度翻走）
