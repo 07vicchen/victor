@@ -298,7 +298,7 @@
       mods: MODS.map(function (m) { return { id: m.id, name: m.name, ok: all || BASIC_MODS.indexOf(m.id) >= 0 }; }),
       fx: FX.filter(function (f) { return f.id !== "logo"; }).map(function (f) { return { id: f.id, n: f.n, img: f.img, ok: fxFull() || !!f.basic }; }) }; }
   function openEd(id) { var j = JOBS.filter(function (x) { return x.id === id; })[0]; if (!j) return; if (editor) editor.close(); $$("[data-ed]").forEach(function (d) { d.innerHTML = ""; }); openJob = id;
-    var holder = document.querySelector('[data-ed="' + id + '"]'); editor = SUBJOB.openEditor(holder, j, { sticky: savedSticky, room: roomOpts(), onConfirm: function (job) { openJob = null; if (job.mode === "subs") renderRun(job); else { busy[job.id] = "收到！我們開始剪，剪好會顯示「完成」。"; jobs(); } } });
+    var holder = document.querySelector('[data-ed="' + id + '"]'); editor = SUBJOB.openEditor(holder, j, { sticky: savedSticky, room: roomOpts(), onClose: function () { openJob = null; editor = null; }, onConfirm: function (job) { openJob = null; if (job.mode === "subs") renderRun(job); else { busy[job.id] = "收到！我們開始剪，剪好會顯示「完成」。"; jobs(); } } });
     holder.scrollIntoView({ behavior: "smooth", block: "start" }); }
   async function jobs() { var c = VAI.client(), r = await c.from("ai_video_jobs").select("*").order("id", { ascending: false }).limit(50);
     if (r.error) { $("#jobs").innerHTML = '<p class="msg err">' + E(r.error.message) + "</p>"; return; }

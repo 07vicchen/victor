@@ -162,3 +162,19 @@ html.vai-in .adm .acc{background:#0c1a30!important}
 #work .job.open .jc-h i{transform:rotate(90deg)}
 #work .jc-b{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 12px;align-items:center}
 #work .jc-b[hidden]{display:none}
+/* 手機：剪輯工作室整個螢幕（Vic 11/5：滑歪、不好操作） */
+.sed.studio .st-x{display:none}
+@media (max-width:760px){
+ html.st-open,html.st-open body{overflow:hidden!important}
+ html.st-open .sed.studio{position:fixed!important;left:0;right:0;top:0;z-index:80;margin:0!important;border-radius:0!important;border:0!important;display:flex!important;flex-direction:column;gap:6px;padding:8px 10px 0!important;background:#06101f!important;box-shadow:none!important;overflow:hidden}
+ html.st-open .sed.studio .st-h{flex:none;display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+ html.st-open .sed.studio .st-x{display:inline-block;margin-left:auto;background:#0f2242;color:#cfe4ff;border:1px solid #24456e;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+ html.st-open .sed.studio .sed-v{position:static!important;flex:none;display:flex!important;align-items:flex-end;justify-content:center;gap:10px;padding:0!important}
+ html.st-open .sed.studio .sed-stage{width:auto!important;height:34vh;aspect-ratio:9/16;flex:none}
+ html.st-open .sed.studio.big .sed-stage{height:42vh}
+ html.st-open .sed.studio.typing .sed-stage{height:20vh}
+ html.st-open .sed.studio .sed-v .bar{max-width:46%}
+ html.st-open .sed.studio .sed-l{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:4px}
+ html.st-open .sed.studio .st-dock{position:sticky;top:0;z-index:3;background:#06101f;padding-bottom:6px}
+ html.st-open .sed.studio .sed-act{position:sticky!important;bottom:0;background:linear-gradient(0deg,#06101f 80%,transparent)!important;padding:10px 0 12px!important;margin:0}
+}

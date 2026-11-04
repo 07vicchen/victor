@@ -133,6 +133,9 @@
     opt = opt || {}; var lines = JSON.parse(JSON.stringify(job.lines || [])), edit = defEdit(job); if (!job.edit && opt.sticky) { edit.sticky = opt.sticky.sticky || ""; edit.stickyPos = opt.sticky.sticky_pos || "tl"; }
     var mod = modOf(job), acc = accentOf(job) || (mod && mod.accent) || "#FF3B30";
     var raf = 0, urls = {}, durs = [], curSrc = -1, pv = null, multi = (job.files || []).length > 1;
+    var fitSt = null;
+    function unfit() { if (window.visualViewport && fitSt) { visualViewport.removeEventListener("resize", fitSt); visualViewport.removeEventListener("scroll", fitSt); } if (fitSt) window.removeEventListener("resize", fitSt); fitSt = null; document.documentElement.classList.remove("st-open"); }
+    function shut() { try { stopPv(); } catch (e) {} cancelAnimationFrame(raf); try { vid.pause(); } catch (e) {} unfit(); box.innerHTML = ""; }
     box.innerHTML = '<div class="sed"><div class="sed-v"><div class="sed-stage"><video playsinline controls preload="metadata"></video><canvas width="540" height="960" aria-hidden="true"></canvas></div>' +
       '<div class="bar"><button class="btn sm" type="button" data-pv>▶ 預覽剪完的樣子</button><span class="note" data-len></span></div><p class="note">' + (job.mode !== "subs" ? "你選的剪法：" + E(job.style || "交給 AI 挑") + "。預覽是字幕的大概樣子，成品照這個剪法剪。" : (mod ? "字幕樣子：" + E(mod.name) + "。" : "")) + "按「預覽」會照你的剪法從頭播一次。</p>" + fxNote(job) + "</div>" +
       '<div class="sed-l"><div data-room></div><div class="bar"><label class="f" style="flex:1;min-width:180px"><span>上方標題（選填）</span><input type="text" data-title maxlength="40" placeholder="例如：釣蝦兩小時 一隻都沒有" value="' + E(edit.title) + '"></label><label class="f"><span>標題顯示</span><select data-tsec><option value="0"' + (edit.titleSec ? "" : " selected") + '>一直都在</option><option value="3"' + (edit.titleSec == 3 ? " selected" : "") + '>前 3 秒</option><option value="5"' + (edit.titleSec == 5 ? " selected" : "") + '>前 5 秒</option><option value="8"' + (edit.titleSec == 8 ? " selected" : "") + '>前 8 秒</option></select></label><label class="f"><span>標題樣式</span><select data-tsty>' + TSTY.map(function (o) { return '<option value="' + o[0] + '"' + (edit.titleStyle === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + '</select></label><label class="f"><span>字幕大小</span><select data-size>' + [["0.75", "小"], ["0.9", "中"], ["1.1", "大"]].map(function (o) { return '<option value="' + o[0] + '"' + (Math.abs(edit.subSize - +o[0]) < .01 ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + '</select></label></div>' +
@@ -157,7 +160,12 @@
       // ===== 霓虹剪輯工作室（Vic 11/5）：上面影片、下面一排發光大圖示，點了打開一排樣式小卡；字少、點了就看到 =====
       var sedEl = box.querySelector(".sed"), sedL = box.querySelector(".sed-l"), room = box.querySelector("[data-room]");
       sedEl.classList.add("studio");
-      sedEl.insertAdjacentHTML("afterbegin", '<div class="st-h"><b>★ 剪輯工作室</b><span>#' + job.id + '</span><small>這裡看到的字幕，就是成品的字幕</small></div>');
+      sedEl.insertAdjacentHTML("afterbegin", '<div class="st-h"><b>★ 剪輯工作室</b><span>#' + job.id + '</span><button type="button" class="st-x" data-stx>✕ 收起</button><small>這裡看到的字幕，就是成品的字幕</small></div>');
+       // Vic 11/5：手機上工作室改成整個螢幕：影片固定在上面、選項在下面自己捲，不會滑歪；鍵盤跳出來也跟著縮
+       var mq = window.matchMedia ? matchMedia("(max-width:760px)") : { matches: false }, vv = window.visualViewport;
+       fitSt = function () { if (!box.isConnected) return unfit(); if (!mq.matches) { sedEl.style.height = sedEl.style.top = ""; document.documentElement.classList.remove("st-open"); return; } document.documentElement.classList.add("st-open"); sedEl.style.height = Math.round(vv ? vv.height : innerHeight) + "px"; sedEl.style.top = Math.round(vv ? vv.offsetTop : 0) + "px"; };
+       if (vv) { vv.addEventListener("resize", fitSt); vv.addEventListener("scroll", fitSt); } window.addEventListener("resize", fitSt); fitSt();
+       sedEl.querySelector("[data-stx]").onclick = function () { shut(); if (opt.onClose) opt.onClose(); };
       var lock = function (ok) { return ok === false ? ' disabled title="專業方案以上可用"' : ""; };
       var card = function (attr, val, label, on, ok, inner, desc) { return '<button class="sc' + (desc ? " sc-d" : "") + '" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '"' + lock(ok) + (ok === false ? ' data-base-ok="0"' : "") + ">" + inner + "<span>" + (ok === false ? "🔒 " : "") + E(label) + "</span>" + (desc ? '<small class="st-desc">' + E(desc) + "</small>" : "") + "</button>"; };
       var pill = function (attr, val, label, on) { return '<button class="sp" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '">' + E(label) + "</button>"; };
@@ -271,12 +279,16 @@
       rowsEl.querySelectorAll("[data-star]").forEach(function (b) { b.onclick = function () { var L = lines[+b.dataset.star]; L.star = !L.star; if (L.star) L.cut = false; draw(); len(); }; });
       len(); }
     draw();
+    // Vic 11/5：字幕斷點很怪 → 請 AI 照意思切塊（字不會改，改了那句就不用），客人自己切過的就不動
+    if (lines.length && !lines.some(function (L) { return /\|/.test(L.t); }) && VAI.client().functions) VAI.client().functions.invoke("ai-video-phrase", { body: { lines: lines.map(function (L) { return String(L.t); }) } }).then(function (r) {
+      var c = r && r.data && r.data.cuts; if (!c || !box.isConnected) return; var n = 0; c.forEach(function (t, i) { var L = lines[i]; if (L && /\|/.test(t) && String(t).replace(/\|/g, "") === String(L.t).replace(/\|/g, "")) { L.t = t; n++; } });
+      var ae = document.activeElement; if (n && !(ae && rowsEl.contains(ae))) draw(); }, function () {});
     // Vic 11/5：手機打字時影片縮小、開剪鈕先藏起來，打的那句停在影片正下方，不會一直滑走
     var sedBox = box.querySelector(".sed"), tyT = 0;
     sedBox.addEventListener("focusin", function (e) { var t = e.target; if (!t.matches || !t.matches('input[type=text],textarea')) return; clearTimeout(tyT);
       if (t.dataset.t != null) { var L = lines[+t.dataset.t]; if (L) { stopPv(); useSrc(L.src || 0).then(function () { vid.pause(); vid.currentTime = L.s + .05; }); } }
       if (innerWidth > 760) return; sedBox.classList.add("typing");
-      setTimeout(function () { var v = sedBox.querySelector(".sed-v").getBoundingClientRect(), r = t.getBoundingClientRect(); window.scrollBy(0, r.top - (v.bottom + 12)); }, 380); });
+      setTimeout(function () { var sc = document.documentElement.classList.contains("st-open") ? sedBox.querySelector(".sed-l") : null, v = sedBox.querySelector(".sed-v").getBoundingClientRect(), r = t.getBoundingClientRect(); if (sc) sc.scrollTop += r.top - sc.getBoundingClientRect().top - 10; else window.scrollBy(0, r.top - (v.bottom + 12)); }, 380); });
     sedBox.addEventListener("focusout", function () { tyT = setTimeout(function () { var a = document.activeElement; if (!a || !sedBox.contains(a) || !a.matches('input[type=text],textarea')) sedBox.classList.remove("typing"); }, 200); });
     box.querySelector("[data-gap]").onchange = len; box.querySelector("[data-hook]").onchange = len;
     box.querySelector("[data-add]").onclick = function () { var t = vid.currentTime || 0, src = Math.max(0, curSrc), k = 0; while (k < lines.length && ((lines[k].src || 0) < src || ((lines[k].src || 0) === src && lines[k].s < t))) k++; var nx = lines[k] && (lines[k].src || 0) === src ? lines[k].s : t + 2; lines.splice(k, 0, { s: Math.round(t * 100) / 100, e: Math.round(Math.max(t + .5, Math.min(nx, t + 2)) * 100) / 100, t: "", hl: [], src: src }); draw(); var inp = rowsEl.querySelector('[data-t="' + k + '"]'); if (inp) inp.focus(); };
@@ -310,7 +322,7 @@
         x.save(); if (rs && rs.spos === "中間" && job.mode !== "subs") x.translate(0, -cv.height * .27); mod.draw(x, cv.width, cv.height, { t: t, lines: ls, accent: acc, bg: false }); x.restore();
         SUBFX.size(o0); drawTitle(x, cv.width, cv.height, pv && pv.g ? t : (vid.currentTime || 0), ed0, mod, acc); drawSticky(x, cv.width, cv.height, ed0); }
       raf = requestAnimationFrame(loop); })();
-    return { close: function () { stopPv(); cancelAnimationFrame(raf); try { vid.pause(); } catch (e) {} } };
+    return { close: function () { stopPv(); cancelAnimationFrame(raf); try { vid.pause(); } catch (e) {} unfit(); } };
   }
 
   // ===== 3. 出片（只上字幕）：照剪法播一次、錄一次 =====

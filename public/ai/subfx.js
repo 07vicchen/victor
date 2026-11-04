@@ -45,7 +45,22 @@
 
   function lumOf(c) { var m = /^#([0-9a-f]{6})/i.exec(c || ""); if (!m) return 0; var n = parseInt(m[1], 16); return (.299 * (n >> 16) + .587 * (n >> 8 & 255) + .114 * (n & 255)) / 255; }
   var M = [];
-  function add(id, name, fit, desc, draw, opt) { M.push(Object.assign({ id: id, name: name, fit: fit, desc: desc, draw: draw, accent: "#FF3B30" }, opt || {})); }
+  // Vic 11/5：字幕太長會超出畫面 → 自動換句：超過 maxc 個字就照意思切成兩句、時間照字數分（跟桌機剪片一樣一次一小句）
+  var SPC = {};
+  // 切點：先找客人或 AI 切好的「|」，再找標點，最後才用斷詞；重點詞不切開
+  function cutAt(raw, hl) { var t = raw.replace(/\|/g, ""), n = t.length, mid = n / 2, best = -1, bs = 1e9, ok = function (k) { return !(hl || []).some(function (h) { var p = h ? t.indexOf(h) : -1; return p >= 0 && k > p && k < p + h.length; }); }, cand = [], at = 0;
+    for (var i = 0; i < raw.length; i++) { if (raw[i] === "|") cand.push([at, 0]); else at++; }
+    var pm = /[，。！？、；：,.!?;:…～~ ]/g, m; while ((m = pm.exec(t))) cand.push([m.index + 1, 1]);
+    if (SEG) { at = 0; Array.from(SEG.segment(t)).forEach(function (x) { at += x.segment.length; if (at < n) cand.push([at, 3]); }); } else for (var k = 2; k < n - 1; k++) cand.push([k, 5]);
+    cand.forEach(function (c) { var k = c[0]; if (k < 3 || n - k < 3 || !ok(k)) return; var sc = Math.abs(k - mid) + c[1]; if (sc < bs) { bs = sc; best = k; } }); return best > 0 ? best : Math.round(mid); }
+  function rawSlice(raw, k) { var at = 0; for (var i = 0; i < raw.length; i++) { if (raw[i] === "|") continue; if (at === k) return [raw.slice(0, i).replace(/\|$/, ""), raw.slice(i).replace(/^\|/, "")]; at++; } return [raw, ""]; }
+  function splitLong(lines, maxc) { if (!lines || !lines.length) return lines; var key = maxc + "#" + lines.map(function (L) { return L.s + "/" + L.e + "/" + L.t + "/" + (L.hl || []).join(","); }).join("\n"); if (SPC[key]) return SPC[key];
+    var out = []; (function go(arr) { arr.forEach(function (L) { var t = plain(L); if (t.length <= maxc) { out.push(L); return; }
+      var k = cutAt(L.t, L.hl), ab = rawSlice(L.t, k), a = ab[0].replace(/\|/g, ""), mt = L.s + (L.e - L.s) * a.length / t.length, hl = L.hl || [];
+      var A = Object.assign({}, L, { t: ab[0], e: mt, hl: hl.filter(function (h) { return a.indexOf(h) >= 0; }) }), B = Object.assign({}, L, { t: ab[1], s: mt, hl: hl.filter(function (h) { return ab[1].replace(/\|/g, "").indexOf(h) >= 0; }) });
+      go([A, B]); }); })(lines);
+    var n = 0; for (var q in SPC) n++; if (n > 60) SPC = {}; return (SPC[key] = out); }
+  function add(id, name, fit, desc, draw, opt) { var mx = (opt && opt.maxc) || 12; M.push(Object.assign({ id: id, name: name, fit: fit, desc: desc, accent: "#FF3B30" }, opt || {}, { draw: function (ctx, W, H, st) { return draw(ctx, W, H, Object.assign({}, st, { lines: splitLong(st.lines, mx) })); } })); }
 
   // 01 翻轉大字（剪映翻轉大字那種：一塊一塊大字疊上來、撐滿寬度，重點字換色，疊滿整組轉 90 度翻走）
   add("flip", "翻轉大字", "口播、教學、觀點", "大字一塊一塊疊上來、撐滿畫面寬度，重點字換色，疊滿整組翻轉帶走，節奏感很強。", function (ctx, W, H, st) {
@@ -219,7 +234,7 @@
       else { ctx.fillStyle = now ? "#111" : "#fff"; ctx.textAlign = "center"; font(ctx, 900, 22 * u); ctx.fillText(String(idx + 1), cx, y + 1 * u); font(ctx, now ? 900 : 700, 40 * u, null, t, .66); }
       ctx.textAlign = "left"; if (now) colorRun(ctx, L, tx, y, "#fff", st.accent, { align: "left" }); else { ctx.fillStyle = "#fff"; ctx.fillText(t, tx, y); }
       if (done) { var sp = eo((st.t - L.e) / .3); ctx.strokeStyle = st.accent; ctx.lineWidth = 5 * u; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(tx - 4 * u, y); ctx.lineTo(tx - 4 * u + (tw + 8 * u) * sp, y); ctx.stroke(); } });
-    ctx.restore(); }, { accent: "#FFE14D" });
+    ctx.restore(); }, { accent: "#FFE14D", maxc: 99 });
   // 25 彩色膠囊底色（2026-11 新增，專業以上）
   add("capsule", "彩色膠囊底色", "品牌店家、美業、電商", "每個詞組墊一塊膠囊形色塊，一次最多兩組，重點詞換成黑底白字，顏色可以換成你的品牌色。", function (ctx, W, H, st) {
     var u = W / 720, i = cur(st); bgFill(ctx, W, H, st); if (i < 0) return; var L = st.lines[i], ps = parts(L), d = (L.e - L.s) / ps.length, n = clamp(Math.floor((st.t - L.s) / d) + 1, 1, ps.length), from = Math.max(0, n - 2);
@@ -244,9 +259,9 @@
       for (var q = 0; q < ln.length; q++) { var c = ln[q]; if (!st.bg) { ctx.lineJoin = "round"; ctx.lineWidth = 6 * u; ctx.strokeStyle = "rgba(0,0,0,.55)"; ctx.strokeText(c, cx, y0 + r * lh); }
         ctx.fillStyle = m[at + q] ? "#ffffff" : st.accent; ctx.fillText(c, cx, y0 + r * lh); cx += ctx.measureText(c).width; } at += ln.length; });
     var num = String(i + 1).padStart(2, "0") + "／" + String(st.lines.length).padStart(2, "0"); ctx.font = "700 " + Math.round(30 * u) + "px " + SANS; ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,255,255,.85)"; ctx.fillText(num, 44 * u, 120 * u);
-    ctx.globalAlpha = 1; }, { accent: "#F5D76E" });
+    ctx.globalAlpha = 1; }, { accent: "#F5D76E", maxc: 40 });
 
-  root.SUBFX = { size: function (k) { var o = SIZE; SIZE = +k > 0 ? +k : 0.9; return o; }, list: M, SANS: SANS, SERIF: SERIF,
+  root.SUBFX = { split: splitLong, size: function (k) { var o = SIZE; SIZE = +k > 0 ? +k : 0.9; return o; }, list: M, SANS: SANS, SERIF: SERIF,
     demo: [{ s: 0, e: 1.2, t: "這種字幕|怎麼做？", hl: ["字幕"] }, { s: 1.2, e: 2.2, t: "很多人問我", hl: [] }, { s: 2.2, e: 3.6, t: "是不是要|一格一格調", hl: ["一格一格"] }, { s: 3.6, e: 4.4, t: "不用！", hl: ["不用"] },
       { s: 4.4, e: 5.8, t: "上傳影片|選個模組", hl: ["模組"] }, { s: 5.8, e: 7.2, t: "剩下的|交給 AI", hl: ["AI"] }, { s: 7.2, e: 8.7, t: "三分鐘|字幕全上好", hl: ["三分鐘"] }],
     loop: 9.2 };
