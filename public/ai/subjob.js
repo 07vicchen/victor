@@ -159,12 +159,15 @@
       var lock = function (ok) { return ok === false ? ' disabled title="專業方案以上可用"' : ""; };
       var card = function (attr, val, label, on, ok, inner) { return '<button class="sc" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '"' + lock(ok) + ">" + inner + "<span>" + (ok === false ? "🔒 " : "") + E(label) + "</span></button>"; };
       var pill = function (attr, val, label, on) { return '<button class="sp" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '">' + E(label) + "</button>"; };
-      var TABS = [["sub", "Aa", "字幕"]].concat(cut ? [["cut", "✂", "剪法"], ["fx", "✦", "特效"], ["mus", "♪", "音樂"]] : []).concat([["txt", "☰", "改字"], ["more", "⚙", "更多"]]);
+      // Vic 11/5：剪法和字幕樣式其實是同一件事（每個剪法本來就配一種字幕）→ 合成「風格」一個；想換字幕才展開
+      var TABS = (cut ? [["cut", "★", "風格"], ["fx", "✦", "特效"], ["mus", "♪", "音樂"]] : [["sub", "Aa", "字幕"]]).concat([["txt", "☰", "改字"], ["more", "⚙", "更多"]]);
       var P = {};
-      P.sub = '<div class="st-row">' + (cut ? card("data-rmod", "", "跟剪法搭配", !rs.module, true, '<i class="st-ic">⇄</i>') : "") + R.mods.map(function (x) { return card("data-rmod", x.id, x.name, rs.module === x.id, x.ok, '<canvas width="270" height="480" data-mc="' + E(x.id) + '"></canvas>'); }).join("") + "</div>" +
-        '<div class="st-line"><label class="sp-c">重點色 <input type="color" data-racc value="' + E(rs.acc) + '"></label>' + (cut ? pill("data-rpos", "下方", "字幕在下方", rs.spos === "下方") + pill("data-rpos", "中間", "字幕在中間", rs.spos === "中間") : "") + "</div>";
+      var modRow = '<div class="st-row">' + (cut ? card("data-rmod", "", "跟風格一樣", !rs.module, true, '<i class="st-ic">⇄</i>') : "") + R.mods.map(function (x) { return card("data-rmod", x.id, x.name, rs.module === x.id, x.ok, '<canvas width="270" height="480" data-mc="' + E(x.id) + '"></canvas>'); }).join("") + "</div>";
+      var colorLine = '<div class="st-line"><label class="sp-c">重點色 <input type="color" data-racc value="' + E(rs.acc) + '"></label>' + (cut ? pill("data-rpos", "下方", "字幕在下方", rs.spos === "下方") + pill("data-rpos", "中間", "字幕在中間", rs.spos === "中間") : "") + "</div>";
+      if (!cut) P.sub = modRow + colorLine;
       if (cut) {
-        P.cut = '<div class="st-row">' + card("data-rst", "交給 AI 挑", "交給 AI 挑", rs.style === "交給 AI 挑", true, '<i class="st-ic">AI</i>') + R.styles.map(function (x, i) { return card("data-rst", x.n, x.n, rs.style === x.n, x.ok, '<canvas width="270" height="480" data-vc="' + i + '"></canvas>'); }).join("") + "</div>";
+        P.cut = '<div class="st-row">' + card("data-rst", "交給 AI 挑", "交給 AI 挑", rs.style === "交給 AI 挑", true, '<i class="st-ic">AI</i>') + R.styles.map(function (x, i) { return card("data-rst", x.n, x.n, rs.style === x.n, x.ok, '<canvas width="270" height="480" data-vc="' + i + '"></canvas>'); }).join("") + "</div>" + colorLine +
+          '<details class="st-sub"' + (rs.module ? " open" : "") + '><summary>換一種字幕（選填）</summary>' + modRow + "</details>";
         P.fx = '<div class="st-row">' + card("data-rfx", "", "交給 AI 挑", !rs.fx.length, true, '<i class="st-ic">AI</i>') + R.fx.map(function (x) { return card("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok, '<img src="/ai/fx/' + E(x.img) + '.jpg" alt="" loading="lazy">'); }).join("") + '</div><p class="st-tip">可以選好幾個。點一下左上角會跳示意；特效剪片時才做上去，時間點由 AI 看內容挑。</p>';
         P.mus = '<div class="st-row">' + card("data-rmus", "原創配樂", "幫我配音樂", rs.mus === "原創配樂", true, '<i class="st-ic">♪</i>') + card("data-rmus", "不要配樂", "不要音樂", rs.mus === "不要配樂", true, '<i class="st-ic">🔇</i>') + '</div><p class="st-tip">講話時音樂會自動變小聲，人聲一定聽得清楚。</p>';
       }
@@ -193,7 +196,8 @@
         if (!id) rs.fx = []; else { var k = rs.fx.indexOf(id); if (k >= 0) rs.fx.splice(k, 1); else { rs.fx.push(id); var f = R.fx.filter(function (q) { return q.id === id; })[0]; if (f) { var im = new Image(); im.src = "/ai/fx/" + f.img + ".jpg"; fxShow = { im: im, n: f.n, until: performance.now() + 3500 }; } } }
         room.querySelectorAll("[data-rfx]").forEach(function (q) { var v = q.getAttribute("data-rfx"); q.setAttribute("aria-pressed", String(v ? rs.fx.indexOf(v) >= 0 : !rs.fx.length)); }); }; });
       room.querySelector("[data-ok]") ; sedEl.querySelector("[data-ok]").innerHTML = job.mode === "subs" ? "▶ 開始出片！" : "▶ 開剪！";
-      openTab("sub"); applyRoom(); requestAnimationFrame(mini); }
+      openTab(cut ? "cut" : "sub"); applyRoom();
+      var sub = room.querySelector(".st-sub"); if (sub) sub.addEventListener("toggle", function () { if (sub.open) sub.querySelectorAll("canvas").forEach(function (c) { drawMini(c, 2.6); }); }); requestAnimationFrame(mini); }
     function roomNote() { var base = String(job.note || "").replace(/（(重點字顏色 [^）]*|字幕大小 [^）]*|配樂：[^）]*|美顏 [^）]*|比例 [^）]*|字幕位置 [^）]*)）/g, ""), sz = +box.querySelector("[data-size]").value, szt = sz <= .8 ? "小" : sz >= 1.05 ? "大" : "中";
       return base + "（重點字顏色 " + rs.acc + "）（字幕大小 " + szt + "）" + (job.mode === "subs" ? "" : "（配樂：" + rs.mus + "）" + (rs.bty === "不要" ? "" : "（美顏 " + rs.bty + "）") + (rs.ratio === "16:9" ? "（比例 16:9）" : "") + (rs.spos === "中間" ? "（字幕位置 中間）" : "")); }
     async function saveRoom(c) { if (!rs) return { error: null }; var note = roomNote(), r = await c.rpc("ai_job_setup", { p_id: job.id, p_style: job.mode === "subs" ? null : rs.style, p_module: rs.module, p_note: note, p_effects: job.mode === "subs" ? null : rs.fx });
