@@ -151,7 +151,7 @@
     // ===== 預覽室（Vic 11/5）：剪法、字幕樣式、顏色、位置、特效…在自己的影片上邊看邊選，看到的就是成品的字幕 =====
     var R = opt.room || null, rs = null, fxShow = null, orig = JSON.parse(JSON.stringify(job.lines || [])), stTab = "";
     if (R) { var nt = String(job.note || ""), cut = job.mode !== "subs";
-      rs = { style: job.style || "交給 AI 挑", module: job.module || "", acc: acc, spos: /字幕位置 中間/.test(nt) ? "中間" : "下方", ratio: /比例 16:9/.test(nt) ? "16:9" : "9:16", bty: (nt.match(/美顏 (輕|中)/) || [])[1] || "不要", mus: /配樂：不要配樂/.test(nt) ? "不要配樂" : "原創配樂", fx: (job.fx && !job.fx.auto && job.fx.effects) ? job.fx.effects.slice() : [] };
+      rs = { style: job.style || "交給 AI 挑", module: job.mode !== "subs" ? "" : (job.module || ""), /* 完整剪片：風格就是整套，不另外選字幕 */ acc: acc, spos: /字幕位置 中間/.test(nt) ? "中間" : "下方", ratio: /比例 16:9/.test(nt) ? "16:9" : "9:16", bty: (nt.match(/美顏 (輕|中)/) || [])[1] || "不要", mus: /配樂：不要配樂/.test(nt) ? "不要配樂" : "原創配樂", fx: (job.fx && !job.fx.auto && job.fx.effects) ? job.fx.effects.slice() : [] };
       // ===== 霓虹剪輯工作室（Vic 11/5）：上面影片、下面一排發光大圖示，點了打開一排樣式小卡；字少、點了就看到 =====
       var sedEl = box.querySelector(".sed"), sedL = box.querySelector(".sed-l"), room = box.querySelector("[data-room]");
       sedEl.classList.add("studio");
@@ -166,8 +166,7 @@
       var colorLine = '<div class="st-line"><label class="sp-c">重點色 <input type="color" data-racc value="' + E(rs.acc) + '"></label>' + (cut ? pill("data-rpos", "下方", "字幕在下方", rs.spos === "下方") + pill("data-rpos", "中間", "字幕在中間", rs.spos === "中間") : "") + "</div>";
       if (!cut) P.sub = modRow + colorLine;
       if (cut) {
-        P.cut = '<div class="st-row">' + card("data-rst", "交給 AI 挑", "交給 AI 挑", rs.style === "交給 AI 挑", true, '<i class="st-ic">AI</i>') + R.styles.map(function (x, i) { return card("data-rst", x.n, x.n, rs.style === x.n, x.ok, '<canvas width="270" height="480" data-vc="' + i + '"></canvas>'); }).join("") + "</div>" + colorLine +
-          '<details class="st-sub"' + (rs.module ? " open" : "") + '><summary>換一種字幕（選填）</summary>' + modRow + "</details>";
+        P.cut = '<div class="st-row">' + card("data-rst", "交給 AI 挑", "交給 AI 挑", rs.style === "交給 AI 挑", true, '<i class="st-ic">AI</i>') + R.styles.map(function (x, i) { return card("data-rst", x.n, x.n, rs.style === x.n, x.ok, '<canvas width="270" height="480" data-vc="' + i + '"></canvas>'); }).join("") + "</div>" + '<p class="st-tip">每個風格都是整套套好的（剪的節奏＋字幕）。下面可以微調：</p>' + colorLine;
         P.fx = '<div class="st-row">' + card("data-rfx", "", "交給 AI 挑", !rs.fx.length, true, '<i class="st-ic">AI</i>') + R.fx.map(function (x) { return card("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok, '<img src="/ai/fx/' + E(x.img) + '.jpg" alt="" loading="lazy">'); }).join("") + '</div><p class="st-tip">可以選好幾個。點一下左上角會跳示意；特效剪片時才做上去，時間點由 AI 看內容挑。</p>';
         P.mus = '<div class="st-row">' + card("data-rmus", "原創配樂", "幫我配音樂", rs.mus === "原創配樂", true, '<i class="st-ic">♪</i>') + card("data-rmus", "不要配樂", "不要音樂", rs.mus === "不要配樂", true, '<i class="st-ic">🔇</i>') + '</div><p class="st-tip">講話時音樂會自動變小聲，人聲一定聽得清楚。</p>';
       }
