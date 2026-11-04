@@ -28,3 +28,4 @@ html.vai-in .ocs .go b,html.vai-in .plan.hot .badge,html.vai-in .plan.hot .m b,h
 html.vai-in .plan.hot{box-shadow:inset 0 0 0 1px #ff7a59}
 html.vai-in .chip[aria-pressed=true]{border-color:#ff9a7a}
 html.vai-in .adm{border-color:#ff7a5966;box-shadow:0 0 22px #ff7a5922}html.vai-in .adm a{color:#ff9a7a}
+#work .msg.ok{color:#ffc857!important}

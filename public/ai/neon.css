@@ -178,3 +178,4 @@ html.vai-in .adm .acc{background:#0c1a30!important}
  html.st-open .sed.studio .st-dock{position:sticky;top:0;z-index:3;background:#06101f;padding-bottom:6px}
  html.st-open .sed.studio .sed-act{position:sticky!important;bottom:0;background:linear-gradient(0deg,#06101f 80%,transparent)!important;padding:10px 0 12px!important;margin:0}
 }
+#work .msg.ok{color:#3dffa8!important}#work .msg.err{color:#ff8a8a!important}
