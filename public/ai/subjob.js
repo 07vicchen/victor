@@ -112,14 +112,14 @@
   // Vic 10/26：字幕只能一行，放不下就換下一個字幕（照詞切，時間照字數分；跟桌機一樣）
   var WSEG = null; try { WSEG = new Intl.Segmenter("zh-Hant", { granularity: "word" }); } catch (e) {}
   // Vic 11/5 #46：聽寫常切在半個詞、帶口吃的槓（「很-很多」）。先清乾淨：口吃只留一次、槓拿掉；沒講完的碎尾巴併回前一句
-  var STARTS = /^(我|你|他|她|它|所以|然後|但是|可是|如果|因為|而且|還有|其實|接著|最後|現在|哦|喔|對|好|啊|哎|嗯)/;
+  var STARTS = /^(我|你|他|她|它|所以|然後|但是|可是|如果|因為|而且|還有|其實|接著|最後|現在|哦|喔|對|好|啊|哎|嗯|之前|下一次|下次|這|那|今天|後來)/;
   function tidy(lines) { var out = [];
     lines.forEach(function (L0) { var t = String(L0.t || "");
       for (var k = 0; k < 3; k++) t = t.replace(/([\u4e00-\u9fff]{1,2})[-－—–]+\1/g, "$1");
       t = t.replace(/[-－—–]+$/, "").replace(/([\u4e00-\u9fff])[-－—–]+(?=[\u4e00-\u9fff])/g, "$1，").replace(/[-－—–]+/g, "").replace(/^[\s，]+|[\s，]+$/g, "");
       if (!t) return; var L = Object.assign({}, L0, { t: t }), p = out[out.length - 1];
       if (p && !L.cut && !p.cut && (L.src || 0) === (p.src || 0)) { var gap = L.s - p.e, pt = String(p.t), open = !/[。！？!?…]$/.test(pt);
-        var tail = t.length <= 3 && gap <= 0.8, cont = gap <= 0.15 && !/[，、,]$/.test(pt) && pt.length + t.length <= 26 && !STARTS.test(t);
+        var tail = t.length <= 3 && gap <= 0.8, cont = gap <= 0.15 && !/[，、,的了啦哦喔嗎呢吧耶呀啊]$/.test(pt) && pt.length + t.length <= 26 && !STARTS.test(t);
         if (open && (tail || cont)) { p.t = pt + t; p.e = L.e; p.hl = (p.hl || []).concat(L.hl || []); if (L.star) p.star = true; return; } }
       out.push(L); });
     return out; }
