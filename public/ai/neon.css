@@ -126,3 +126,23 @@ html.vai-in .chip{background:#0d1d36;color:#cfe4ff;border-color:#24456e}
 html.vai-in .chip[aria-pressed=true]{background:#0f2c4a;color:#fff;border-color:#7ad8ff}
 .sed.studio [data-ok]{color:#04122a!important}
 html.vai-in .pi,html.vai-in .pi *{color:#141414}html.vai-in .pi .pr,html.vai-in .pi .pr *{color:#d9472b}
+/* 工作室放照片 */
+.sed.studio .st-ph-row{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;align-items:stretch}
+.sed.studio .st-ph-add{flex:none;width:86px;min-height:118px;border:2px dashed #2fa8ff;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#fff;cursor:pointer;background:#0b1d38}
+.sed.studio .st-ph-add i{font-style:normal;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#3dffa8,#2fa8ff);color:#04122a;font-weight:900;font-size:20px}
+.sed.studio .st-ph-add span{font-size:13px;font-weight:700}
+.sed.studio .st-ph-c{flex:none;width:96px;position:relative;display:flex;flex-direction:column;gap:4px}
+.sed.studio .st-ph-c img{width:96px;height:80px;object-fit:cover;border-radius:10px;border:1px solid #24456e;background:#13294a}
+.sed.studio .st-ph-c select{width:100%;padding:5px 2px!important;font-size:12px;border-radius:8px}
+.sed.studio .st-ph-c button{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:#ff5a6e;color:#fff;font-weight:900;font-size:12px;cursor:pointer}
+.sed.studio .st-ph-e{margin:0;align-self:center;font-size:13px;color:#a9c2dc;line-height:1.5;min-width:180px}
+/* 改字好打（Vic 11/5） */
+.sed.studio .st-adv{margin-top:12px;border:1px solid #1d3556;border-radius:12px;padding:6px 10px;background:#0a172b}
+.sed.studio .st-adv summary{cursor:pointer;color:#a9c2dc;font-size:13.5px;font-weight:700;padding:4px 0}
+.sed.studio .st-txt .sed-rows{max-height:none;overflow:visible}
+@media (max-width:760px){
+ .sed.studio.typing .sed-stage{width:84px!important}
+ .sed.studio.typing .sed-act{display:none!important}
+ .sed.studio.typing .st-dock{display:none}
+ .sed.studio.big .sed-stage{width:210px!important}
+}

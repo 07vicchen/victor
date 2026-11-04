@@ -149,7 +149,7 @@
     vid.addEventListener("timeupdate", turn); vid.addEventListener("seeked", turn);
     function say(t, ok) { msg.textContent = t; msg.className = "msg" + (ok ? " ok" : t ? " err" : ""); }
     // ===== 預覽室（Vic 11/5）：剪法、字幕樣式、顏色、位置、特效…在自己的影片上邊看邊選，看到的就是成品的字幕 =====
-    var R = opt.room || null, rs = null, fxShow = null, orig = JSON.parse(JSON.stringify(job.lines || [])), stTab = "";
+    var R = opt.room || null, rs = null, fxSim = null, phs = [], orig = JSON.parse(JSON.stringify(job.lines || [])), stTab = "";
     if (R) { var nt = String(job.note || ""), cut = job.mode !== "subs";
       var KEEP = { "三段式知識框": "上方大標題＋章節卡", "倒敘懸念": "精彩句放開頭＋電影黑邊", "綜藝爆笑": "1.1 倍速＋重點大字", "直播帶貨": "價格大字＋限時標籤", "新聞快報": "快報條＋跑馬燈", "多人對話切鏡": "誰講話就切誰", "金句電影字卡": "金句切黑底金字卡" };
       var st0 = KEEP[job.style] ? job.style : "爆點跳字";
@@ -172,7 +172,8 @@
         var ICON = { "三段式知識框": "▤", "倒敘懸念": "⏪", "綜藝爆笑": "😂", "直播帶貨": "🛒", "新聞快報": "📰", "多人對話切鏡": "👥", "金句電影字卡": "🎬" };
         P.cut = '<div class="st-row">' + card("data-rst", "爆點跳字", "一般剪法", rs.style === "爆點跳字", true, '<i class="st-ic">✂</i>', "照順序剪，剪掉停頓口誤") +
           Object.keys(KEEP).map(function (n) { return card("data-rst", n, n, rs.style === n, ok1(n), '<i class="st-ic">' + ICON[n] + "</i>", KEEP[n]); }).join("") + '</div><p class="st-tip">風格只改「怎麼剪」，字幕長怎樣在第一個「字幕」選。</p>';
-        P.fx = '<div class="st-row">' + card("data-rfx", "", "交給 AI 挑", !rs.fx.length, true, '<i class="st-ic">AI</i>') + R.fx.map(function (x) { return card("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok, '<img src="/ai/fx/' + E(x.img) + '.jpg" alt="" loading="lazy">'); }).join("") + '</div><p class="st-tip">可以選好幾個。點一下左上角會跳示意；特效剪片時才做上去，時間點由 AI 看內容挑。</p>';
+        var phOk = R.fx.some(function (q) { return q.id === "covers" && q.ok; });
+        P.fx = '<div class="st-ph">' + (phOk ? '<div class="st-ph-row" data-phrow></div>' : '<p class="st-tip">🔒 特效裡放自己的照片，要專業方案以上</p>') + '</div><div class="st-row">' + card("data-rfx", "", "交給 AI 挑", !rs.fx.length, true, '<i class="st-ic">AI</i>') + R.fx.map(function (x) { return card("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok, '<img src="/ai/fx/' + E(x.img) + '.jpg" alt="" loading="lazy">'); }).join("") + '</div><p class="st-tip">點特效，上面的影片就照成品的位置模擬給你看（用你放的照片）。什麼時候出現由 AI 看內容挑。</p>';
         P.mus = '<div class="st-row">' + card("data-rmus", "原創配樂", "幫我配音樂", rs.mus === "原創配樂", true, '<i class="st-ic">♪</i>') + card("data-rmus", "不要配樂", "不要音樂", rs.mus === "不要配樂", true, '<i class="st-ic">🔇</i>') + '</div><p class="st-tip">講話時音樂會自動變小聲，人聲一定聽得清楚。</p>';
       }
       P.txt = '<div class="st-txt"></div>';
@@ -182,13 +183,17 @@
       var kids = [].slice.call(sedL.children), txtBox = room.querySelector(".st-txt"), moreBox = room.querySelector(".st-more");
       kids.forEach(function (el) { if (el === room || el.classList.contains("sed-act") || el.matches("[data-msg]")) return;
         if (el.querySelector("[data-title],[data-tag],[data-sticky]")) moreBox.appendChild(el); else txtBox.appendChild(el); });
+       // Vic 11/5：改字要好打 → 字幕一句一句放最上面，其他設定收進「進階」
+       (function () { var det = document.createElement("details"), dl = txtBox.querySelector("[data-dir]"), ab = txtBox.querySelector("[data-ai]"), nt0 = rowsEl.previousElementSibling; det.className = "st-adv"; det.innerHTML = "<summary>⚙ 進階：AI 幫挑句子、停頓、鉤子</summary>";
+         [dl && dl.closest("label"), ab && ab.closest(".bar"), nt0 && nt0.matches("p.note") ? nt0 : null].forEach(function (el) { if (el) det.appendChild(el); }); txtBox.appendChild(det);
+         txtBox.insertAdjacentHTML("afterbegin", '<p class="st-tip">點一句就能改字，影片會停在那句給你看。✂ 剪掉、⭐ 重點、空格分行。</p>'); })();
       var miniT0 = performance.now(), mini = function () { if (!box.isConnected) return; var t = (performance.now() - miniT0) / 1000;
         var pane = room.querySelector('.st-pane:not([hidden])'); if (pane) pane.querySelectorAll('.sc[aria-pressed="true"] canvas').forEach(function (c) { drawMini(c, t); });
         requestAnimationFrame(mini); };
       function drawMini(c, t) { var x = c.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
         if (c.dataset.mc) { var m = window.SUBFX && SUBFX.list.filter(function (q) { return q.id === c.dataset.mc; })[0]; if (m) { x.save(); m.draw(x, c.width, c.height, { t: t % SUBFX.loop, lines: SUBFX.demo, accent: rs.acc, bg: true }); x.restore(); } }
         else if (c.dataset.vc != null && window.frame && window.VSTY) { try { window.frame(c, VSTY[+c.dataset.vc][3], t); } catch (e) {} } }
-      function openTab(k) { stTab = stTab === k ? "" : k; room.querySelectorAll("[data-tab]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.tab === stTab)); });
+      function openTab(k) { stTab = stTab === k ? "" : k; sedEl.classList.toggle("big", stTab === "fx"); if (stTab === "fx" && !fxSim && rs.fx.length) simFx(rs.fx[0]); room.querySelectorAll("[data-tab]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.tab === stTab)); });
         room.querySelectorAll("[data-pane]").forEach(function (p) { p.hidden = p.dataset.pane !== stTab; if (!p.hidden && !p.dataset.drawn) { p.dataset.drawn = 1; p.querySelectorAll("canvas").forEach(function (c) { drawMini(c, 2.6); }); } }); }
       room.querySelectorAll("[data-tab]").forEach(function (b) { b.onclick = function () { openTab(b.dataset.tab); }; });
       var press = function (attr, val) { room.querySelectorAll("[" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)); }); };
@@ -201,11 +206,34 @@
         room.querySelectorAll("[" + pr[0] + "]").forEach(function (b) { b.onclick = function () { rs[pr[1]] = b.getAttribute(pr[0]); press(pr[0], rs[pr[1]]); applyRoom(); var c = b.querySelector("canvas"); if (c) drawMini(c, 2.6); }; }); });
       room.querySelector("[data-racc]").oninput = function () { rs.acc = this.value; acc = rs.acc; };
       room.querySelectorAll("[data-rfx]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-rfx");
-        if (!id) rs.fx = []; else { var k = rs.fx.indexOf(id); if (k >= 0) rs.fx.splice(k, 1); else { rs.fx.push(id); var f = R.fx.filter(function (q) { return q.id === id; })[0]; if (f) { var im = new Image(); im.src = "/ai/fx/" + f.img + ".jpg"; fxShow = { im: im, n: f.n, until: performance.now() + 3500 }; } } }
+        if (!id) rs.fx = []; else { var k = rs.fx.indexOf(id); if (k >= 0) rs.fx.splice(k, 1); else { rs.fx.push(id); var f = R.fx.filter(function (q) { return q.id === id; })[0]; if (f) simFx(id); } if (fxSim && rs.fx.indexOf(fxSim.id) < 0) fxSim = rs.fx.length ? { id: rs.fx[rs.fx.length - 1], t0: performance.now() } : null; }
         room.querySelectorAll("[data-rfx]").forEach(function (q) { var v = q.getAttribute("data-rfx"); q.setAttribute("aria-pressed", String(v ? rs.fx.indexOf(v) >= 0 : !rs.fx.length)); }); }; });
       room.querySelector("[data-ok]") ; sedEl.querySelector("[data-ok]").innerHTML = job.mode === "subs" ? "▶ 開始出片！" : "▶ 開剪！";
-      openTab("sub"); applyRoom();
+      openTab("sub"); applyRoom(); if (cut) phLoad();
       var sub = room.querySelector(".st-sub"); if (sub) sub.addEventListener("toggle", function () { if (sub.open) sub.querySelectorAll("canvas").forEach(function (c) { drawMini(c, 2.6); }); }); requestAnimationFrame(mini); }
+    // ===== 工作室裡放照片（Vic 11/5：照片要能在工作室直接放、看到放在哪）=====
+    function simFx(id) { fxSim = { id: id, t0: performance.now() }; }
+    function autoDest() { var d = ["featcards", "covers", "material", "pip"].filter(function (e) { return rs && rs.fx.indexOf(e) >= 0; })[0]; return d || "featcards"; }
+    function simOpts(id) { var ls = clean(true).filter(function (L) { return !L.cut; }), hl = []; ls.forEach(function (L) { (L.hl || []).forEach(function (h) { hl.push(h); }); });
+      var first = ls[0] ? String(ls[0].t).replace(/\|/g, "") : "重點";
+      return { photos: phs.filter(function (p) { return p.im && (p.use === id || (p.use === "auto" && autoDest() === id)); }).map(function (p) { return p.im; }), word: hl[0] || first.slice(0, 2), line: (ls.filter(function (L) { return L.star; })[0] || ls[0] || { t: first }).t, lines: ls.slice(0, 5).map(function (L) { return String(L.t).replace(/\|/g, ""); }) }; }
+    function phLoad() { phs = ((job.fx && job.fx.photos) || []).map(function (p) { return { path: p.path, name: p.name || "", use: p.use || "auto" }; });
+      phs.forEach(function (p) { signed(p.path, 7200).then(function (u) { p.url = u; p.im = new Image(); p.im.src = u; phRender(); }, function () {}); }); phRender(); }
+    function phSave() { return VAI.client().rpc("ai_job_photos", { p_id: job.id, p_photos: phs.map(function (p) { return { path: p.path, name: p.name, use: p.use }; }) }).then(function (r) { if (r.error) say(r.error.message); else if (r.data && r.data.fx) job.fx = r.data.fx; }); }
+    function phRender() { var row = R && box.querySelector("[data-phrow]"), PHO = [["auto", "交給 AI 放"], ["featcards", "功能卡"], ["covers", "封面彈出"], ["material", "素材框"], ["pip", "畫中畫"]]; if (!row) return;
+      row.innerHTML = '<label class="st-ph-add"><input type="file" accept="image/*" multiple hidden data-phadd><i>＋</i><span>放照片</span></label>' + phs.map(function (p, i) { return '<div class="st-ph-c"><img alt="" src="' + E(p.url || "") + '"><select data-phuse="' + i + '" aria-label="這張照片放在哪個特效">' + PHO.map(function (o) { return '<option value="' + o[0] + '"' + (p.use === o[0] ? " selected" : "") + ">" + o[1] + "</option>"; }).join("") + '</select><button type="button" data-phrm="' + i + '" aria-label="拿掉這張">✕</button></div>'; }).join("") + (phs.length ? "" : '<p class="st-ph-e">商品照、作品要出現在影片裡？先放照片，再點下面的特效看位置。</p>');
+      row.querySelector("[data-phadd]").onchange = async function () { var fs = [].slice.call(this.files || []), c = VAI.client(), skip = 0; this.value = ""; if (!fs.length) return;
+        try { var u = (await c.auth.getUser()).data.user; if (!u) throw new Error("請重新登入");
+          for (var i = 0; i < fs.length; i++) { var f = fs[i]; if (!/^image\//.test(f.type || "") || f.size > 10 * 1048576 || phs.length >= 12) { skip++; continue; }
+            say("照片上傳中 " + (i + 1) + "／" + fs.length + "…", true); var ext = ((f.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "")) || "jpg", path = u.id + "/" + Date.now() + "_fx" + i + "." + ext;
+            var r = await c.storage.from("ai-videos").upload(path, f, { contentType: f.type || "image/jpeg" }); if (r.error) throw new Error("照片上傳失敗：" + r.error.message);
+            var p = { path: path, name: f.name.slice(0, 120), use: "auto", url: URL.createObjectURL(f) }; p.im = new Image(); p.im.src = p.url; phs.push(p); }
+          await phSave(); phRender(); say(skip ? "有 " + skip + " 張沒放進來（只能放照片、每張 10MB 內、最多 12 張）" : "照片放好了，點下面的特效看它放在哪。", !skip); simFx(autoDest());
+        } catch (e) { say(e.message); } };
+      row.querySelectorAll("[data-phuse]").forEach(function (s) { s.onchange = function () { var p = phs[+s.dataset.phuse]; p.use = s.value; phSave();
+        if (p.use !== "auto" && rs.fx.indexOf(p.use) < 0) { rs.fx.push(p.use); room.querySelectorAll("[data-rfx]").forEach(function (q) { var v = q.getAttribute("data-rfx"); q.setAttribute("aria-pressed", String(v ? rs.fx.indexOf(v) >= 0 : !rs.fx.length)); }); }
+        simFx(p.use === "auto" ? autoDest() : p.use); }; });
+      row.querySelectorAll("[data-phrm]").forEach(function (b) { b.onclick = function () { phs.splice(+b.dataset.phrm, 1); phSave(); phRender(); }; }); }
     function roomNote() { var base = String(job.note || "").replace(/（(重點字顏色 [^）]*|字幕大小 [^）]*|配樂：[^）]*|美顏 [^）]*|比例 [^）]*|字幕位置 [^）]*)）/g, ""), sz = +box.querySelector("[data-size]").value, szt = sz <= .8 ? "小" : sz >= 1.05 ? "大" : "中";
       return base + "（重點字顏色 " + rs.acc + "）（字幕大小 " + szt + "）" + (job.mode === "subs" ? "" : "（配樂：" + rs.mus + "）" + (rs.bty === "不要" ? "" : "（美顏 " + rs.bty + "）") + (rs.ratio === "16:9" ? "（比例 16:9）" : "") + (rs.spos === "中間" ? "（字幕位置 中間）" : "")); }
     async function saveRoom(c) { if (!rs) return { error: null }; var note = roomNote(), r = await c.rpc("ai_job_setup", { p_id: job.id, p_style: job.mode === "subs" ? null : rs.style, p_module: rs.module, p_note: note, p_effects: job.mode === "subs" ? null : rs.fx });
@@ -243,6 +271,13 @@
       rowsEl.querySelectorAll("[data-star]").forEach(function (b) { b.onclick = function () { var L = lines[+b.dataset.star]; L.star = !L.star; if (L.star) L.cut = false; draw(); len(); }; });
       len(); }
     draw();
+    // Vic 11/5：手機打字時影片縮小、開剪鈕先藏起來，打的那句停在影片正下方，不會一直滑走
+    var sedBox = box.querySelector(".sed"), tyT = 0;
+    sedBox.addEventListener("focusin", function (e) { var t = e.target; if (!t.matches || !t.matches('input[type=text],textarea')) return; clearTimeout(tyT);
+      if (t.dataset.t != null) { var L = lines[+t.dataset.t]; if (L) { stopPv(); useSrc(L.src || 0).then(function () { vid.pause(); vid.currentTime = L.s + .05; }); } }
+      if (innerWidth > 760) return; sedBox.classList.add("typing");
+      setTimeout(function () { var v = sedBox.querySelector(".sed-v").getBoundingClientRect(), r = t.getBoundingClientRect(); window.scrollBy(0, r.top - (v.bottom + 12)); }, 380); });
+    sedBox.addEventListener("focusout", function () { tyT = setTimeout(function () { var a = document.activeElement; if (!a || !sedBox.contains(a) || !a.matches('input[type=text],textarea')) sedBox.classList.remove("typing"); }, 200); });
     box.querySelector("[data-gap]").onchange = len; box.querySelector("[data-hook]").onchange = len;
     box.querySelector("[data-add]").onclick = function () { var t = vid.currentTime || 0, src = Math.max(0, curSrc), k = 0; while (k < lines.length && ((lines[k].src || 0) < src || ((lines[k].src || 0) === src && lines[k].s < t))) k++; var nx = lines[k] && (lines[k].src || 0) === src ? lines[k].s : t + 2; lines.splice(k, 0, { s: Math.round(t * 100) / 100, e: Math.round(Math.max(t + .5, Math.min(nx, t + 2)) * 100) / 100, t: "", hl: [], src: src }); draw(); var inp = rowsEl.querySelector('[data-t="' + k + '"]'); if (inp) inp.focus(); };
     box.querySelector("[data-ai]").onclick = async function () { var b = this; b.disabled = true; say("AI 正在照你的方向挑句子…", true);
@@ -270,8 +305,10 @@
     (function loop() { var x = cv.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, cv.width, cv.height);
       if (mod) { var t, ls; if (pv && pv.g) { t = pv.g.out + (vid.currentTime - pv.g.s); ls = pv.tl.lines; } else { t = vid.currentTime || 0; ls = clean(true).filter(function (L) { return !L.cut && L.src === Math.max(0, curSrc); }); }
         var ed0 = readEdit(), o0 = SUBFX.size(ed0.subSize); if (rs && job.mode !== "subs" && (rs.style === "倒敘懸念" || rs.style === "金句電影字卡")) { x.fillStyle = "#000"; x.fillRect(0, 0, cv.width, cv.height * .11); x.fillRect(0, cv.height * .89, cv.width, cv.height * .11); }
+        if (fxSim && stTab === "fx" && window.FXSIM && FXSIM.has(fxSim.id)) { var st = (performance.now() - fxSim.t0) / 1000; FXSIM.draw(x, cv.width, cv.height, fxSim.id, st, simOpts(fxSim.id));
+          var nm = (R.fx.filter(function (q) { return q.id === fxSim.id; })[0] || { n: fxSim.id }).n, cap = "模擬：" + nm + "・" + FXSIM.note(fxSim.id); x.save(); x.font = "700 " + Math.round(cv.width * .03) + "px sans-serif"; var cw2 = x.measureText(cap).width + cv.width * .04; x.fillStyle = "rgba(6,16,31,.8)"; x.fillRect(cv.width * .02, cv.height * .012, cw2, cv.width * .055); x.fillStyle = "#7ad8ff"; x.textBaseline = "middle"; x.fillText(cap, cv.width * .04, cv.height * .012 + cv.width * .0275); x.restore(); }
         x.save(); if (rs && rs.spos === "中間" && job.mode !== "subs") x.translate(0, -cv.height * .27); mod.draw(x, cv.width, cv.height, { t: t, lines: ls, accent: acc, bg: false }); x.restore();
-        if (fxShow && performance.now() < fxShow.until && fxShow.im.complete && fxShow.im.naturalWidth) { var fw = cv.width * .34, fh = fw * 16 / 9; x.save(); x.fillStyle = "rgba(0,0,0,.55)"; x.fillRect(cv.width * .03 - 4, cv.height * .03 - 4, fw + 8, fh + 34); x.drawImage(fxShow.im, cv.width * .03, cv.height * .03, fw, fh); x.fillStyle = "#fff"; x.font = "700 " + Math.round(cv.width * .03) + "px sans-serif"; x.textBaseline = "top"; x.fillText("示意：" + fxShow.n, cv.width * .03 + 4, cv.height * .03 + fh + 6); x.restore(); } SUBFX.size(o0); drawTitle(x, cv.width, cv.height, pv && pv.g ? t : (vid.currentTime || 0), ed0, mod, acc); drawSticky(x, cv.width, cv.height, ed0); }
+        SUBFX.size(o0); drawTitle(x, cv.width, cv.height, pv && pv.g ? t : (vid.currentTime || 0), ed0, mod, acc); drawSticky(x, cv.width, cv.height, ed0); }
       raf = requestAnimationFrame(loop); })();
     return { close: function () { stopPv(); cancelAnimationFrame(raf); try { vid.pause(); } catch (e) {} } };
   }
