@@ -146,3 +146,11 @@ html.vai-in .pi,html.vai-in .pi *{color:#141414}html.vai-in .pi .pr,html.vai-in 
  .sed.studio.typing .st-dock{display:none}
  .sed.studio.big .sed-stage{width:210px!important}
 }
+/* 管理員後台（Vic 11/5：最下面白色很難看） */
+html.vai-in .adm{background:#0c1a30;border:1px solid #2f5a8a;border-radius:18px;box-shadow:0 0 22px #2fa8ff22;color:#e6f2ff}
+html.vai-in .adm a{color:#7ad8ff}
+html.vai-in .adm .admc,html.vai-in .adm details{background:#0a172b!important;border:1px solid #1d3556!important;border-radius:12px;color:#e6f2ff}
+html.vai-in .adm summary{color:#e6f2ff}
+html.vai-in .adm summary b,html.vai-in .adm summary strong{color:#fff}
+html.vai-in .adm summary span,html.vai-in .adm .note{color:#a9c2dc!important}
+html.vai-in .adm .acc{background:#0c1a30!important}
