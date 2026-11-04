@@ -14,6 +14,25 @@
 <link rel="stylesheet" href="/ai/editorial.css?v=1026k">
 <script>!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
 if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname)){posthog.init('phc_vYx5vaQf44FpRtbfbKyytEkvtHaPoHpSunW89Bz2eHao',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only',capture_exceptions:true})}</script>
+<style>
+/* ===== AI 美編會員區：跟 AI 剪片同一套淺色圓角風格（Vic 11/5） ===== */
+#work{--g:#b8913a;--g2:#8a6a1f;--ink:#1f1b16;--mute:#7a7266}
+#work .col{gap:12px}
+#work .usage{border:0;border-radius:16px;background:#fff;box-shadow:0 3px 12px #2b221012;padding:12px 16px}
+#work .usage .bar2{height:6px;border-radius:9px;overflow:hidden}
+#work .panel{border:0;border-radius:18px;background:#fff;box-shadow:0 4px 16px #2b221012;padding:16px}
+#work .ph b{font:900 15px var(--body);width:30px;height:30px;border-radius:50%;background:var(--ink);color:#e7c56f;display:grid;place-items:center;flex:none}
+#work .ph h3{font-size:17px}
+#work .panel.fold>*:not(.ph){display:none}#work .panel.fold .ph p{display:none}
+#work .panel[data-fold] .ph{cursor:pointer}#work .panel[data-fold] .ph::after{content:"▾";margin-left:auto;color:var(--mute);font-size:18px;transition:transform .2s}#work .panel.fold .ph::after{transform:rotate(-90deg)}
+#work label.up:has(#file){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;border:2px dashed #d9c9a3;border-radius:18px;background:linear-gradient(160deg,#fffdf8,#f8f1e2);padding:26px 16px;font:900 18px var(--serif);color:var(--ink);cursor:pointer}
+#work label.up:has(#file)::before{content:"＋";display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--ink);color:#e7c56f;font:900 28px/1 var(--body);box-shadow:0 6px 16px #1f1b1633}
+#work .chip,#work .btn{border-radius:999px}
+#work .chip[aria-pressed=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+#work input[type=text],#work input[type=number],#work textarea,#work select{border-radius:10px}
+#work #genAI,#work .btn.dl,#work #mbarDl{background:var(--ink);color:#fff;font-weight:900}
+#work .phone{border-radius:34px;box-shadow:0 18px 40px #2b221026}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -75,7 +94,7 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
             <div class="ph"><b>1</b><div><h3>放商品照</h3><p>商品完整入鏡就好，按「一鍵去背」AI 會幫你抓出來（約 10～30 秒）。可以放 1～2 張，AI 寫文案時會一起看。</p></div></div>
             <div class="bar"><label class="up">上傳商品照<input type="file" accept="image/*" id="file" multiple hidden></label><button class="chip" type="button" id="cut" disabled>一鍵去背</button><button class="chip" type="button" id="uncut" hidden>還原背景</button><span class="note" id="msg">目前：示範商品</span></div>
           </div>
-          <div class="panel">
+          <div class="panel fold" data-fold>
             <div class="ph"><b>2</b><div><h3>商品資料＋AI 文案</h3><p>填越多，AI 寫得越準。按一次算 1 件商品。</p></div></div>
             <div class="grid2">
               <label class="f full"><span>商品名稱</span><input type="text" id="pName" maxlength="80" placeholder="例如：涼感棉寬版短T"></label>
@@ -91,14 +110,14 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
             <div class="bar"><button class="btn" type="button" id="genAI">AI 寫標題和描述</button><span class="msg" id="aiMsg"></span></div>
             <div id="aiOut"></div>
           </div>
-          <div class="panel">
+          <div class="panel fold" data-fold>
             <div class="ph"><b>3</b><div><h3>品牌色和 logo</h3><p>選一個代表你的店的顏色，所有圖一起換。logo 選填。</p></div></div>
             <div id="colors"></div>
             <div class="bar"><div class="custom"><input type="color" id="pick" value="#c8963e" aria-label="自訂顏色"><span class="note">自訂</span></div><button class="chip" type="button" id="auto">從商品照自動取色</button></div>
             <div class="bar"><label class="up">上傳 logo（選填）<input type="file" accept="image/*" id="logoF" hidden></label><span class="note">或直接打字</span><input type="text" id="logoT" maxlength="20" placeholder="例如：維拓傳媒" style="padding:9px 12px;border:1px solid var(--line);font:inherit;min-width:0;flex:1;max-width:240px"><span class="note" id="logoMsg">沒有也可以</span></div>
             <div class="bar" id="logoPos" hidden><span class="note">logo 位置</span><button class="chip" type="button" data-lp="tr" aria-pressed="false">右上</button><button class="chip" type="button" data-lp="br" aria-pressed="true">右下</button><button class="chip" type="button" data-lp="bl" aria-pressed="false">左下</button><button class="chip" type="button" id="logoX">拿掉</button></div>
           </div>
-          <div class="panel">
+          <div class="panel" data-fold>
             <div class="ph"><b>4</b><div><h3>選行業和模組</h3><p>勾選要放進這組的圖，右邊手機就是買家看到的樣子。</p></div></div>
             <div class="bar"><span class="note">行業</span><button class="chip" type="button" data-ind="cloth" aria-pressed="true">服飾</button><button class="chip" type="button" data-ind="gen" aria-pressed="false">一般商品</button><button class="chip" type="button" data-ind="beauty" aria-pressed="false">美妝保養</button><button class="chip" type="button" data-ind="tech" aria-pressed="false">3C 家電</button><button class="chip" type="button" data-ind="food" aria-pressed="false">食品</button></div>
             <div class="bar" id="styRow"><span class="note">風格</span><button class="chip" type="button" data-sty="s" aria-pressed="true">簡約</button><button class="chip" type="button" data-sty="k" aria-pressed="false">韓系</button><button class="chip" type="button" data-sty="st" aria-pressed="false">街頭</button><span class="note" id="styNote"></span></div>
@@ -129,5 +148,8 @@ if(!/^\/(admin|office)/.test(location.pathname)&&!/admin/.test(location.pathname
 <script src="/ai/tpl.js?v=1025d"></script>
 <script src="/ai/core.js?v=1104e"></script>
 <script src="/ai/design.js?v=1030f"></script>
+<script>/* Vic 11/5：步驟卡片一次只開一張 */
+document.querySelectorAll("#work [data-fold] .ph").forEach(function (h) { h.addEventListener("click", function () { var p = h.parentNode, open = p.classList.contains("fold");
+  document.querySelectorAll("#work [data-fold]").forEach(function (x) { x.classList.add("fold"); }); if (open) p.classList.remove("fold"); }); });</script>
 </body>
 </html>
