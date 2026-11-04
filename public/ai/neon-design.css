@@ -1,0 +1,20 @@
+/* ===== AI 美編：深海藍底＋珊瑚橘＋暖金（Vic 11/5：跟剪片同一個藍底、換暖色，一眼分得出是哪個工具）===== */
+html.vai-in #member .sh small{color:#ffc857!important;text-shadow:0 0 10px #ffc85788!important}
+html.vai-in #member .sh h2{background:linear-gradient(90deg,#ff7a59,#ffc857)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+html.vai-in .vai-bar span{color:#ffc857!important}
+#work .todo{border-color:#ff7a59!important;box-shadow:0 0 18px #ff7a5944!important}
+#work .usage b{color:#ffc857!important;text-shadow:0 0 12px #ffc85799!important}
+#work .usage .bar2 i,#work .prog i{background:linear-gradient(90deg,#ff7a59,#ffc857)!important;box-shadow:0 0 10px #ff7a59!important}
+#work .ph b{background:linear-gradient(145deg,#ff7a59,#ff4f7b)!important;box-shadow:0 0 14px #ff7a5977!important}
+#work .ph b::before,#work .ph b::after{color:#ffc857!important}
+#work label.up:has(#file){border-color:#ff7a59!important}
+#work label.up:has(#file)::before{background:linear-gradient(145deg,#ff7a59,#ff4f7b)!important;box-shadow:0 0 22px #ff7a5999!important}
+#work .chip[aria-pressed=true]{border-color:#ff7a59!important;box-shadow:0 0 12px #ff7a5988!important;background:#2a1f2e!important}
+#work #genAI,#work .btn.dl,#work #mbarDl,#work .todo .btn{background:linear-gradient(90deg,#ff7a59,#ffc857)!important;color:#1a0f08!important;box-shadow:0 0 22px #ff7a5966!important}
+#work .quest .qn.done:not(:last-child)::after{background:linear-gradient(90deg,#ffc857,#ff7a59)!important;box-shadow:0 0 8px #ffc85788!important}
+#work .quest .qn.done i{background:linear-gradient(145deg,#ffc857,#ff7a59)!important;box-shadow:0 0 14px #ffc857aa!important;color:#1a0f08!important}
+#work .quest .qn.done{color:#ffc857!important}
+#work .quest .qn.now i{background:linear-gradient(145deg,#ff7a59,#ff4f7b)!important}
+@keyframes nq{0%,100%{box-shadow:0 0 0 0 #ff7a5999}50%{box-shadow:0 0 0 10px #ff7a5900,0 0 18px #ff7a59}}
+#work .phone{box-shadow:0 0 0 2px #ff7a5966,0 0 30px #ffc85733!important}
+#work .phone-cap{color:#ffc857!important}
