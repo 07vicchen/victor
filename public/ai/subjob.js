@@ -149,29 +149,51 @@
     vid.addEventListener("timeupdate", turn); vid.addEventListener("seeked", turn);
     function say(t, ok) { msg.textContent = t; msg.className = "msg" + (ok ? " ok" : t ? " err" : ""); }
     // ===== 預覽室（Vic 11/5）：剪法、字幕樣式、顏色、位置、特效…在自己的影片上邊看邊選，看到的就是成品的字幕 =====
-    var R = opt.room || null, rs = null, fxShow = null, orig = JSON.parse(JSON.stringify(job.lines || []));
+    var R = opt.room || null, rs = null, fxShow = null, orig = JSON.parse(JSON.stringify(job.lines || [])), stTab = "";
     if (R) { var nt = String(job.note || ""), cut = job.mode !== "subs";
       rs = { style: job.style || "交給 AI 挑", module: job.module || "", acc: acc, spos: /字幕位置 中間/.test(nt) ? "中間" : "下方", ratio: /比例 16:9/.test(nt) ? "16:9" : "9:16", bty: (nt.match(/美顏 (輕|中)/) || [])[1] || "不要", mus: /配樂：不要配樂/.test(nt) ? "不要配樂" : "原創配樂", fx: (job.fx && !job.fx.auto && job.fx.effects) ? job.fx.effects.slice() : [] };
-      var chip = function (attr, val, label, on, ok) { return '<button class="chip" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '"' + (ok === false ? ' disabled title="專業方案以上可用"' : "") + ">" + E(label) + "</button>"; };
-      var grp = function (title, inner, tip) { return '<div class="rm-g"><span class="note rm-t">' + title + "</span>" + inner + (tip ? '<p class="note rm-tip">' + tip + "</p>" : "") + "</div>"; };
-      var roomHtml = function () { var h = "";
-        if (cut) h += grp("剪法", chip("data-rst", "交給 AI 挑", "交給 AI 挑", rs.style === "交給 AI 挑") + R.styles.map(function (x) { return chip("data-rst", x.n, x.n, rs.style === x.n, x.ok); }).join(""));
-        h += grp("字幕樣式", (cut ? chip("data-rmod", "", "跟剪法搭配", !rs.module) : "") + R.mods.map(function (x) { return chip("data-rmod", x.id, x.name, rs.module === x.id, x.ok); }).join(""));
-        h += grp("重點字顏色", '<input type="color" data-racc value="' + E(rs.acc) + '" aria-label="重點字顏色">');
-        if (cut) { h += grp("字幕位置", chip("data-rpos", "下方", "下方", rs.spos === "下方") + chip("data-rpos", "中間", "畫面中間", rs.spos === "中間"));
-          h += grp("質感特效（可多選）", chip("data-rfx", "", "交給我們挑", !rs.fx.length) + R.fx.map(function (x) { return chip("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok); }).join(""), "點一下會在影片左上角放示意圖。特效是剪片時才做上去的，出現的時間點由 AI 看內容挑，字幕則是照這裡看到的出片。");
-          h += grp("比例", chip("data-rrat", "9:16", "直式 9:16", rs.ratio === "9:16") + chip("data-rrat", "16:9", "橫式 16:9", rs.ratio === "16:9"));
-          h += grp("美顏", ["不要", "輕", "中"].map(function (v) { return chip("data-rbty", v, v, rs.bty === v); }).join(""), "美顏和比例要等成品才看得到；前後對比的影片請選「不要」。");
-          h += grp("背景音樂", chip("data-rmus", "原創配樂", "幫我配音樂", rs.mus === "原創配樂") + chip("data-rmus", "不要配樂", "不要音樂", rs.mus === "不要配樂")); }
-        return '<details class="rm" open><summary><b>外觀設定</b><span class="note">點了馬上在左邊影片上看到</span></summary><div class="rm-b">' + h + "</div></details>"; };
+      // ===== 霓虹剪輯工作室（Vic 11/5）：上面影片、下面一排發光大圖示，點了打開一排樣式小卡；字少、點了就看到 =====
+      var sedEl = box.querySelector(".sed"), sedL = box.querySelector(".sed-l"), room = box.querySelector("[data-room]");
+      sedEl.classList.add("studio");
+      sedEl.insertAdjacentHTML("afterbegin", '<div class="st-h"><b>★ 剪輯工作室</b><span>#' + job.id + '</span><small>這裡看到的字幕，就是成品的字幕</small></div>');
+      var lock = function (ok) { return ok === false ? ' disabled title="專業方案以上可用"' : ""; };
+      var card = function (attr, val, label, on, ok, inner) { return '<button class="sc" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '"' + lock(ok) + ">" + inner + "<span>" + (ok === false ? "🔒 " : "") + E(label) + "</span></button>"; };
+      var pill = function (attr, val, label, on) { return '<button class="sp" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '">' + E(label) + "</button>"; };
+      var TABS = [["sub", "Aa", "字幕"]].concat(cut ? [["cut", "✂", "剪法"], ["fx", "✦", "特效"], ["mus", "♪", "音樂"]] : []).concat([["txt", "☰", "改字"], ["more", "⚙", "更多"]]);
+      var P = {};
+      P.sub = '<div class="st-row">' + (cut ? card("data-rmod", "", "跟剪法搭配", !rs.module, true, '<i class="st-ic">⇄</i>') : "") + R.mods.map(function (x) { return card("data-rmod", x.id, x.name, rs.module === x.id, x.ok, '<canvas width="270" height="480" data-mc="' + E(x.id) + '"></canvas>'); }).join("") + "</div>" +
+        '<div class="st-line"><label class="sp-c">重點色 <input type="color" data-racc value="' + E(rs.acc) + '"></label>' + (cut ? pill("data-rpos", "下方", "字幕在下方", rs.spos === "下方") + pill("data-rpos", "中間", "字幕在中間", rs.spos === "中間") : "") + "</div>";
+      if (cut) {
+        P.cut = '<div class="st-row">' + card("data-rst", "交給 AI 挑", "交給 AI 挑", rs.style === "交給 AI 挑", true, '<i class="st-ic">AI</i>') + R.styles.map(function (x, i) { return card("data-rst", x.n, x.n, rs.style === x.n, x.ok, '<canvas width="270" height="480" data-vc="' + i + '"></canvas>'); }).join("") + "</div>";
+        P.fx = '<div class="st-row">' + card("data-rfx", "", "交給 AI 挑", !rs.fx.length, true, '<i class="st-ic">AI</i>') + R.fx.map(function (x) { return card("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok, '<img src="/ai/fx/' + E(x.img) + '.jpg" alt="" loading="lazy">'); }).join("") + '</div><p class="st-tip">可以選好幾個。點一下左上角會跳示意；特效剪片時才做上去，時間點由 AI 看內容挑。</p>';
+        P.mus = '<div class="st-row">' + card("data-rmus", "原創配樂", "幫我配音樂", rs.mus === "原創配樂", true, '<i class="st-ic">♪</i>') + card("data-rmus", "不要配樂", "不要音樂", rs.mus === "不要配樂", true, '<i class="st-ic">🔇</i>') + '</div><p class="st-tip">講話時音樂會自動變小聲，人聲一定聽得清楚。</p>';
+      }
+      P.txt = '<div class="st-txt"></div>';
+      P.more = (cut ? '<div class="st-line"><span class="st-l">比例</span>' + pill("data-rrat", "9:16", "直式 9:16", rs.ratio === "9:16") + pill("data-rrat", "16:9", "橫式 16:9", rs.ratio === "16:9") + '</div><div class="st-line"><span class="st-l">美顏</span>' + ["不要", "輕", "中"].map(function (v) { return pill("data-rbty", v, v, rs.bty === v); }).join("") + "</div>" : "") + '<div class="st-more"></div>';
+      room.innerHTML = '<div class="st-dock">' + TABS.map(function (t) { return '<button type="button" data-tab="' + t[0] + '"><i>' + t[1] + "</i>" + t[2] + "</button>"; }).join("") + "</div>" + TABS.map(function (t) { return '<div class="st-pane" data-pane="' + t[0] + '" hidden>' + P[t[0]] + "</div>"; }).join("");
+      // 原本的欄位搬進「改字」和「更多」
+      var kids = [].slice.call(sedL.children), txtBox = room.querySelector(".st-txt"), moreBox = room.querySelector(".st-more");
+      kids.forEach(function (el) { if (el === room || el.classList.contains("sed-act") || el.matches("[data-msg]")) return;
+        if (el.querySelector("[data-title],[data-tag],[data-sticky]")) moreBox.appendChild(el); else txtBox.appendChild(el); });
+      var miniT0 = performance.now(), mini = function () { if (!box.isConnected) return; var t = (performance.now() - miniT0) / 1000;
+        var pane = room.querySelector('.st-pane:not([hidden])'); if (pane) pane.querySelectorAll('.sc[aria-pressed="true"] canvas').forEach(function (c) { drawMini(c, t); });
+        requestAnimationFrame(mini); };
+      function drawMini(c, t) { var x = c.getContext("2d"); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
+        if (c.dataset.mc) { var m = window.SUBFX && SUBFX.list.filter(function (q) { return q.id === c.dataset.mc; })[0]; if (m) { x.save(); m.draw(x, c.width, c.height, { t: t % SUBFX.loop, lines: SUBFX.demo, accent: rs.acc, bg: true }); x.restore(); } }
+        else if (c.dataset.vc != null && window.frame && window.VSTY) { try { window.frame(c, VSTY[+c.dataset.vc][3], t); } catch (e) {} } }
+      function openTab(k) { stTab = stTab === k ? "" : k; room.querySelectorAll("[data-tab]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.tab === stTab)); });
+        room.querySelectorAll("[data-pane]").forEach(function (p) { p.hidden = p.dataset.pane !== stTab; if (!p.hidden && !p.dataset.drawn) { p.dataset.drawn = 1; p.querySelectorAll("canvas").forEach(function (c) { drawMini(c, 2.6); }); } }); }
+      room.querySelectorAll("[data-tab]").forEach(function (b) { b.onclick = function () { openTab(b.dataset.tab); }; });
+      var press = function (attr, val) { room.querySelectorAll("[" + attr + "]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute(attr) === val)); }); };
       var applyRoom = function () { var id = rs.module || (cut ? CUTMAP[rs.style] : "") || "pop"; mod = (window.SUBFX && SUBFX.list.filter(function (q) { return q.id === id; })[0]) || mod; acc = rs.acc; };
-      var bindRoom = function () { var el = box.querySelector("[data-room]"); el.innerHTML = roomHtml();
-        var one = function (attr, key) { el.querySelectorAll("[" + attr + "]").forEach(function (b) { b.onclick = function () { rs[key] = b.getAttribute(attr); if (key === "style" && !rs.module) { var m2 = CUTMAP[rs.style]; if (m2 && window.SUBFX && SUBFX.list.filter(function (q) { return q.id === m2; })[0]) acc = rs.acc; } applyRoom(); bindRoom(); }; }); };
-        one("data-rst", "style"); one("data-rmod", "module"); one("data-rpos", "spos"); one("data-rrat", "ratio"); one("data-rbty", "bty"); one("data-rmus", "mus");
-        el.querySelector("[data-racc]").oninput = function () { rs.acc = this.value; acc = rs.acc; };
-        el.querySelectorAll("[data-rfx]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-rfx"); if (!id) rs.fx = []; else { var k = rs.fx.indexOf(id); if (k >= 0) rs.fx.splice(k, 1); else { rs.fx.push(id);
-              var f = R.fx.filter(function (q) { return q.id === id; })[0]; if (f) { var im = new Image(); im.src = "/ai/fx/" + f.img + ".jpg"; fxShow = { im: im, n: f.n, until: performance.now() + 3500 }; } } } bindRoom(); }; }); };
-      bindRoom(); applyRoom(); }
+      [["data-rst", "style"], ["data-rmod", "module"], ["data-rpos", "spos"], ["data-rrat", "ratio"], ["data-rbty", "bty"], ["data-rmus", "mus"]].forEach(function (pr) {
+        room.querySelectorAll("[" + pr[0] + "]").forEach(function (b) { b.onclick = function () { rs[pr[1]] = b.getAttribute(pr[0]); press(pr[0], rs[pr[1]]); applyRoom(); var c = b.querySelector("canvas"); if (c) drawMini(c, 2.6); }; }); });
+      room.querySelector("[data-racc]").oninput = function () { rs.acc = this.value; acc = rs.acc; };
+      room.querySelectorAll("[data-rfx]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-rfx");
+        if (!id) rs.fx = []; else { var k = rs.fx.indexOf(id); if (k >= 0) rs.fx.splice(k, 1); else { rs.fx.push(id); var f = R.fx.filter(function (q) { return q.id === id; })[0]; if (f) { var im = new Image(); im.src = "/ai/fx/" + f.img + ".jpg"; fxShow = { im: im, n: f.n, until: performance.now() + 3500 }; } } }
+        room.querySelectorAll("[data-rfx]").forEach(function (q) { var v = q.getAttribute("data-rfx"); q.setAttribute("aria-pressed", String(v ? rs.fx.indexOf(v) >= 0 : !rs.fx.length)); }); }; });
+      room.querySelector("[data-ok]") ; sedEl.querySelector("[data-ok]").innerHTML = job.mode === "subs" ? "▶ 開始出片！" : "▶ 開剪！";
+      openTab("sub"); applyRoom(); requestAnimationFrame(mini); }
     function roomNote() { var base = String(job.note || "").replace(/（(重點字顏色 [^）]*|字幕大小 [^）]*|配樂：[^）]*|美顏 [^）]*|比例 [^）]*|字幕位置 [^）]*)）/g, ""), sz = +box.querySelector("[data-size]").value, szt = sz <= .8 ? "小" : sz >= 1.05 ? "大" : "中";
       return base + "（重點字顏色 " + rs.acc + "）（字幕大小 " + szt + "）" + (job.mode === "subs" ? "" : "（配樂：" + rs.mus + "）" + (rs.bty === "不要" ? "" : "（美顏 " + rs.bty + "）") + (rs.ratio === "16:9" ? "（比例 16:9）" : "") + (rs.spos === "中間" ? "（字幕位置 中間）" : "")); }
     async function saveRoom(c) { if (!rs) return { error: null }; var note = roomNote(), r = await c.rpc("ai_job_setup", { p_id: job.id, p_style: job.mode === "subs" ? null : rs.style, p_module: rs.module, p_note: note, p_effects: job.mode === "subs" ? null : rs.fx });
