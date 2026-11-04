@@ -71,3 +71,20 @@ html.vai-in #member .mbar{background:#0c1a30;border-top:1px solid #24456e;color:
 .st-row::-webkit-scrollbar-thumb{background:#24456e!important}
 @media (max-width:760px){.sed.studio .sed-v{background:#06101f!important}html.vai-in #member{padding:14px 8px 22px;border-radius:18px}}
 html.vai-in .vai-bar span{color:#7ad8ff!important}
+/* Vic 11/5：卡片上的漸層說明字拿掉，改成名字下面一行小字；剪法卡改成乾淨的大圖示，不用泡泡背景 */
+.sc .st-tag{display:none!important}
+.sc.sc-d{width:112px!important}
+.sc.sc-d .st-ic{width:96px!important;height:96px!important;border-radius:18px!important;font-size:40px!important;background:linear-gradient(160deg,#123a64,#081428)!important;border:1px solid #24456e;box-shadow:inset 0 0 18px #2fa8ff22}
+.sc.sc-d[aria-pressed=true] .st-ic{box-shadow:inset 0 0 22px #3dffa833,0 0 14px #3dffa855!important;border-color:#3dffa8}
+.sc .st-desc{display:block;font-size:11px;line-height:1.35;color:#8fb0d0;text-align:center;min-height:2.7em}
+.sc span{font-weight:700}
+@media (max-width:760px){.sc.sc-d{width:96px!important}.sc.sc-d .st-ic{width:80px!important;height:80px!important;font-size:34px!important}.sc .st-desc{font-size:10px}}
+/* Vic 11/5：背景不要兩個色——登入後整頁都是同一個深藍，會員區不再是一塊獨立的框 */
+html.vai-in,html.vai-in body,html.vai-in .wrap{background:#06101f!important}
+html.vai-in #member{background:transparent!important;box-shadow:none!important;border-radius:0!important;padding-left:0!important;padding-right:0!important}
+html.vai-in body{color:#e6f2ff}
+html.vai-in nav.top{background:#06101f!important;border-color:#1d3556!important}
+html.vai-in nav.top a,html.vai-in nav.top b,html.vai-in nav.top small,html.vai-in .who span{color:#cfe4ff!important}
+html.vai-in nav.top .btn{background:#0f2242!important;color:#dcebff!important;border-color:#24456e!important}
+html.vai-in footer{background:#06101f!important;color:#8fb0d0!important;border-color:#1d3556!important}html.vai-in footer a{color:#8fb0d0!important}
+html.vai-in .sect{border-color:#1d3556!important}

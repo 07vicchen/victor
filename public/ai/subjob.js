@@ -159,7 +159,7 @@
       sedEl.classList.add("studio");
       sedEl.insertAdjacentHTML("afterbegin", '<div class="st-h"><b>★ 剪輯工作室</b><span>#' + job.id + '</span><small>這裡看到的字幕，就是成品的字幕</small></div>');
       var lock = function (ok) { return ok === false ? ' disabled title="專業方案以上可用"' : ""; };
-      var card = function (attr, val, label, on, ok, inner) { return '<button class="sc" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '"' + lock(ok) + (ok === false ? ' data-base-ok="0"' : "") + ">" + inner + "<span>" + (ok === false ? "🔒 " : "") + E(label) + "</span></button>"; };
+      var card = function (attr, val, label, on, ok, inner, desc) { return '<button class="sc' + (desc ? " sc-d" : "") + '" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '"' + lock(ok) + (ok === false ? ' data-base-ok="0"' : "") + ">" + inner + "<span>" + (ok === false ? "🔒 " : "") + E(label) + "</span>" + (desc ? '<small class="st-desc">' + E(desc) + "</small>" : "") + "</button>"; };
       var pill = function (attr, val, label, on) { return '<button class="sp" type="button" ' + attr + '="' + E(val) + '" aria-pressed="' + (on ? "true" : "false") + '">' + E(label) + "</button>"; };
       // Vic 11/5：剪法和字幕樣式其實是同一件事（每個剪法本來就配一種字幕）→ 合成「風格」一個；想換字幕才展開
       var TABS = [["sub", "Aa", "字幕"]].concat(cut ? [["cut", "★", "風格"], ["fx", "✦", "特效"], ["mus", "♪", "音樂"]] : []).concat([["txt", "☰", "改字"], ["more", "⚙", "更多"]]);
@@ -169,8 +169,9 @@
       P.sub = '<p class="st-lock" data-lock hidden>🔒 你選的風格字幕是配好的，要自己挑字幕請把風格換回「一般剪法」。</p>' + modRow + colorLine;
       if (cut) {
         var ok1 = function (n) { var f = R.styles.filter(function (x) { return x.n === n; })[0]; return f ? f.ok : true; };
-        P.cut = '<div class="st-row">' + card("data-rst", "爆點跳字", "一般剪法", rs.style === "爆點跳字", true, '<i class="st-ic">✂</i><em class="st-tag">剪掉停頓口誤，照順序剪</em>') +
-          Object.keys(KEEP).map(function (n) { var i = -1; R.styles.forEach(function (x, k) { if (x.n === n) i = k; }); return card("data-rst", n, n, rs.style === n, ok1(n), (i >= 0 ? '<canvas width="270" height="480" data-vc="' + i + '"></canvas>' : '<i class="st-ic">★</i>') + '<em class="st-tag">' + KEEP[n] + "</em>"); }).join("") + '</div><p class="st-tip">風格只改「怎麼剪」，字幕長怎樣在第一個「字幕」選。</p>';
+        var ICON = { "三段式知識框": "▤", "倒敘懸念": "⏪", "綜藝爆笑": "😂", "直播帶貨": "🛒", "新聞快報": "📰", "多人對話切鏡": "👥", "金句電影字卡": "🎬" };
+        P.cut = '<div class="st-row">' + card("data-rst", "爆點跳字", "一般剪法", rs.style === "爆點跳字", true, '<i class="st-ic">✂</i>', "照順序剪，剪掉停頓口誤") +
+          Object.keys(KEEP).map(function (n) { return card("data-rst", n, n, rs.style === n, ok1(n), '<i class="st-ic">' + ICON[n] + "</i>", KEEP[n]); }).join("") + '</div><p class="st-tip">風格只改「怎麼剪」，字幕長怎樣在第一個「字幕」選。</p>';
         P.fx = '<div class="st-row">' + card("data-rfx", "", "交給 AI 挑", !rs.fx.length, true, '<i class="st-ic">AI</i>') + R.fx.map(function (x) { return card("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok, '<img src="/ai/fx/' + E(x.img) + '.jpg" alt="" loading="lazy">'); }).join("") + '</div><p class="st-tip">可以選好幾個。點一下左上角會跳示意；特效剪片時才做上去，時間點由 AI 看內容挑。</p>';
         P.mus = '<div class="st-row">' + card("data-rmus", "原創配樂", "幫我配音樂", rs.mus === "原創配樂", true, '<i class="st-ic">♪</i>') + card("data-rmus", "不要配樂", "不要音樂", rs.mus === "不要配樂", true, '<i class="st-ic">🔇</i>') + '</div><p class="st-tip">講話時音樂會自動變小聲，人聲一定聽得清楚。</p>';
       }
