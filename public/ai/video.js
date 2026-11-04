@@ -96,6 +96,16 @@
     $$("[data-who]").forEach(function (b) { b.onclick = function () { swWho = b.dataset.who; $$("[data-who]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); $("#proofRow").hidden = swWho !== "朋友授權"; }; });
     $("#swPh").onchange = function (e) { swPhotos = [].slice.call(e.target.files, 0, 3); $("#swPhMsg").textContent = swPhotos.length ? "已選 " + swPhotos.length + " 張：" + swPhotos.map(function (f) { return f.name; }).join("、") : "還沒選照片，不換人就不用選"; };
     $("#swProof").onchange = function (e) { swProof = e.target.files[0] || null; $("#swProofMsg").textContent = swProof ? "已選：" + swProof.name : "建議附上，萬一被檢舉才有證據"; };
+    // Vic 11/4：iPhone 按 ✓ 後要先整理（壓縮／從雲端下載）影片，畫面不動像壞掉——回到這頁還沒收到檔案就顯示整理中
+    (function () { var vf = $("#vf"), w = $("#vfWait"), picking = 0, t0 = 0, tm = null;
+      function tick() { if (!picking) return; var s = Math.round((Date.now() - t0) / 1000); w.hidden = false; w.textContent = "手機正在整理你選的影片…（" + s + " 秒）長片要等久一點，請不要關掉或重按。"; tm = setTimeout(tick, 1000); }
+      function back() { if (!picking || document.visibilityState !== "visible") return; setTimeout(function () { if (picking && !tm) { t0 = Date.now(); tick(); } }, 800); }
+      vf.addEventListener("click", function () { picking = 1; clearTimeout(tm); tm = null; });
+      window.addEventListener("focus", back); document.addEventListener("visibilitychange", back);
+      vf.addEventListener("cancel", function () { picking = 0; clearTimeout(tm); tm = null; w.hidden = true; });
+      vf.addEventListener("change", function () { picking = 0; clearTimeout(tm); tm = null; w.hidden = true; });
+      setInterval(function () { if (picking && tm && Date.now() - t0 > 180000) { picking = 0; clearTimeout(tm); tm = null; w.hidden = true; } }, 5000);
+    })();
     $("#vf").onchange = function (e) { var add = [].slice.call(e.target.files); add.forEach(function (f) { if (files.length < 5) files.push(f); }); e.target.value = ""; listFiles(); };
     $("#vLogo").onchange = function (e) { vlogo = e.target.files[0] || null; $("#vLogoMsg").textContent = vlogo ? "已選 logo：" + vlogo.name : "有放的話會放在影片角落"; if (logoImg) URL.revokeObjectURL(logoImg.src); logoImg = null; if (vlogo) { logoImg = new Image(); logoImg.src = URL.createObjectURL(vlogo); } $("#pvm").hidden = !vlogo && !$("#vLogoT").value.trim(); pvSync(1); fxSync(); };
     $$("[data-mus]").forEach(function (b) { b.onclick = function () { $$("[data-mus]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }; });
