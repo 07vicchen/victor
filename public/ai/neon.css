@@ -229,3 +229,7 @@ html.vai-in .adm .acc{background:#0c1a30!important}
 .sed.studio .st-dqbar button[aria-pressed=true]{background:#ffd34d;color:#2a1d00}
 .sed-rows.dqonly .sed-r:not(.dq){display:none}
 #work .sed-r.dq input[data-t],.sed.studio .sed-r.dq input[data-t]{border:2px solid #ffd34d!important;background:#2a2410!important}
+.sed.studio .sed-af{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:#3dffa8;padding:2px 0}
+.sed.studio .sed-af span{display:inline-flex;gap:6px;align-items:center;background:#0b2a22;border:1px solid #1f6b4f;border-radius:999px;padding:3px 4px 3px 10px;color:#bff5dc}
+.sed.studio .sed-af b{color:#3dffa8}
+.sed.studio .sed-af button{border:1px solid #1f6b4f;background:transparent;color:#bff5dc;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700}
