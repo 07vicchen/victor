@@ -205,7 +205,14 @@
        // Vic 11/5：改字要好打 → 字幕一句一句放最上面，其他設定收進「進階」
        (function () { var det = document.createElement("details"), dl = txtBox.querySelector("[data-dir]"), ab = txtBox.querySelector("[data-ai]"), nt0 = rowsEl.previousElementSibling; det.className = "st-adv"; det.innerHTML = "<summary>⚙ 進階：AI 幫挑句子、停頓、鉤子</summary>";
          [dl && dl.closest("label"), ab && ab.closest(".bar"), nt0 && nt0.matches("p.note") ? nt0 : null].forEach(function (el) { if (el) det.appendChild(el); }); txtBox.appendChild(det);
-         txtBox.insertAdjacentHTML("afterbegin", '<p class="st-tip">點一句就能改字，影片會停在那句給你看。✂ 剪掉、⭐ 重點、空格分行。</p>'); })();
+         txtBox.insertAdjacentHTML("afterbegin", '<p class="st-tip">點一句就能改字，影片會停在那句給你看。✂ 剪掉、⭐ 重點、空格分行。</p>');
+         // Vic 11/5：有定稿台詞就貼上，阿字照台詞的字改字幕（時間照聽寫）
+         var sc = document.createElement("details"); sc.className = "st-adv st-script"; sc.innerHTML = '<summary>📄 有台詞？貼上，字幕照台詞的字</summary><textarea data-script rows="5" maxlength="8000" placeholder="把這支的台詞整段貼上，不用管斷句和時間"></textarea><button type="button" class="btn sm" data-scriptgo>照台詞改字幕</button><p class="note" data-scriptmsg></p>';
+         txtBox.insertBefore(sc, txtBox.children[1] || null);
+         sc.querySelector("[data-scriptgo]").onclick = async function () { var b = this, m = sc.querySelector("[data-scriptmsg]"), t = sc.querySelector("[data-script]").value.trim(); if (!t) { m.textContent = "先把台詞貼上來"; return; } b.disabled = true; m.textContent = "阿字照台詞對字幕中，大約 10～30 秒…";
+           try { var r = await VAI.client().functions.invoke("ai-video-phrase", { body: { job_id: job.id, script: t, lines: lines.map(function (L) { return String(L.t).replace(/\|/g, ""); }) } }); var al = r && r.data && r.data.aligned; if (!al) throw new Error((r && r.error && r.error.message) || "AI 忙線中，等一下再按一次");
+             var n = 0; al.forEach(function (a, i) { var L = lines[i]; if (L && a && a !== L.t) { L.t = a; L.dq = []; L.af = []; n++; } }); draw(); dqBar(); m.textContent = "照台詞改好了 " + n + " 句，再看一眼就可以開剪。"; sc.open = false;
+           } catch (e) { m.textContent = e.message; } b.disabled = false; }; })();
       var miniT0 = performance.now(), miniL = 0, mini = function (nw) { if (!box.isConnected) return; if (nw && nw - miniL < 80) { requestAnimationFrame(mini); return; } miniL = nw || 0; var t = (performance.now() - miniT0) / 1000;
         var pane = room.querySelector('.st-pane:not([hidden])'); if (pane) pane.querySelectorAll('.sc[aria-pressed="true"] canvas').forEach(function (c) { drawMini(c, t); });
         requestAnimationFrame(mini); };

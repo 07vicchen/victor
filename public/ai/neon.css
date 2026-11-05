@@ -233,3 +233,5 @@ html.vai-in .adm .acc{background:#0c1a30!important}
 .sed.studio .sed-af span{display:inline-flex;gap:6px;align-items:center;background:#0b2a22;border:1px solid #1f6b4f;border-radius:999px;padding:3px 4px 3px 10px;color:#bff5dc}
 .sed.studio .sed-af b{color:#3dffa8}
 .sed.studio .sed-af button{border:1px solid #1f6b4f;background:transparent;color:#bff5dc;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700}
+.sed.studio .st-script textarea{width:100%;margin:6px 0;padding:10px!important;font-size:14px;border-radius:10px;min-height:96px}
+.sed.studio .st-script{margin:0 0 8px}
