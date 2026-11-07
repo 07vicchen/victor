@@ -162,7 +162,7 @@
     if (R) { var nt = String(job.note || ""), cut = job.mode !== "subs";
       var KEEP = { "三段式知識框": "上方大標題＋章節卡", "倒敘懸念": "精彩句放開頭＋電影黑邊", "綜藝爆笑": "1.1 倍速＋重點大字", "直播帶貨": "價格大字＋限時標籤", "新聞快報": "快報條＋跑馬燈", "多人對話切鏡": "誰講話就切誰", "金句電影字卡": "金句切黑底金字卡" };
       var st0 = KEEP[job.style] ? job.style : "爆點跳字";
-      rs = { style: st0, module: job.module || CUTMAP[job.style] || "pop", /* Vic 11/5：字幕自己選（放第一個）；風格只管剪法 */ acc: acc, spos: /字幕位置 中間/.test(nt) ? "中間" : "下方", ratio: /比例 16:9/.test(nt) ? "16:9" : "9:16", bty: (nt.match(/美顏 (輕|中)/) || [])[1] || "不要", mus: /配樂：不要配樂/.test(nt) ? "不要配樂" : "原創配樂", fx: (job.fx && !job.fx.auto && job.fx.effects) ? job.fx.effects.slice() : [], place: JSON.parse(JSON.stringify((job.fx && job.fx.place && !Array.isArray(job.fx.place)) ? job.fx.place : {})) };
+      rs = { style: st0, module: job.module || CUTMAP[job.style] || "pop", /* Vic 11/5：字幕自己選（放第一個）；風格只管剪法 */ acc: acc, spos: /字幕位置 中間/.test(nt) ? "中間" : "下方", ratio: /比例 16:9/.test(nt) ? "16:9" : "9:16", bty: (nt.match(/美顏 (輕|中)/) || [])[1] || "不要", mus: /配樂：不要配樂/.test(nt) ? "不要配樂" : "原創配樂", sfx: /音效：少量/.test(nt) ? "少量" : "不要", fx: (job.fx && !job.fx.auto && job.fx.effects) ? job.fx.effects.slice() : [], place: JSON.parse(JSON.stringify((job.fx && job.fx.place && !Array.isArray(job.fx.place)) ? job.fx.place : {})) };
       // ===== 霓虹剪輯工作室（Vic 11/5）：上面影片、下面一排發光大圖示，點了打開一排樣式小卡；字少、點了就看到 =====
       var sedEl = box.querySelector(".sed"), sedL = box.querySelector(".sed-l"), room = box.querySelector("[data-room]");
       sedEl.classList.add("studio");
@@ -193,7 +193,9 @@
           Object.keys(KEEP).map(function (n) { return card("data-rst", n, n, rs.style === n, ok1(n), '<i class="st-ic">' + ICON[n] + "</i>", KEEP[n]); }).join("") + '</div><p class="st-tip">風格只改「怎麼剪」，字幕長怎樣在第一個「字幕」選。</p>';
         var phOk = R.fx.some(function (q) { return q.id === "covers" && q.ok; });
         P.fx = '<div class="st-ph">' + (phOk ? '<div class="st-ph-row" data-phrow></div>' : '<p class="st-tip">🔒 特效裡放自己的照片，要專業方案以上</p>') + '</div><div class="st-row">' + card("data-rfx", "", "不要特效", !rs.fx.length, true, '<i class="st-ic">✕</i>') + R.fx.map(function (x) { return card("data-rfx", x.id, x.n, rs.fx.indexOf(x.id) >= 0, x.ok, '<img src="/ai/fx/' + E(x.img) + '.jpg" alt="" loading="lazy">'); }).join("") + '</div><div class="st-set" data-fxset></div><p class="st-tip">點特效，上面的影片就照成品的位置模擬。可以選好幾個；每個特效能自己選放哪一句、打要顯示的字，沒設定的由 AI 挑時間點。</p>';
-        P.mus = '<div class="st-row">' + card("data-rmus", "原創配樂", "幫我配音樂", rs.mus === "原創配樂", true, '<i class="st-ic">♪</i>') + card("data-rmus", "不要配樂", "不要音樂", rs.mus === "不要配樂", true, '<i class="st-ic">🔇</i>') + '</div><p class="st-tip">講話時音樂會自動變小聲，人聲一定聽得清楚。</p>';
+        P.mus = '<div class="st-row">' + card("data-rmus", "原創配樂", "幫我配音樂", rs.mus === "原創配樂", true, '<i class="st-ic">♪</i>') + card("data-rmus", "不要配樂", "不要音樂", rs.mus === "不要配樂", true, '<i class="st-ic">🔇</i>') + '</div><p class="st-tip">講話時音樂會自動變小聲，人聲一定聽得清楚。</p>' +
+          /* Vic 11/7：音效讓客人自己選，預設不要；音效全是程式做的，沒有版權問題 */
+          '<p class="st-l">音效</p><div class="st-row">' + card("data-rsfx", "不要", "不要音效", rs.sfx !== "少量", true, '<i class="st-ic">🔕</i>') + card("data-rsfx", "少量", "加一點音效", rs.sfx === "少量", true, '<i class="st-ic">✨</i>') + '</div><p class="st-tip">特效出現、重點字跳出來時「咻、叮」一聲，音量一定比人聲小。點「加一點音效」先聽聽看。</p>';
       }
       P.txt = '<div class="st-txt"></div>';
       P.more = (cut ? '<div class="st-line"><span class="st-l">比例</span>' + pill("data-rrat", "9:16", "直式 9:16", rs.ratio === "9:16") + pill("data-rrat", "16:9", "橫式 16:9", rs.ratio === "16:9") + '</div><div class="st-line"><span class="st-l">美顏</span>' + ["不要", "輕", "中"].map(function (v) { return pill("data-rbty", v, v, rs.bty === v); }).join("") + "</div>" : "") + '<div class="st-more"></div>';
@@ -228,8 +230,8 @@
         var lk = room.querySelector("[data-lock]"); if (lk) lk.hidden = !locked;
         room.querySelectorAll("[data-rmod]").forEach(function (b) { var v = b.getAttribute("data-rmod"); b.setAttribute("aria-pressed", String(v === rs.module)); if (b.dataset.baseOk !== "0") b.disabled = locked && v !== rs.module; });
         var id = rs.module || "pop"; try { vid.playbackRate = rs.style === "綜藝爆笑" ? 1.1 : 1; } catch (e) {} mod = (window.SUBFX && SUBFX.list.filter(function (q) { return q.id === id; })[0]) || mod; acc = rs.acc; };
-      [["data-rst", "style"], ["data-rmod", "module"], ["data-rpos", "spos"], ["data-rrat", "ratio"], ["data-rbty", "bty"], ["data-rmus", "mus"]].forEach(function (pr) {
-        room.querySelectorAll("[" + pr[0] + "]").forEach(function (b) { b.onclick = function () { rs[pr[1]] = b.getAttribute(pr[0]); press(pr[0], rs[pr[1]]); applyRoom(); var c = b.querySelector("canvas"); if (c) drawMini(c, 2.6); }; }); });
+      [["data-rst", "style"], ["data-rmod", "module"], ["data-rpos", "spos"], ["data-rrat", "ratio"], ["data-rbty", "bty"], ["data-rmus", "mus"], ["data-rsfx", "sfx"]].forEach(function (pr) {
+        room.querySelectorAll("[" + pr[0] + "]").forEach(function (b) { b.onclick = function () { rs[pr[1]] = b.getAttribute(pr[0]); if (pr[1] === "sfx" && rs.sfx === "少量") sfxPlay("sample"); press(pr[0], rs[pr[1]]); applyRoom(); var c = b.querySelector("canvas"); if (c) drawMini(c, 2.6); }; }); });
       room.querySelector("[data-racc]").oninput = function () { rs.acc = this.value; acc = rs.acc; };
       room.querySelectorAll("[data-rfx]").forEach(function (b) { b.onclick = function () { var id = b.getAttribute("data-rfx");
         if (!id) rs.fx = []; else { var k = rs.fx.indexOf(id); if (k >= 0) rs.fx.splice(k, 1); else { rs.fx.push(id); var f = R.fx.filter(function (q) { return q.id === id; })[0]; if (f) simFx(id); } if (fxSim && rs.fx.indexOf(fxSim.id) < 0) fxSim = rs.fx.length ? { id: rs.fx[rs.fx.length - 1], t0: performance.now() } : null; }
@@ -238,7 +240,9 @@
       openTab("sub"); applyRoom(); if (cut) { phLoad(); fxSet(); }
       var sub = room.querySelector(".st-sub"); if (sub) sub.addEventListener("toggle", function () { if (sub.open) sub.querySelectorAll("canvas").forEach(function (c) { drawMini(c, 2.6); }); }); requestAnimationFrame(mini); }
     // ===== 工作室裡放照片（Vic 11/5：照片要能在工作室直接放、看到放在哪）=====
-    function simFx(id) { fxSim = { id: id, t0: performance.now() }; }
+    function simFx(id) { fxSim = { id: id, t0: performance.now() }; if (rs && rs.sfx === "少量") sfxPlay(SFXOF[id] || "swipe"); }
+    var SFXOF = { bigword: "pop", hang: "pop", behind: "swish", chapters: "tap", covers: "shutter" }, SFXA = {};
+    function sfxPlay(n) { try { var a = SFXA[n] || (SFXA[n] = new Audio("/ai/sfx/" + n + ".mp3")); a.currentTime = 0; a.volume = .7; a.play().catch(function () {}); } catch (e) {} }
     function autoDest() { var d = ["featcards", "covers", "material", "pip"].filter(function (e) { return rs && rs.fx.indexOf(e) >= 0; })[0]; return d || "featcards"; }
     var simC = null, simK = "";
     function simOpts(id) { var k = id + "#" + phs.map(function (p) { return p.use + (p.im ? 1 : 0); }).join(",") + "#" + (clC ? clC.length : -1); if (simC && simK === k && clC) return simC; simK = k; simC = simOpts0(id); return simC; }
@@ -278,8 +282,8 @@
         if (pl.s != null) { stopPv(); var L = lines.filter(function (q) { return q.s === pl.s; })[0]; useSrc((L && L.src) || 0).then(function () { vid.pause(); vid.currentTime = pl.s + .05; }); }
         var c = sel.closest(".st-set-c"); if (c) c.querySelector("small").textContent = (pl.line ? fmtT(pl.s) + "・" + pl.line.slice(0, 8) : "AI 挑位置") + (pl.word ? "・「" + pl.word + "」" : ""); }; });
       el.querySelectorAll("[data-plword]").forEach(function (inp) { inp.oninput = function () { var id = inp.dataset.plword, pl = rs.place[id] || {}; pl.word = inp.value.trim(); if (!pl.word) delete pl.word; rs.place[id] = pl; simC = null; plSave(); if (!fxSim || fxSim.id !== id) simFx(id); }; }); }
-    function roomNote() { var base = String(job.note || "").replace(/（(重點字顏色 [^）]*|字幕大小 [^）]*|配樂：[^）]*|美顏 [^）]*|比例 [^）]*|字幕位置 [^）]*)）/g, ""), sz = +box.querySelector("[data-size]").value, szt = sz <= .8 ? "小" : sz >= 1.05 ? "大" : "中";
-      return base + "（重點字顏色 " + rs.acc + "）（字幕大小 " + szt + "）" + (job.mode === "subs" ? "" : "（配樂：" + rs.mus + "）" + (rs.bty === "不要" ? "" : "（美顏 " + rs.bty + "）") + (rs.ratio === "16:9" ? "（比例 16:9）" : "") + (rs.spos === "中間" ? "（字幕位置 中間）" : "")); }
+    function roomNote() { var base = String(job.note || "").replace(/（(重點字顏色 [^）]*|字幕大小 [^）]*|配樂：[^）]*|音效：[^）]*|美顏 [^）]*|比例 [^）]*|字幕位置 [^）]*)）/g, ""), sz = +box.querySelector("[data-size]").value, szt = sz <= .8 ? "小" : sz >= 1.05 ? "大" : "中";
+      return base + "（重點字顏色 " + rs.acc + "）（字幕大小 " + szt + "）" + (job.mode === "subs" ? "" : "（配樂：" + rs.mus + "）" + (rs.sfx === "少量" ? "（音效：少量）" : "") + (rs.bty === "不要" ? "" : "（美顏 " + rs.bty + "）") + (rs.ratio === "16:9" ? "（比例 16:9）" : "") + (rs.spos === "中間" ? "（字幕位置 中間）" : "")); }
     async function saveRoom(c) { if (!rs) return { error: null }; var note = roomNote(), r = await c.rpc("ai_job_setup", { p_id: job.id, p_style: job.mode === "subs" ? null : rs.style, p_module: rs.module, p_note: note, p_effects: job.mode === "subs" ? null : rs.fx });
       if (!r.error) { job.note = note; if (job.mode !== "subs") job.style = rs.style; job.module = rs.module || null; } return r; }
     // 客人自己改過的字（例如把「溪之」改成「汐止」）記進常用詞，下次聽寫就會寫對
